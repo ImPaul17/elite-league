@@ -4,7 +4,7 @@ export function canStartUserPreview(viewer, passwordRecovery = false) {
   return Boolean(viewer?.role === "admin" && !viewer.requiresPasswordChange && !passwordRecovery);
 }
 
-export function createPreviewViewer(account, clubs, afterPasswordChange = false) {
+export function createPreviewViewer(account, clubs) {
   if (!account?.userId || account.isAdmin || !account.username || !clubs.some((club) => club.id === account.clubId)) return null;
   return {
     id: account.userId,
@@ -12,7 +12,9 @@ export function createPreviewViewer(account, clubs, afterPasswordChange = false)
     username: account.username,
     clubId: account.clubId,
     role: "president",
-    requiresPasswordChange: Boolean(account.requiresPasswordChange && !afterPasswordChange),
+    // Admin preview opens the club workspace directly. This projection never
+    // updates the owner's real password requirement or authenticated session.
+    requiresPasswordChange: false,
     source: "preview",
   };
 }

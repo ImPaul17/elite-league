@@ -13,7 +13,6 @@ const UserPreviewContext = createContext(null);
 export function UserPreviewProvider({ children }) {
   const actual = useLeague();
   const [preview, setPreview] = useState(null);
-  const [afterPasswordChange, setAfterPasswordChange] = useState(false);
   const [notice, setNotice] = useState(null);
   const [barHeight, setBarHeight] = useState(0);
   const barRef = useRef(null);
@@ -23,13 +22,12 @@ export function UserPreviewProvider({ children }) {
   const allowed = canStartUserPreview(actual.viewer, actual.passwordRecovery);
   const active = Boolean(allowed && preview?.ownerId === actual.viewer?.id);
   const projectedViewer = active && preview.status === "ready"
-    ? createPreviewViewer(preview.account, actual.league.clubs, afterPasswordChange) : null;
+    ? createPreviewViewer(preview.account, actual.league.clubs) : null;
 
   const stop = useCallback(() => {
     requestRef.current += 1;
     previewWriteGuard.setLocked(false);
     setPreview(null);
-    setAfterPasswordChange(false);
     setNotice(null);
     navigate("/club/admin");
   }, []);
@@ -43,7 +41,6 @@ export function UserPreviewProvider({ children }) {
     const isCurrent = () => request === requestRef.current && actualRef.current.viewer?.id === ownerId
       && canStartUserPreview(actualRef.current.viewer, actualRef.current.passwordRecovery);
     previewWriteGuard.setLocked(true);
-    setAfterPasswordChange(false);
     setNotice(null);
     setPreview({ ownerId, clubId, status: "loading" });
     try {
@@ -60,7 +57,7 @@ export function UserPreviewProvider({ children }) {
       if (!isCurrent()) return;
       setPreview({ ownerId, clubId, status: "ready", account, lineups,
         accounts: result.accounts.filter((candidate) => createPreviewViewer(candidate, origin.league.clubs)) });
-      navigate(account.requiresPasswordChange ? "/cuenta" : "/club");
+      navigate("/club");
     } catch (error) {
       if (isCurrent()) setPreview({ ownerId, clubId, status: "error", error: error.message || "No se ha podido cargar la vista del usuario." });
     }
@@ -72,7 +69,6 @@ export function UserPreviewProvider({ children }) {
     requestRef.current += 1;
     previewWriteGuard.setLocked(false);
     setPreview(null);
-    setAfterPasswordChange(false);
     setNotice(null);
     return () => { requestRef.current += 1; previewWriteGuard.setLocked(false); };
   }, [actual.viewer?.id, allowed]);
@@ -119,10 +115,6 @@ export function UserPreviewProvider({ children }) {
     };
   }, [actual, guardedActions, projectedViewer, preview?.lineups, notice, stop]);
   const controls = { active, allowed, start, stop };
-  const changeOnboarding = (checked) => {
-    setAfterPasswordChange(checked);
-    navigate(checked ? "/club" : "/cuenta");
-  };
 
   return <UserPreviewContext.Provider value={controls}><div className={active ? "user-preview-shell" : undefined} style={active ? { "--user-preview-height": `${barHeight}px` } : undefined}>
     {active && <aside ref={barRef} className="user-preview-bar" aria-label="Vista de usuario en toda la web">
@@ -130,7 +122,6 @@ export function UserPreviewProvider({ children }) {
         <div className="user-preview-summary"><strong>{preview.status === "ready" ? `Viendo como ${preview.account.username}` : "Vista de usuario"}</strong><span>Toda la web · Solo lectura · Tu sesión de administrador sigue abierta</span></div>
         {preview.status === "ready" && <label className="user-preview-select"><span>Presidente</span><select aria-label="Presidente" value={preview.clubId} onChange={(event) => start(event.target.value)}>{preview.accounts.map((account) => <option key={account.userId} value={account.clubId}>{account.username}</option>)}</select></label>}
         <button className="button button-outline" type="button" onClick={stop}>Salir de vista de usuario</button>
-        {preview.account?.requiresPasswordChange && <label className="user-preview-onboarding"><input type="checkbox" checked={afterPasswordChange} onChange={(event) => changeOnboarding(event.target.checked)} /><span>Ver después del cambio de contraseña <small>{afterPasswordChange ? "Simulación: su contraseña real no se ha cambiado." : "Esta cuenta aún debe cambiar su contraseña temporal al entrar."}</small></span></label>}
       </div>
     </aside>}
     {active && !projectedViewer ? <main className="shell user-preview-loading" aria-live="polite">

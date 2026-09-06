@@ -9,6 +9,7 @@ import {
   guardPreviewActions,
   projectPreviewLeague,
 } from "./userPreview.js";
+import { resolveClubPortalAccess } from "./clubWorkspace.js";
 
 const clubs = Object.freeze([
   Object.freeze({ id: "pico-fc" }),
@@ -45,13 +46,13 @@ test("la proyección rechaza cuentas incompletas, administrativas y de clubes aj
   assert.equal(createPreviewViewer(presidentAccount, []), null);
 });
 
-test("la identidad proyectada conserva el usuario y su estado sin alterar la cuenta ni el administrador", () => {
+test("la identidad proyectada abre el panel sin alterar la cuenta real ni el administrador", () => {
   const beforeAccount = structuredClone(presidentAccount);
   const beforeAdministrator = structuredClone(administrator);
   const projected = createPreviewViewer(presidentAccount, clubs);
   assert.deepEqual(projected, {
     id: "president-coca", name: "Álvaro S.", username: "alvaro.coca", clubId: "ca-coca-jrs",
-    role: "president", requiresPasswordChange: true, source: "preview",
+    role: "president", requiresPasswordChange: false, source: "preview",
   });
   assert.notEqual(projected, presidentAccount);
   assert.deepEqual(presidentAccount, beforeAccount);
@@ -59,11 +60,33 @@ test("la identidad proyectada conserva el usuario y su estado sin alterar la cue
   assert.equal(createPreviewViewer({ ...presidentAccount, name: "" }, clubs).name, "alvaro.coca");
 });
 
-test("simular el cambio de contraseña afecta solo a la proyección y conserva el estado real", () => {
-  assert.equal(createPreviewViewer(presidentAccount, clubs, true).requiresPasswordChange, false);
+test("la vista administrativa omite siempre el paso temporal sin marcar la contraseña real como cambiada", () => {
+  assert.equal(createPreviewViewer(presidentAccount, clubs).requiresPasswordChange, false);
   assert.equal(presidentAccount.requiresPasswordChange, true);
-  assert.equal(createPreviewViewer(presidentAccount, clubs).requiresPasswordChange, true);
   assert.equal(createPreviewViewer({ ...presidentAccount, requiresPasswordChange: false }, clubs).requiresPasswordChange, false);
+});
+
+test("el portal abre directamente en preview mientras exige el cambio al presidente real", () => {
+  const beforeAccount = structuredClone(presidentAccount);
+  const projected = createPreviewViewer(presidentAccount, clubs);
+  const actualPresident = Object.freeze({
+    id: presidentAccount.userId, name: presidentAccount.name, username: presidentAccount.username,
+    clubId: presidentAccount.clubId, role: "president", source: "supabase",
+    requiresPasswordChange: presidentAccount.requiresPasswordChange,
+  });
+  const previewAccess = resolveClubPortalAccess(projected, clubs);
+  assert.equal(previewAccess.status, "ready");
+  assert.equal(previewAccess.club.id, "ca-coca-jrs");
+  assert.equal(resolveClubPortalAccess(actualPresident, clubs).status, "password-change");
+  assert.equal(actualPresident.requiresPasswordChange, true);
+  assert.deepEqual(presidentAccount, beforeAccount);
+
+  const guard = createPreviewWriteGuard();
+  guard.setLocked(true);
+  let writes = 0;
+  const save = guard.wrap(() => { writes += 1; });
+  assert.deepEqual(save(), { ok: false, error: PREVIEW_READ_ONLY_MESSAGE });
+  assert.equal(writes, 0);
 });
 
 function createLeagueFixture() {
@@ -97,7 +120,7 @@ function createLeagueFixture() {
 test("la liga proyectada oculta noticias privadas y auditoría y limita alineaciones al club y fase actual", () => {
   const { league, lineups } = createLeagueFixture();
   const before = structuredClone(league);
-  const viewer = createPreviewViewer(presidentAccount, clubs, true);
+  const viewer = createPreviewViewer(presidentAccount, clubs);
   const projected = projectPreviewLeague(league, viewer, lineups);
   assert.notEqual(projected, league);
   assert.deepEqual(projected.adminNews, []);
@@ -110,9 +133,9 @@ test("la liga proyectada oculta noticias privadas y auditoría y limita alineaci
   assert.deepEqual(league, before);
 });
 
-test("una cuenta con cambio pendiente no recibe alineaciones aunque estén cargadas en memoria", () => {
+test("el filtro defensivo sigue ocultando alineaciones cuando recibe una identidad con cambio pendiente", () => {
   const { league, lineups } = createLeagueFixture();
-  const viewer = createPreviewViewer(presidentAccount, clubs);
+  const viewer = { ...createPreviewViewer(presidentAccount, clubs), requiresPasswordChange: true };
   const projected = projectPreviewLeague(league, viewer, lineups);
   assert.deepEqual(projected.lineups, []);
   assert.deepEqual(projected.adminNews, []);
@@ -121,7 +144,7 @@ test("una cuenta con cambio pendiente no recibe alineaciones aunque estén carga
 
 test("sin una lectura privada explícita no se reutilizan alineaciones de la sesión administrativa", () => {
   const { league } = createLeagueFixture();
-  const viewer = createPreviewViewer(presidentAccount, clubs, true);
+  const viewer = createPreviewViewer(presidentAccount, clubs);
   assert.deepEqual(projectPreviewLeague(league, viewer).lineups, []);
   assert.deepEqual(projectPreviewLeague({ ...league, matchdays: [] }, viewer, league.lineups).lineups, []);
 });
