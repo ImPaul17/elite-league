@@ -1,4 +1,4 @@
-import { accountIdentifier, normalizeUsername, validUsername, passwordError } from "../_shared/accountRules.js";
+import { accountIdentifier, normalizeUsername, validUsername, passwordError, temporaryPasswordError } from "../_shared/accountRules.js";
 
 const options = { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } };
 
@@ -60,7 +60,7 @@ return async (request) => {
 
     if (action === "reset") {
       if (typeof payload.userId !== "string" || payload.userId === user.id) return reply({ error: "Para tu propia cuenta utiliza Cambiar contraseña." }, 400);
-      const validation = passwordError(payload.password);
+      const validation = temporaryPasswordError(payload.password);
       if (validation) return reply({ error: validation }, 400);
       const { data: target } = await service.from("profiles").select("id, username, global_role").eq("id", payload.userId).maybeSingle();
       const { data: member } = await service.from("club_memberships").select("id").eq("user_id", payload.userId).eq("role", "president").eq("is_active", true).limit(1);
@@ -77,7 +77,7 @@ return async (request) => {
     if (action !== "create") return reply({ error: "Acción no válida." }, 400);
     const username = normalizeUsername(payload.username);
     const displayName = typeof payload.displayName === "string" ? payload.displayName.trim() : "";
-    const validation = passwordError(payload.password);
+    const validation = temporaryPasswordError(payload.password);
     if (!validUsername(username) || !displayName || displayName.length > 80 || typeof payload.clubSlug !== "string") return reply({ error: "Revisa el usuario, nombre y club." }, 400);
     if (validation) return reply({ error: validation }, 400);
     const { data: club, error: clubError } = await service.from("clubs").select("id, name").eq("slug", payload.clubSlug).eq("is_active", true).maybeSingle();

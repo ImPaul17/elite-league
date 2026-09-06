@@ -4,7 +4,8 @@ begin;
 alter table public.profiles add column if not exists username text;
 alter table public.profiles add column if not exists must_change_password boolean not null default false;
 create unique index if not exists profiles_username_unique on public.profiles (username) where username is not null;
-alter table public.profiles add constraint profiles_username_format check (username is null or username ~ '^[a-z0-9][a-z0-9._-]{2,31}$');
+-- Canonical president/club alias. Auth maps the slash to --; neither part permits hyphens.
+alter table public.profiles add constraint profiles_username_format check (username is null or username ~ '^[a-z0-9]{1,24}/[a-z0-9]{1,20}$');
 
 -- These columns are managed only by the server, not by profile metadata.
 revoke update on public.profiles from authenticated;

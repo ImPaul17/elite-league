@@ -146,9 +146,16 @@ El procedimiento incremental y los pendientes de prueba están en `ACTIVACION_CU
 
 ### Cierre de esta tanda de desarrollo
 
-- 49/49 tests y compilación de producción correctos. Corregidos marcadores vacíos convertidos en cero, penaltis inválidos y doble publicación por clic repetido.
+- 58/58 tests y compilación de producción correctos. Corregidos marcadores vacíos convertidos en cero, penaltis inválidos y doble publicación por clic repetido. Probado el formato `presidente/club` y la separación entre contraseñas temporales de siete caracteres y definitivas de 12–128.
 - Prueba local de Noticias: borrador oculto → publicación → detalle con párrafos/enlaces → retirada y vuelta a oculto. Sin datos ficticios en Supabase.
 - Revisión visual a 390 × 844: título de Patrocinadores ajustado; «Mi cuenta» y cierre de sesión accesibles en el menú móvil. Acceso por usuario revisado en escritorio.
 - Verificación de solo lectura en Supabase: 12 clubes, 11 jornadas, 66 partidos, cero jugadores/noticias; perfiles, membresías y auditoría protegidos frente a visitantes.
 - Rama de preparación subida: `codex/preparacion-lanzamiento`, commit de código `cd0f536`. `main` y el despliegue público no deben actualizarse hasta activar Supabase y pasar la prueba real de acceso.
 - SQL incremental y función `club-accounts` preparados en sus editores, **sin ejecutar ni desplegar**. La confirmación previa de cambio de permisos queda pendiente.
+
+### Preparación de los doce accesos
+
+- Usuarios definidos a partir de los presidentes y abreviaturas actuales; solo `pablo/pico` tendrá administración. Los otros once tendrán su membresía de presidente.
+- Credenciales temporales únicas preparadas fuera del proyecto web y del repositorio, marcadas como pendientes de creación. No se han enviado contraseñas a GitHub ni se han creado usuarios todavía.
+- Diagnóstico SQL de solo lectura en Supabase: cero usuarios Auth, cero administradores, cero membresías, cero columnas de la migración 0003 y doce clubes activos. La activación remota sigue pendiente.
+- Ayudante local regenerado con el nuevo formato. No reutilizar código o SQL antiguo que haya quedado abierto en los editores del navegador.

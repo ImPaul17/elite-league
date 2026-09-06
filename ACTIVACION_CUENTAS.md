@@ -13,9 +13,9 @@ Estado: implementado y probado con servicios simulados; pendiente de activar y c
 
 ## Primer administrador
 
-La aplicación no permite crear administradores desde el navegador. Pablo debe elegir el nombre de usuario inicial y establecer la contraseña de forma privada en Supabase. No compartirla por el chat.
+La aplicación no permite crear administradores desde el navegador. La primera cuenta será `pablo/pico`. Se crea desde Authentication → Users → Add user → Create new user del proyecto Supabase, con confirmación automática y una contraseña temporal privada. No usar Invite ni insertar filas manualmente en `auth.users` o `auth.identities`.
 
-Supabase Auth conserva internamente el identificador `usuario@accounts.eliteleague.qd.je`, confirmado al crear la cuenta administrativa. **No es un correo de contacto ni se envían mensajes**. La interfaz pública pide únicamente usuario y contraseña. Los usuarios se normalizan a minúsculas, con 3–32 caracteres ASCII: letras, números, punto, guion o guion bajo.
+Supabase Auth conserva internamente el identificador `presidente--club@accounts.eliteleague.qd.je`: para Pablo, `pablo--pico@accounts.eliteleague.qd.je`. **No es un correo de contacto ni se envían mensajes**. La interfaz pública pide únicamente usuario y contraseña. El formato visible es `presidente/clubabreviado`, con letras ASCII minúsculas o números, sin tildes ni espacios: 1–24 caracteres antes de la barra y 1–20 después. Se normalizan mayúsculas y espacios exteriores; no se admiten guiones, puntos o espacios interiores. La sustitución de la barra por `--` es inequívoca.
 
 Una vez creada la cuenta y comprobado su UUID real, el operador del proyecto asigna el perfil usando una consulta acotada a ese UUID:
 
@@ -30,7 +30,11 @@ No ejecutar los marcadores literalmente. Si también va a presidir Pico FC, aña
 
 ## Presidentes
 
-En Administración → Usuarios de los clubes: introducir nombre, usuario, club y contraseña temporal de 12–128 caracteres. Entregar las credenciales por un canal privado; es preferible una contraseña temporal distinta por persona. No se envía correo ni se guardan contraseñas en tablas o auditoría.
+En Administración → Usuarios de los clubes: introducir nombre, usuario, club y contraseña temporal de exactamente seis dígitos más una letra o símbolo final (`! @ # $ % & ?`): siete caracteres en total. Antes de aprovisionar, comprobar que la política de Supabase permite estas temporales; no debilitar los ajustes del proveedor automáticamente. Son contraseñas cortas para el primer acceso, no definitivas: entregar cada una en privado y cambiarla cuanto antes por una distinta de 12–128 caracteres. Cada persona tendrá una temporal diferente. No se envía correo ni se guardan contraseñas en tablas o auditoría.
+
+`node scripts/prepare-president-credentials.mjs RUTA_ABSOLUTA_FUERA_DEL_PROYECTO` prepara un archivo privado con credenciales aleatorias para los doce clubes activos. No crea cuentas ni conecta con Supabase; el archivo indica expresamente que está pendiente de activar. No subirlo a GitHub ni servirlo desde la web. No sobrescribe credenciales ya preparadas.
+
+Usuarios previstos: `pablo/pico`, `alvaros/coca`, `juan/urss`, `bea/bee`, `danir/mugiwaras`, `alfonso/impuestos`, `maki/maki`, `adrian/lego`, `alvarog/rayo`, `pedro/estaross`, `isaac/karasuno` y `danid/caudillo`. Solo Pablo tendrá administración; las otras once cuentas tendrán acceso a su club.
 
 En el primer acceso se exige cambiar la contraseña. «Mi cuenta» solicita la actual y una nueva distinta. Administración puede restablecer el acceso de un presidente, pero no cambiar la contraseña de otro administrador desde este formulario. Si se pierde la cuenta administrativa, la recuperación corresponde al propietario del proyecto en Supabase.
 

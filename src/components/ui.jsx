@@ -229,7 +229,7 @@ function AuthDialog({ isOpen, onClose }) {
           <form className="stack-form" onSubmit={handleProductionSubmit}>
             <label>
               Usuario
-              <input type="text" value={username} onChange={(event) => setUsername(event.target.value)} required minLength={3} maxLength={32} autoComplete="username" autoCapitalize="none" spellCheck={false} disabled={busy} />
+              <input type="text" value={username} onChange={(event) => setUsername(event.target.value)} required minLength={3} maxLength={45} placeholder="presidente/club" autoComplete="username" autoCapitalize="none" spellCheck={false} disabled={busy} />
             </label>
             <label>
               Contraseña

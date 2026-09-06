@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLeague } from "../context/LeagueContext";
 import { EmptyState, Notice } from "./ui";
 import { manageClubAccount } from "../lib/clubAccounts";
-import { normalizeUsername, validUsername, passwordError } from "../../supabase/functions/_shared/accountRules.js";
+import { normalizeUsername, validUsername, temporaryPasswordError } from "../../supabase/functions/_shared/accountRules.js";
 
 export function ClubAccountManager() {
   const { league, viewer, isDemoMode } = useLeague();
@@ -39,7 +39,7 @@ export function ClubAccountManager() {
     event.preventDefault();
     if (busyRef.current) return;
     const selectedPassword = action === "create" ? password : resetPassword;
-    const validation = passwordError(selectedPassword) || (action === "create" && !validUsername(normalizeUsername(username)) ? "El usuario debe tener entre 3 y 32 caracteres: letras sin tildes, números, punto, guion o guion bajo." : "");
+    const validation = temporaryPasswordError(selectedPassword) || (action === "create" && !validUsername(normalizeUsername(username)) ? "Usa presidente/clubabreviado, en minúsculas y sin espacios. Por ejemplo: pablo/pico." : "");
     if (validation) { setFeedback({ error: validation }); return; }
     busyRef.current = true;
     setBusy(true);
@@ -59,12 +59,12 @@ export function ClubAccountManager() {
 
   if (isDemoMode) return <Notice tone="info">La creación y el restablecimiento de cuentas solo están disponibles en producción para administración. No se crean usuarios ficticios desde la demostración.</Notice>;
   return <div className="account-manager">
-    <p>Crea un usuario por presidente y entrégale una contraseña temporal. Tendrá que cambiarla antes de utilizar su panel. Es preferible una contraseña temporal distinta para cada persona.</p>
+    <p>Usa presidente/clubabreviado, sin tildes ni espacios. Entrega a cada persona una contraseña temporal distinta: seis números y una letra o símbolo al final. Tendrá que cambiarla antes de utilizar su panel.</p>
     <form className="stack-form" onSubmit={(event) => submit(event, "create")} aria-busy={busy}>
       <label>Nombre del presidente<input value={displayName} onChange={(event) => setDisplayName(event.target.value)} maxLength={80} required disabled={busy} autoComplete="off" /></label>
-      <label>Usuario<input value={username} onChange={(event) => setUsername(event.target.value)} minLength={3} maxLength={32} required disabled={busy} autoCapitalize="none" autoComplete="off" spellCheck={false} /></label>
+      <label>Usuario<input value={username} onChange={(event) => setUsername(event.target.value)} minLength={3} maxLength={45} placeholder="pablo/pico" required disabled={busy} autoCapitalize="none" autoComplete="off" spellCheck={false} /></label>
       <label>Club<select value={clubSlug} onChange={(event) => setClubSlug(event.target.value)} required disabled={busy}>{league.clubs.map((club) => <option value={club.id} key={club.id}>{club.name}</option>)}</select></label>
-      <label>Contraseña temporal<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} minLength={12} maxLength={128} required disabled={busy} autoComplete="new-password" /></label>
+      <label>Contraseña temporal<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} minLength={7} maxLength={7} required disabled={busy} autoComplete="new-password" /></label>
       <button type="submit" className="button button-primary" disabled={busy || feedback?.partial}>{busy ? "Procesando…" : "Crear cuenta de presidente"}</button>
     </form>
     {feedback && <p role={feedback.error ? "alert" : "status"} className={feedback.error ? "form-error" : "notice notice-info"}>{feedback.error || feedback.message}</p>}
@@ -78,7 +78,7 @@ export function ClubAccountManager() {
         {!account.isAdmin && account.username && account.userId !== viewer.id && <button className="button button-outline" type="button" disabled={busy} onClick={() => { setResetId(account.userId); setResetPassword(""); setFeedback(null); }}>Restablecer contraseña</button>}
         {resetId === account.userId && <form className="stack-form account-reset" onSubmit={(event) => submit(event, "reset")}>
           <p>Se sustituirá la contraseña de <strong>{account.username}</strong> y se exigirá cambiarla al entrar.</p>
-          <label>Nueva contraseña temporal<input type="password" value={resetPassword} onChange={(event) => setResetPassword(event.target.value)} minLength={12} maxLength={128} required disabled={busy} autoComplete="new-password" /></label>
+          <label>Nueva contraseña temporal<input type="password" value={resetPassword} onChange={(event) => setResetPassword(event.target.value)} minLength={7} maxLength={7} required disabled={busy} autoComplete="new-password" /></label>
           <div className="button-row"><button className="button button-primary" type="submit" disabled={busy}>Confirmar restablecimiento</button><button className="button button-quiet" type="button" disabled={busy} onClick={() => { setResetId(""); setResetPassword(""); }}>Cancelar</button></div>
         </form>}
       </div>)}
