@@ -339,9 +339,10 @@ export function AppFooter() {
         id="footer-sponsors"
         className="footer-sponsors"
         role="region"
-        aria-label="Patrocinadores de Elite League"
+        aria-labelledby="footer-sponsors-title"
         tabIndex={0}
       >
+        <h2 id="footer-sponsors-title" className="footer-sponsors-title">Patrocinadores oficiales</h2>
         <div className="footer-sponsors-track">
           {/* The PNG includes the spacing at its left edge: no extra gap at the loop seam.
               A third copy also covers ultrawide screens while the first copy scrolls out. */}

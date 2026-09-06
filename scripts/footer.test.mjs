@@ -6,6 +6,12 @@ const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 const footer = read("../src/components/ui.jsx").split("export function AppFooter() {")[1];
 const css = read("../src/components/footer.css");
 
+test("el título de patrocinadores queda encima y fuera de la tira animada", () => {
+  assert.match(footer, /aria-labelledby="footer-sponsors-title"/);
+  assert.match(footer, /<h2 id="footer-sponsors-title" className="footer-sponsors-title">Patrocinadores oficiales<\/h2>\s+<div className="footer-sponsors-track">/);
+  assert.match(css, /\.footer-sponsors-title\s*\{[^}]*font-weight: 820;[^}]*text-align: center;[^}]*text-transform: uppercase;/);
+});
+
 test("el footer conserva la tira original y su proporción de 9669 por 200", () => {
   const png = readFileSync(new URL("../public/sponsors/sponsor-strip-white.png", import.meta.url));
   assert.equal(png.subarray(1, 4).toString(), "PNG");
