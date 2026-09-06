@@ -59,7 +59,7 @@ export function ClubKits({ club }) {
             return (
               <figure className={`club-kit${isFullKit ? " is-full-kit" : ""}`} key={`${selectedSplit}-${kit.id}`}>
                 {isFullKit ? (
-                  <div className="club-kit-open club-kit-static" aria-label={`Equipación ${kit.label.toLocaleLowerCase("es")} de ${club.name}`}>
+                  <div className="club-kit-static">
                     {image}
                   </div>
                 ) : (

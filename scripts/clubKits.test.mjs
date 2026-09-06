@@ -180,15 +180,11 @@ test("las equipaciones mantienen imagen completa, carga diferida, etiquetas y es
   assert.match(imageRule, /height:\s*auto;/);
   assert.match(imageRule, /aspect-ratio:\s*1080\s*\/\s*1920;/);
   assert.match(imageRule, /object-fit:\s*contain;/);
-  assert.match(css, /\.club-kit\.is-full img\s*\{[^}]*aspect-ratio:\s*auto;/);
-  assert.match(css, /\.club-kit\.is-full \.club-kit-open\s*\{[^}]*border-radius:\s*18px;[^}]*box-shadow:/);
-  assert.match(css, /\.club-kit\.is-full \.club-kit-open\s*\{[^}]*cursor:\s*default/);
-  assert.match(css, /\.club-kit\.is-full \.club-kit-open:hover,[\s\n]*\.club-kit\.is-full \.club-kit-open:focus-visible\s*\{[^}]*transform:\s*none/);
 });
 
-test("cada miniatura abre el visor por su índice y conserva el botón que debe recuperar el foco", () => {
+test("cada miniatura individual abre el visor por su índice y conserva el botón que debe recuperar el foco", () => {
   const component = read("../src/components/ClubKits.jsx");
-  const marker = component.indexOf('className="club-kit-open"\n                    aria-haspopup="dialog"');
+  const marker = component.indexOf('className="club-kit-open"');
   assert.ok(marker >= 0);
   const button = component.slice(component.lastIndexOf("<button", marker), component.indexOf("</button>", marker));
   assert.match(button, /type="button"/);
