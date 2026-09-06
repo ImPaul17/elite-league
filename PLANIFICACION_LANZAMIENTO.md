@@ -12,7 +12,7 @@ El acceso será con **nombre de usuario asignado por la organización y contrase
 
 Frontend y función segura de cuentas implementados localmente. Falta aplicar la migración 0003, desplegar las funciones y probar cuentas autorizadas. El identificador interno de Supabase no exige que el presidente tenga correo. Conviene entregar una contraseña temporal distinta por cuenta y solicitar su cambio en el primer acceso.
 
-Avance local en revisión: acceso por usuario, gestión de presidentes, cambio obligatorio de contraseña, editor completo de Noticias, página de Patrocinadores en espera del material, estados sin jugadores y mejoras de accesibilidad. Pruebas unitarias y compilación correctas; QA local del borrador → publicación → retirada comprobada sin escribir en producción. Todavía no se han subido estos cambios a GitHub ni se ha probado el guardado con una cuenta real. DNS/HTTPS siguen pendientes según la última comprobación documentada.
+Avance local en revisión: acceso por usuario, gestión de presidentes, cambio obligatorio de contraseña, editor completo de Noticias, página de Patrocinadores en espera del material, estados sin jugadores y mejoras de accesibilidad. Pruebas unitarias y compilación correctas; QA local del borrador → publicación → retirada comprobada sin escribir en producción. Los cambios están respaldados en la rama `codex/preparacion-lanzamiento` de GitHub; todavía no están en `main` ni se ha probado el guardado con una cuenta real. DNS/HTTPS siguen pendientes según la última comprobación documentada.
 
 ## Resultado que queremos entregar
 
@@ -150,5 +150,5 @@ El procedimiento incremental y los pendientes de prueba están en `ACTIVACION_CU
 - Prueba local de Noticias: borrador oculto → publicación → detalle con párrafos/enlaces → retirada y vuelta a oculto. Sin datos ficticios en Supabase.
 - Revisión visual a 390 × 844: título de Patrocinadores ajustado; «Mi cuenta» y cierre de sesión accesibles en el menú móvil. Acceso por usuario revisado en escritorio.
 - Verificación de solo lectura en Supabase: 12 clubes, 11 jornadas, 66 partidos, cero jugadores/noticias; perfiles, membresías y auditoría protegidos frente a visitantes.
-- Rama de preparación prevista: `codex/preparacion-lanzamiento`. `main` y el despliegue público no deben actualizarse hasta activar Supabase y pasar la prueba real de acceso.
+- Rama de preparación subida: `codex/preparacion-lanzamiento`, commit de código `cd0f536`. `main` y el despliegue público no deben actualizarse hasta activar Supabase y pasar la prueba real de acceso.
 - SQL incremental y función `club-accounts` preparados en sus editores, **sin ejecutar ni desplegar**. La confirmación previa de cambio de permisos queda pendiente.
