@@ -145,7 +145,7 @@ Una alineación es una instantánea del partido, no una referencia mutable a la 
 
 ### Playoffs
 
-El bracket debe ser configurable por temporada. El material histórico de Split 3 incluye un play-in entre 10.º y 11.º, mientras que un reglamento anterior habla de top 10. Por eso no se ha codificado una única fórmula fija: el modelo contiene fases, clubes de fase y reglas JSON para construir cada edición correctamente.
+Formato de Split 3 confirmado por la organización: los once primeros acceden a la fase final. El 1.º pasa directamente a semifinales, del 2.º al 4.º a cuartos y del 5.º al 9.º a octavos. El 10.º y el 11.º disputan entre sí la última plaza de octavos; el 12.º queda eliminado. Se juegan un partido de acceso, tres octavos, tres cuartos, dos semifinales y la final. Esta confirmación sustituye al top 10 del reglamento antiguo. Los destinos por posición y las rondas se conservan en `src/data/split3Playoffs.js`; los equipos de los cruces siguen «Por decidir».
 
 ## Supabase: puesta en producción
 
@@ -235,7 +235,7 @@ El flujo recomendado es:
 
 Quedan como decisiones de reglamento antes de activar el flujo en una competición real:
 
-- Formato definitivo de playoffs por cada split.
+- Emparejamientos y fechas definitivos de playoffs; el acceso por posición del Split 3 ya está confirmado arriba.
 - Orden final de desempates si la tabla sigue igualada.
 - Sanciones por amarillas, tarjeta azul e incomparecencias.
 - Quién puede confirmar resultados y cómo se resuelven incidencias.

@@ -333,7 +333,7 @@ export function AppFooter() {
           <p>Competición oficial de FC Rush creada para que cada jornada cuente.</p>
         </div>
         <div className="footer-links">
-          <AppLink to="/competicion">Formato y reglas</AppLink>
+          <AppLink to="/competicion">Competición</AppLink>
           <AppLink to="/partidos">Calendario</AppLink>
           <AppLink to="/noticias">Actualidad</AppLink>
           <AppLink to="/patrocinadores">Patrocinadores</AppLink>

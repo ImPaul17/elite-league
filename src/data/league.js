@@ -42,8 +42,8 @@ export const COMPETITION_RULES = {
   },
   tiebreakers: ["Puntos", "Diferencia de goles", "Goles a favor", "Victorias", "Nombre del club"],
   playoff: {
-    label: "Formato configurable por temporada",
-    note: "El formato histórico de Split 3 contempla un play-in entre 10.º y 11.º. Se mantendrá editable desde administración.",
+    label: "Playoffs del Split 3",
+    note: "Los once primeros acceden a la fase final. El 10.º y el 11.º disputan la última plaza de octavos; el 12.º queda eliminado.",
   },
 };
 

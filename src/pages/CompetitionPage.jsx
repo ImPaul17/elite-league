@@ -1,33 +1,57 @@
-import { Notice, PageHero, SectionHeading } from "../components/ui";
+import { siteAsset } from "../components/ui";
 import { COMPETITION_RULES } from "../data/league";
-import { useLeague } from "../context/LeagueContext";
+import { SPLIT_3_PLAYOFF_QUALIFICATION } from "../data/split3Playoffs";
+import "./competition-page.css";
+
+const scoring = [
+  { key: "win", label: "Victoria" },
+  { key: "penaltyWin", label: "Victoria por penaltis" },
+  { key: "penaltyLoss", label: "Derrota por penaltis" },
+  { key: "loss", label: "Derrota" },
+];
 
 export function CompetitionPage() {
-  const { league } = useLeague();
   return (
-    <>
-      <PageHero eyebrow="Elite League" title="La competición" description="Un ecosistema competitivo de FC Rush donde la temporada regular, los resultados y los playoffs forman una historia única." meta={<span>{league.clubs.length} equipos · {league.matchdays.length} jornadas</span>} />
-      <section className="competition-grid reveal-item">
-        <article className="format-card"><p className="eyebrow">Temporada regular</p><strong>11 jornadas</strong><span>Todos contra todos a una vuelta. Cada partido alimenta la clasificación oficial.</span></article>
-        <article className="format-card"><p className="eyebrow">En el campo</p><strong>4 + 1</strong><span>Cuatro jugadores de campo y un portero por equipo en cada jornada.</span></article>
-        <article className="format-card"><p className="eyebrow">Puntuación</p><strong>3 · 2 · 1 · 0</strong><span>Victoria, victoria por penaltis, derrota por penaltis y derrota.</span></article>
-      </section>
-      <section className="two-column-page">
-        <div className="panel reveal-item">
-          <SectionHeading eyebrow="Formato" title="Camino al playoff" />
-          <ol className="competition-timeline">
-            <li><span>01</span><div><strong>Fase regular</strong><p>Las 11 jornadas determinan la posición de cada club.</p></div></li>
-            <li><span>02</span><div><strong>Clasificación y desempates</strong><p>Puntos, diferencia de goles, goles a favor y victorias ordenan la tabla.</p></div></li>
-            <li><span>03</span><div><strong>Eliminatorias configurables</strong><p>El bracket de cada split se administra sin fijar el formato en el código.</p></div></li>
-            <li><span>04</span><div><strong>Campeón de Elite League</strong><p>La fase final decide el título de la temporada.</p></div></li>
-          </ol>
-        </div>
-        <aside className="info-sidebar reveal-item">
-          <div className="info-card"><p className="eyebrow">Reglas de puntuación</p><p>Victoria {COMPETITION_RULES.points.win} pts · Victoria por penaltis {COMPETITION_RULES.points.penaltyWin} pts · Derrota por penaltis {COMPETITION_RULES.points.penaltyLoss} pt.</p></div>
-          <Notice tone="warning">{COMPETITION_RULES.playoff.note}</Notice>
-          <Notice tone="info">El reglamento definitivo y las sanciones por tarjeta se publicarán desde esta misma sección cuando estén aprobados.</Notice>
-        </aside>
-      </section>
-    </>
+    <article className="competition-page">
+      <header className="competition-identity">
+        <h1>
+          <span className="visually-hidden">Elite League · Competición</span>
+          <span className="competition-logo" aria-hidden="true" style={{ "--competition-logo-image": `url("${siteAsset("/logos/logo-elite-league.svg")}")` }} />
+        </h1>
+      </header>
+
+      <div className="competition-info-grid">
+        <section className="panel competition-info-card" aria-labelledby="competition-regular-title">
+          <h2 className="eyebrow" id="competition-regular-title">Fase regular</h2>
+          <p className="competition-key-figure">12 equipos<span>11 jornadas</span></p>
+          <p>Los doce equipos disputan una liga de once jornadas, todos contra todos a una sola vuelta. Cada club se enfrenta una vez a los otros once.</p>
+          <p>Se juegan seis partidos por jornada: un total de 66 encuentros que determinan la clasificación y el acceso a la fase final.</p>
+          <p className="competition-card-note">FC Rush · Cuatro jugadores de campo y un portero por equipo.</p>
+        </section>
+
+        <section className="panel competition-info-card" aria-labelledby="competition-scoring-title">
+          <h2 className="eyebrow" id="competition-scoring-title">Puntuación</h2>
+          <dl className="competition-points">
+            {scoring.map(({ key, label }) => <div key={key}>
+              <dt>{label}</dt>
+              <dd>{COMPETITION_RULES.points[key]}<span>{COMPETITION_RULES.points[key] === 1 ? "punto" : "puntos"}</span></dd>
+            </div>)}
+          </dl>
+          <p className="competition-card-note">Si el partido termina en empate, la tanda de penaltis decide el ganador y el reparto de puntos.</p>
+        </section>
+
+        <section className="panel competition-info-card competition-playoffs-card" aria-labelledby="competition-playoffs-title">
+          <h2 className="eyebrow" id="competition-playoffs-title">Fase final · Playoffs</h2>
+          <p className="competition-playoffs-intro">Al terminar las once jornadas, los once primeros equipos acceden a la fase final. Su posición en la liga determina la ronda en la que comienzan.</p>
+          <dl className="competition-qualification">
+            {SPLIT_3_PLAYOFF_QUALIFICATION.map(({ id, label, round, description }) => <div key={id}>
+              <dt>{label}</dt>
+              <dd><h3>{round}</h3><p>{description}</p></dd>
+            </div>)}
+          </dl>
+          <p className="competition-card-note">Los ganadores avanzan de ronda hasta la final, donde se decide el campeón de los playoffs.</p>
+        </section>
+      </div>
+    </article>
   );
 }
