@@ -76,7 +76,7 @@ export function ClubPortalPage({ previewClubId = null }) {
           : <FormationBuilder key={`${club.id}:${formationMatch.id}`} clubId={club.id} match={formationMatch} readOnly={isPreview || !access.canWrite} lineups={lineups} />}
       </section>
       <section className="content-section"><SectionHeading title="Calendario y resultados" />{fixtures.length ? <div className="fixture-grid compact-fixture-grid">{fixtures.map((fixture) => <FixtureCard match={fixture} key={fixture.id} showMatchday />)}</div> : <EmptyState title="Sin partidos registrados" />}</section>
-      <section className="club-edition-section"><SectionHeading title="Clasificación" />{standings.length === 12 ? <div className="club-edition-standings-board"><OfficialStandingsBoard standings={standings} editionId="split-3" /></div> : <div className="panel"><StandingsTable standings={standings} compact /></div>}</section>
+      <section className="club-edition-section content-section"><SectionHeading title="Clasificación" />{standings.length === 12 ? <div className="club-edition-standings-board"><OfficialStandingsBoard standings={standings} editionId="split-3" /></div> : <div className="panel"><StandingsTable standings={standings} compact /></div>}</section>
     </article>
   </>;
 }
