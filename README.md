@@ -4,7 +4,7 @@ Web oficial de **Elite League**, una competición de FC Rush 5v5. Este repositor
 
 > Estado comprobado el 6 de septiembre de 2026: el código está en [ImPaul17/elite-league](https://github.com/ImPaul17/elite-league) y el primer despliegue de GitHub Pages ha terminado correctamente. Supabase está conectado con 12 clubes, 11 jornadas y 66 partidos, sin jugadores ni noticias de muestra. GitHub ha verificado la propiedad de `eliteleague.qd.je`; la delegación y los registros DNS autoritativos son correctos. Siguen pendientes la actualización de cachés DNS, la comprobación DNS de Pages, HTTPS y la revisión pública de la web. La nueva versión de acceso por usuario, el editor de Noticias y Patrocinadores están implementados localmente; siguen pendientes su activación y las pruebas con cuentas reales, además de la retirada de una copia remota errónea. Véase `PLANIFICACION_LANZAMIENTO.md` para el estado de entrega.
 
-Alcance vigente de patrocinadores, actualizado el 6 de septiembre: la página de Patrocinadores mencionada en el registro anterior ha sido eliminada, junto con su ruta y sus enlaces; no es una tarea pendiente. Las marcas aparecen exclusivamente en el footer: Elite League y Powered by adidas en blanco, centrados y alineados, y debajo la tira PNG de patrocinadores a ancho de pantalla, en una marquesina lenta continua. No hay botón de pausa ni pausa al pasar el ratón; se respeta la preferencia de movimiento reducido.
+Alcance vigente de patrocinadores, actualizado el 6 de septiembre: la página de Patrocinadores mencionada en el registro anterior ha sido eliminada, junto con su ruta y sus enlaces; no es una tarea pendiente. Las marcas aparecen exclusivamente en el footer: Elite League y adidas en blanco, centrados y alineados, y debajo la tira PNG de patrocinadores a ancho de pantalla, en una marquesina lenta continua. No hay botón de pausa ni pausa al pasar el ratón; se respeta la preferencia de movimiento reducido.
 
 ![Tarjeta de Elite League](public/og.png)
 
@@ -18,7 +18,7 @@ Alcance vigente de patrocinadores, actualizado el 6 de septiembre: la página de
 - Archivo de resultados de Split 1, Split 2 y Elite Cup: clasificación calculada, partidos de fase regular o grupos y eliminatorias por club.
 - Calendario de Partidos con selector por edición: Split 3 actual, Split 1, Split 2 y Elite Cup, incluidos filtros de grupos y play-offs históricos.
 - Páginas de estadísticas, noticias, formato de competición y reglamento operativo.
-- Patrocinadores exclusivamente en el footer, con los logos blancos de Elite League y Powered by adidas y una tira PNG en bucle lento continuo, sin botón de pausa ni pausa por hover.
+- Patrocinadores exclusivamente en el footer, con los logos blancos de Elite League y adidas y una tira PNG en bucle lento continuo, sin botón de pausa ni pausa por hover.
 - Portal de presidente: calendario, resultados y clasificación de su club. Jugadores y alineaciones quedan inactivos para este lanzamiento.
 - Panel de administración para jornadas, horarios, resultados, Noticias y usuarios de presidentes; «Mi cuenta» para cambiar contraseña.
 - Fichas institucionales de los 12 clubes con año de fundación, presidencia, colores representativos y palmarés competitivo.

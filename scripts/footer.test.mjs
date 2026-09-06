@@ -36,7 +36,11 @@ test("Patrocinadores ya no tiene página, ruta ni enlace de navegación", () => 
 
 test("el footer conserva ambas marcas y elimina la frase anterior", () => {
   assert.match(footer, /alt="Elite League"/);
-  assert.match(footer, /alt="Powered by adidas"/);
+  assert.match(footer, /src=\{siteAsset\("\/sponsors\/adidas\.png"\)\} alt="adidas" width="900" height="536"/);
+  const adidas = readFileSync(new URL("../public/sponsors/adidas.png", import.meta.url));
+  assert.equal(adidas.readUInt32BE(16), 900);
+  assert.equal(adidas.readUInt32BE(20), 536);
+  assert.doesNotMatch(footer, /Powered by adidas|powered-by-adidas/);
   assert.match(css, /filter: brightness\(0\) invert\(1\)/);
   assert.doesNotMatch(footer, /Competición oficial de FC Rush|creada para que cada jornada cuente/);
 });

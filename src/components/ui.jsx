@@ -333,7 +333,7 @@ export function AppFooter() {
         <AppLink to="/" className="footer-brand-link" aria-label="Elite League, inicio">
           <img className="footer-league-logo" src={siteAsset("/logos/logo-elite-league.svg")} alt="Elite League" width="1000" height="340" />
         </AppLink>
-        <img className="footer-adidas-logo" src={siteAsset("/sponsors/powered-by-adidas.png")} alt="Powered by adidas" width="1920" height="542" />
+        <img className="footer-adidas-logo" src={siteAsset("/sponsors/adidas.png")} alt="adidas" width="900" height="536" />
       </div>
       <div
         id="footer-sponsors"

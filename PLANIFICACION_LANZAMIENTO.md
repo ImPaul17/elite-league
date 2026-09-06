@@ -20,7 +20,7 @@ Registro de una tanda anterior: acceso por usuario, gestión de presidentes, cam
 
 ### Decisión actual de patrocinadores — confirmada por Pablo el 6 de septiembre
 
-Se elimina completamente la página de Patrocinadores, su ruta y sus enlaces. Las referencias a esa página en los registros anteriores son históricas: no se planifica reconstruirla ni se considera pendiente de contenido. Los patrocinadores aparecen exclusivamente en el footer, con Elite League y Powered by adidas blancos, centrados y alineados, y debajo la tira PNG ya facilitada a ancho de pantalla. La marquesina es lenta y continua, sin botón de pausa ni pausa al pasar el ratón; se mantiene el respeto de la preferencia de movimiento reducido.
+Se elimina completamente la página de Patrocinadores, su ruta y sus enlaces. Las referencias a esa página en los registros anteriores son históricas: no se planifica reconstruirla ni se considera pendiente de contenido. Los patrocinadores aparecen exclusivamente en el footer, con Elite League y adidas blancos, centrados y alineados, y debajo la tira PNG ya facilitada a ancho de pantalla. La marquesina es lenta y continua, sin botón de pausa ni pausa al pasar el ratón; se mantiene el respeto de la preferencia de movimiento reducido.
 
 ## Resultado que queremos entregar
 
@@ -80,7 +80,7 @@ Todas las filas son necesarias para el alcance descrito, salvo los elementos dep
 | 5 | Noticias | Crear y editar título, resumen, cuerpo y portada; destacar, publicar y retirar una noticia. Incluir el tráiler mediante vídeo o enlace. Sustituir las noticias de ejemplo. | Codex; Pablo aprueba contenido | Texto, portada y URL del tráiler. La programación automática no es necesaria si se publica manualmente. |
 | 6 | Calendario e información | Fecha de inicio, jornadas, horas y fases finales coherentes en Inicio, Partidos y fichas de equipo. Reglas y comunicados revisados. | Pablo confirma; Codex integra | Una única lista definitiva de fechas e información. |
 | 7 | Tráiler del tercer split | Guion, selección de material, montaje, revisión, exportación, miniatura y vídeo subido con enlace comprobable. | Pablo | Material audiovisual, mensaje principal y fechas aprobadas. |
-| 8 | Patrocinadores en el footer | Elite League y Powered by adidas blancos, centrados y alineados; tira PNG a ancho de pantalla en bucle lento continuo, sin botón de pausa ni pausa por hover. Sin página ni enlace a Patrocinadores. | Codex + revisión visual de Pablo | Logos y tira PNG ya facilitados. |
+| 8 | Patrocinadores en el footer | Elite League y adidas blancos, centrados y alineados; tira PNG a ancho de pantalla en bucle lento continuo, sin botón de pausa ni pausa por hover. Sin página ni enlace a Patrocinadores. | Codex + revisión visual de Pablo | Logos y tira PNG ya facilitados. |
 | 9 | Acabado público | Inicio preparado para el regreso; contenido claro; selectores, tamaños, colores y animaciones coherentes. Estados sin jugadores resueltos. | Codex + revisión visual de Pablo | Bloques editoriales anteriores. |
 | 10 | Pruebas y entrega | Recorrido completo en móvil y escritorio, acceso real, persistencia, enlaces y versión final comprobados. | Codex + revisión final de Pablo | Todo lo anterior. |
 
