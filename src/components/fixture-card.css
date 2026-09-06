@@ -116,7 +116,7 @@
 .fixture-versus { left: 50%; color: #a9a9a9; font-size: max(15px, 2.133cqw); }
 .fixture-penalties {
   position: absolute;
-  top: 56.3%;
+  top: 58.5%;
   left: 50%;
   display: grid;
   justify-items: center;
@@ -125,9 +125,9 @@
   color: #3f7c35;
   line-height: 1;
 }
-.fixture-penalties small { font-size: max(8px, .993cqw); text-transform: uppercase; }
+.fixture-penalties small { font-size: max(9px, 1.1cqw); text-transform: uppercase; }
 .fixture-penalties > span { display: flex; align-items: center; gap: max(7px, 1.1cqw); }
-.fixture-penalties b { font-size: max(11px, 1.39cqw); font-weight: inherit; }
+.fixture-penalties b { font-size: max(12px, 1.5cqw); font-weight: inherit; }
 .fixture-penalties i { color: #a9a9a9; font-size: max(8px, .763cqw); font-style: normal; }
 .fixture-date { right: 5%; bottom: 8%; left: 5%; color: #a9a9a9; font-size: max(10px, 1.1cqw); text-align: center; }
 
@@ -149,6 +149,6 @@
   .fixture-goals-away { left: 59%; }
   .fixture-goals { font-size: 22px; }
   .fixture-versus { font-size: 14px; }
-  .fixture-penalties { top: 55%; }
+  .fixture-penalties { top: 58%; }
   .fixture-date { bottom: 7%; }
 }
