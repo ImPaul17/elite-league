@@ -1,6 +1,8 @@
 import { supabase } from "./supabase";
+import { PREVIEW_READ_ONLY_MESSAGE, previewWriteGuard } from "./userPreview";
 
 export async function manageClubAccount(action, input = {}) {
+  if (action !== "list" && previewWriteGuard.isLocked()) return { ok: false, error: PREVIEW_READ_ONLY_MESSAGE };
   if (!supabase) return { ok: false, error: "La gestión de cuentas reales no está disponible en la demostración." };
   try {
     const { data, error } = await supabase.functions.invoke("club-accounts", { body: { ...input, action } });

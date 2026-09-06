@@ -28,7 +28,7 @@ import { formatNewsDate, getPublishedNews, newsPublicationDate, validateNewsInpu
 import { accountIdentifier } from "../../supabase/functions/_shared/accountRules.js";
 import { validateMatchResultInput } from "../lib/matchResultInput";
 
-const LeagueContext = createContext(null);
+export const LeagueContext = createContext(null);
 const EVENT_TYPES = new Set(["goal", "assist", "mvp", "yellow_card", "blue_card", "red_card"]);
 const MATCHDAY_STATUSES = new Set(["scheduled", "current", "completed"]);
 

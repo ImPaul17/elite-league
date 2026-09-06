@@ -3,6 +3,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { getRouteParts, readHashRoute } from "./routes";
 import { ActionToast, AppFooter, AppHeader, Notice, PageHero } from "./components/ui";
 import { LeagueProvider, useLeague } from "./context/LeagueContext";
+import { UserPreviewProvider } from "./context/UserPreviewContext";
 import { AdminPage } from "./pages/AdminPage";
 import { AccountPage } from "./pages/AccountPage";
 import { SponsorsPage } from "./pages/SponsorsPage";
@@ -158,5 +159,5 @@ function AppContent() {
 }
 
 export default function App() {
-  return <LeagueProvider><AppContent /></LeagueProvider>;
+  return <LeagueProvider><UserPreviewProvider><AppContent /></UserPreviewProvider></LeagueProvider>;
 }

@@ -5,38 +5,24 @@ import { AppLink, EmptyState, Notice, PageHero, SectionHeading } from "../compon
 import { ClubAreaNavigation } from "../components/ClubAreaNavigation";
 import { getClubFixtures, getNextClubFixture } from "../lib/leagueEngine";
 import { useLeague } from "../context/LeagueContext";
+import { useUserPreview } from "../context/UserPreviewContext";
 import { PLAYER_FEATURES_ENABLED } from "../lib/releaseFeatures";
 import { resolveClubPortalAccess } from "../lib/clubWorkspace";
-import { loadPrivateLineups } from "../lib/leagueRepository";
-import { navigate } from "../routes";
 import { AccountPage } from "./AccountPage";
 import { ClubProfileIdentity, ClubProfileOverview } from "./TeamPage";
 
 export function ClubPortalPage({ previewClubId = null }) {
-  const { league, standings, viewer, isDemoMode } = useLeague();
-  const access = resolveClubPortalAccess(viewer, league.clubs, previewClubId);
-  const { club, isPreview = false } = access;
+  const { league, standings, viewer, isUserPreview } = useLeague();
+  const userPreview = useUserPreview();
+  const access = resolveClubPortalAccess(viewer, league.clubs, isUserPreview ? null : previewClubId);
+  const { club } = access;
   const fixtures = useMemo(() => club ? getClubFixtures(league.matchdays, club.id) : [], [club?.id, league.matchdays]);
   const nextFixture = club ? getNextClubFixture(league.matchdays, club.id) : null;
   const [formationMatchId, setFormationMatchId] = useState("");
-  const [previewLineups, setPreviewLineups] = useState({ status: "idle", rows: [], clubId: null, viewerId: null });
 
   useEffect(() => {
     if (!fixtures.some((fixture) => fixture.id === formationMatchId)) setFormationMatchId(nextFixture?.id ?? fixtures[0]?.id ?? "");
   }, [formationMatchId, fixtures, nextFixture?.id]);
-
-  useEffect(() => {
-    let active = true;
-    setPreviewLineups({ status: "idle", rows: [], clubId: null, viewerId: null });
-    if (!isPreview || !club || !PLAYER_FEATURES_ENABLED || isDemoMode) return () => { active = false; };
-    setPreviewLineups({ status: "loading", rows: [], clubId: club.id, viewerId: viewer.id });
-    loadPrivateLineups({ clubId: club.id, league }).then((rows) => {
-      if (active) setPreviewLineups({ status: "ready", rows: rows.filter((row) => row.clubId === club.id && fixtures.some((fixture) => fixture.id === row.matchId)), clubId: club.id, viewerId: viewer.id });
-    }).catch(() => {
-      if (active) setPreviewLineups({ status: "error", rows: [], clubId: club.id, viewerId: viewer.id });
-    });
-    return () => { active = false; };
-  }, [isPreview, club?.id, viewer?.id, isDemoMode, fixtures, league]);
 
   if (access.status === "anonymous") return <><PageHero title="Mi equipo" description="Tu club, su plantilla y las alineaciones de cada jornada." /><Notice tone="info">Inicia sesión desde «Acceso clubes» para abrir tu equipo.</Notice></>;
   if (access.status === "password-change") return <AccountPage key={viewer.id} />;
@@ -45,18 +31,15 @@ export function ClubPortalPage({ previewClubId = null }) {
 
   const players = league.players.filter((player) => player.clubId === club.id && player.status === "active");
   const formationMatch = fixtures.find((fixture) => fixture.id === formationMatchId) ?? nextFixture ?? fixtures[0] ?? null;
-  const ownClub = league.clubs.find((candidate) => candidate.id === viewer.clubId);
-  const previewDataMatches = previewLineups.clubId === club.id && previewLineups.viewerId === viewer.id;
-  const lineups = isPreview && !isDemoMode ? (previewDataMatches ? previewLineups.rows : []) : league.lineups.filter((row) => row.clubId === club.id);
+  const lineups = league.lineups.filter((row) => row.clubId === club.id);
   return <>
-    {!isPreview && <ClubAreaNavigation />}
-    {viewer.role === "admin" && <section className={`club-preview-controls${isPreview ? " is-preview" : ""}`} aria-label="Vista de los presidentes">
-      <label>Ver como usuario<select value={isPreview ? club.id : ""} onChange={(event) => navigate(event.target.value ? `/club?preview=${encodeURIComponent(event.target.value)}` : "/club")}>
-        <option value="">Mi equipo{ownClub ? ` · ${ownClub.name}` : ""}</option>
-        {league.clubs.map((candidate) => <option key={candidate.id} value={candidate.id}>{candidate.founder} · {candidate.name}</option>)}
+    <ClubAreaNavigation />
+    {userPreview?.allowed && !isUserPreview && <section className="club-preview-controls" aria-label="Vista de los presidentes">
+      <label>Ver como usuario<select value="" onChange={(event) => { if (event.target.value) userPreview.start(event.target.value); }}>
+        <option value="">Seleccionar presidente</option>
+        {league.clubs.filter((candidate) => candidate.id !== viewer.clubId).map((candidate) => <option key={candidate.id} value={candidate.id}>{candidate.founder} · {candidate.name}</option>)}
       </select></label>
-      <div className="club-preview-description"><strong>{isPreview ? `Vista previa · ${club.name}` : "Vista de cada presidente"}</strong><p>{isPreview ? "Solo lectura. Sigues conectado con tu cuenta de administrador; no se enviarán cambios en nombre de este usuario." : "Selecciona un equipo para comprobar cómo ve su página el presidente."}</p></div>
-      {isPreview && <div className="button-row"><AppLink className="button button-outline" to="/club">Volver a mi equipo</AppLink><AppLink className="button button-quiet" to="/club/admin">Volver al panel</AppLink></div>}
+      <div className="club-preview-description"><strong>Vista de cada presidente</strong><p>Recorre toda la web con la identidad y los permisos visibles de ese usuario: cabecera, páginas públicas, Mi cuenta y Mi equipo. Sin modificar cuentas ni datos.</p></div>
     </section>}
     <article className="club-profile-page club-portal-page" style={{ "--club-accent": club.color ?? "#3f7c35" }}>
       <ClubProfileIdentity club={club} />
@@ -71,9 +54,7 @@ export function ClubPortalPage({ previewClubId = null }) {
         {formationMatch && <div className="club-lineups-fixture"><FixtureCard match={formationMatch} showMatchday /></div>}
         {!PLAYER_FEATURES_ENABLED ? <EmptyState title="Alineaciones pendientes de habilitar" description="Cuando estén registrados los jugadores, podrás elegir la plantilla para cada jornada desde este apartado." />
           : !formationMatch ? <EmptyState title="Sin jornadas disponibles" />
-          : isPreview && !isDemoMode && (!previewDataMatches || previewLineups.status === "loading" || previewLineups.status === "idle") ? <Notice tone="info">Cargando la alineación de este equipo…</Notice>
-          : isPreview && previewLineups.status === "error" ? <Notice tone="warning">No se ha podido cargar la alineación de este equipo. Vuelve a seleccionar el equipo para reintentarlo.</Notice>
-          : <FormationBuilder key={`${club.id}:${formationMatch.id}`} clubId={club.id} match={formationMatch} readOnly={isPreview || !access.canWrite} lineups={lineups} />}
+          : <FormationBuilder key={`${club.id}:${formationMatch.id}`} clubId={club.id} match={formationMatch} readOnly={isUserPreview || !access.canWrite} lineups={lineups} />}
       </section>
       <section className="content-section"><SectionHeading title="Calendario y resultados" />{fixtures.length ? <div className="fixture-grid compact-fixture-grid">{fixtures.map((fixture) => <FixtureCard match={fixture} key={fixture.id} showMatchday />)}</div> : <EmptyState title="Sin partidos registrados" />}</section>
       <section className="club-edition-section content-section"><SectionHeading title="Clasificación" />{standings.length === 12 ? <div className="club-edition-standings-board"><OfficialStandingsBoard standings={standings} editionId="split-3" /></div> : <div className="panel"><StandingsTable standings={standings} compact /></div>}</section>

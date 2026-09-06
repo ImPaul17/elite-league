@@ -137,7 +137,7 @@ export function ClubAccountManager() {
       {displayedAccounts.map((account) => <div className="account-manager-row" key={`${account.userId}-${account.clubId}`}>
         <div className="club-account-details"><strong>{account.name || account.username}</strong><span>{account.username || "Usuario pendiente"} · {account.clubName}</span><small>{account.isAdmin ? "Administración · " : ""}{isDemoMode ? "Demostración" : account.requiresPasswordChange ? "Cambio de contraseña pendiente" : "Cuenta preparada"}</small></div>
         <div className="club-account-actions">
-          <AppLink className="button button-quiet" to={`/club?preview=${encodeURIComponent(account.clubId)}`} aria-label={`Ver como usuario de ${account.clubName}`}>Ver como usuario</AppLink>
+          {!account.isAdmin && <AppLink className="button button-quiet" to={`/club?preview=${encodeURIComponent(account.clubId)}`} aria-label={`Ver como usuario de ${account.clubName}`}>Ver como usuario</AppLink>}
           {!account.isAdmin && account.username && account.userId !== viewer.id && <button className="button button-outline" type="button" disabled={busy || isDemoMode} onClick={() => startReset(account)}>Restablecer contraseña</button>}
           {account.userId === viewer.id && <AppLink className="text-button" to="/cuenta">Cambiar mi contraseña</AppLink>}
         </div>

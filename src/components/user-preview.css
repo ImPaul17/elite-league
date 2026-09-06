@@ -1,0 +1,21 @@
+.user-preview-bar { position: sticky; top: 0; z-index: 50; border-bottom: 1px solid #52713e; background: #172114; color: var(--ink); }
+.user-preview-shell .site-header { top: var(--user-preview-height, 0px); }
+.user-preview-inner { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding-top: 12px; padding-bottom: 12px; }
+.user-preview-summary { flex: 1 1 290px; min-width: 0; display: grid; gap: 4px; }
+.user-preview-summary strong { font-size: .86rem; overflow-wrap: anywhere; }
+.user-preview-summary > span { color: var(--muted); font-size: .7rem; line-height: 1.4; }
+.user-preview-select { display: flex; align-items: center; gap: 8px; font-size: .72rem; min-width: 0; }
+.user-preview-select select { min-height: 36px; max-width: 210px; }
+.user-preview-onboarding { display: flex; align-items: flex-start; gap: 9px; flex: 1 1 100%; color: var(--muted); font-size: .73rem; cursor: pointer; }
+.user-preview-onboarding input { width: 16px; height: 16px; min-height: 16px; flex: 0 0 16px; margin: 1px 0 0; padding: 0; accent-color: var(--green); }
+.user-preview-onboarding small { margin-left: 8px; font-size: .68rem; }
+.user-preview-loading { padding-top: 50px; }
+@media (max-width: 640px) {
+  .user-preview-inner { gap: 9px 12px; }
+  .user-preview-summary { flex-basis: 100%; }
+  .user-preview-select { flex: 1 1 80px; }
+  .user-preview-select > span { display: none; }
+  .user-preview-select select { width: 100%; max-width: 100%; }
+  .user-preview-inner > .button { font-size: .6rem; padding: 0 9px; }
+  .user-preview-onboarding small { display: block; margin: 3px 0 0; }
+}
