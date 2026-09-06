@@ -122,7 +122,7 @@ export function ClubKitDialog({ club, kits, splitLabel, initialIndex = 0, onClos
 
         <footer className="club-crest-dialog-details" aria-live="polite">
           <span className="club-crest-dialog-count">{activeIndex + 1} / {kitCount}</span>
-          <div><p>{selectedKit.label}</p><strong>{splitLabel}</strong></div>
+          <div>{selectedKit.id !== "full" && <p>{selectedKit.label}</p>}<strong>{splitLabel}</strong></div>
           <div className="club-crest-dialog-pagination" role="group" aria-label="Seleccionar equipación">
             {kits.map((kit, index) => <button type="button" className={index === activeIndex ? "is-active" : ""} key={kit.id} aria-label={`Ver equipación ${kit.label.toLocaleLowerCase("es")}`} aria-pressed={index === activeIndex} onClick={() => setSelectedIndex(index)} />)}
           </div>

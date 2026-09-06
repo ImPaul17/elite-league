@@ -63,7 +63,7 @@ export function getClubKits(clubId, splitId = "split-3") {
     if (!FULL_KIT_CLUB_IDS[splitId]?.has(clubId)) return [];
     return [{
       id: "full",
-      label: "Las tres equipaciones",
+      label: "Vista completa",
       src: `/clubs/kits/${splitId}/${clubId}-full.png`,
       width: splitId === "split-1" ? 1920 : 1468,
       height: 1080,

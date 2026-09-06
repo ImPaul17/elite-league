@@ -83,7 +83,7 @@ test("las imágenes completas de Split 1 y Split 2 conservan sus proporciones y 
       const [kit] = getClubKits(clubId, splitId);
       assert.deepEqual(kit, {
         id: "full",
-        label: "Las tres equipaciones",
+        label: "Vista completa",
         src: `/clubs/kits/${splitId}/${clubId}-full.png`,
         width: expectedWidth,
         height: 1080,
@@ -156,6 +156,9 @@ test("los botones usan KIT_SPLITS y deshabilitan solo las ediciones sin material
   assert.match(component, /setSelectedSplit\(split\.id\)/);
   assert.match(component, /is-full-kit-grid/);
   assert.match(component, /is-full-kit/);
+  assert.match(component, /motion\.span className="club-kits-splits-indicator"/);
+  assert.match(component, /useReducedMotion\(\)/);
+  assert.doesNotMatch(component, /Las tres equipaciones/);
 });
 
 test("las equipaciones mantienen imagen completa, carga diferida, etiquetas y estado vacío", () => {
@@ -176,6 +179,8 @@ test("las equipaciones mantienen imagen completa, carga diferida, etiquetas y es
   assert.match(imageRule, /aspect-ratio:\s*1080\s*\/\s*1920;/);
   assert.match(imageRule, /object-fit:\s*contain;/);
   assert.match(css, /\.club-kit\.is-full img\s*\{[^}]*aspect-ratio:\s*auto;/);
+  assert.match(css, /\.club-kit\.is-full \.club-kit-open\s*\{[^}]*border-radius:\s*18px;[^}]*box-shadow:/);
+  assert.match(css, /\.club-kit\.is-full \.club-kit-open:hover\s*\{[^}]*transform:\s*translateY/);
 });
 
 test("cada miniatura abre el visor por su índice y conserva el botón que debe recuperar el foco", () => {

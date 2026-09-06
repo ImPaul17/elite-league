@@ -1,11 +1,12 @@
 import { useCallback, useRef, useState } from "react";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { KIT_SPLITS, getClubKits } from "../data/clubKits";
 import { ClubKitDialog } from "./ClubKitDialog";
 import { SectionHeading, siteAsset } from "./ui";
 import "./club-kits.css";
 
 export function ClubKits({ club }) {
+  const reduceMotion = useReducedMotion();
   const [selectedSplit, setSelectedSplit] = useState("split-3");
   const [openIndex, setOpenIndex] = useState(null);
   const triggerRef = useRef(null);
@@ -33,7 +34,8 @@ export function ClubKits({ club }) {
                   className={selected ? "is-active" : ""}
                   onClick={() => setSelectedSplit(split.id)}
                 >
-                  {split.label}
+                  {selected && <motion.span className="club-kits-splits-indicator" layoutId={`club-kits-split-indicator-${club.id}`} transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 460, damping: 34, mass: 0.65 }} />}
+                  <span>{split.label}</span>
                 </button>
               );
             })}
@@ -63,7 +65,7 @@ export function ClubKits({ club }) {
                   decoding="async"
                 />
               </button>
-              <figcaption>{kit.label}</figcaption>
+              {kit.id !== "full" && <figcaption>{kit.label}</figcaption>}
             </figure>
           ))}
         </div>
