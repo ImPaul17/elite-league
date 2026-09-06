@@ -46,7 +46,6 @@ export function ClubPortalPage({ previewClubId = null }) {
       <ClubProfileOverview club={club} />
       <section className="club-portal-overview">
         <div className="panel"><SectionHeading title="Mi plantilla" />{PLAYER_FEATURES_ENABLED && players.length ? <div className="roster-list">{players.map((player) => <div key={player.id}><span>{player.shirtNumber ?? "—"}</span><strong>{player.name}</strong><small>{player.positionGroup === "GK" ? "Portero" : "Campo"}</small></div>)}</div> : <EmptyState title="Plantilla pendiente" description="Los jugadores de tu equipo aparecerán aquí cuando se incorporen." />}</div>
-        <div className="panel"><SectionHeading title="Próximo partido" />{nextFixture ? <FixtureCard match={nextFixture} emphasize /> : <EmptyState title="Sin partidos pendientes" />}</div>
       </section>
       <section className="panel club-lineups-panel" aria-labelledby="club-lineups-title">
         <SectionHeading title="Alineaciones por jornada" id="club-lineups-title" />
