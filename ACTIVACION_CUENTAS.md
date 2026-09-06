@@ -6,6 +6,7 @@ Estado: implementado y probado con servicios simulados; pendiente de activar y c
 
 1. Revisar y ejecutar solo `supabase/migrations/0003_username_accounts_and_news_audit.sql`. No repetir 0001, 0002 ni el seed en producción.
 2. Desplegar `club-accounts` y la versión desactivada de `invite-president`. La configuración versionada mantiene verificación de identidad dentro de las funciones (`auth.getUser`) y comprueba el rol en `profiles`, nunca en metadatos modificables por el usuario.
+   - Atención al editor del Dashboard: una función nueva se crea con `verify_jwt: true`, aunque el archivo local diga lo contrario. El propietario debe abrir Details de `club-accounts`, desactivar **Verify JWT with legacy secret** y guardar. La función mantiene su propia validación de sesión y permisos. No cambiar claves de firma ni otros ajustes del proyecto. Los redespliegues posteriores desde Code conservan ese ajuste. [Código oficial del editor](https://github.com/supabase/supabase/blob/master/apps/studio/pages/project/%5Bref%5D/functions/new.tsx).
 3. Mantener `ALLOWED_ORIGINS` limitado a los orígenes de la web y localhost de desarrollo. Las claves `SUPABASE_SERVICE_ROLE_KEY` se utilizan solo en el servidor, nunca en Vite ni GitHub.
 4. Después de comprobar el servicio, publicar el frontend en GitHub Pages. No dar por terminado el acceso por ver una compilación correcta.
 
