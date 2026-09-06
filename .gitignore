@@ -1,0 +1,29 @@
+# Dependencias y compilados
+node_modules/
+dist/
+.vite/
+
+# Variables privadas
+.env
+.env.*
+!.env.example
+
+# Registros y herramientas locales
+*.log
+.codex-*.log
+coverage/
+.DS_Store
+Thumbs.db
+
+# Recursos locales que no deben entrar en el repositorio ni en el despliegue
+private-design/
+private-data/
+public/psd/*.psd
+
+# Copias históricas locales: no forman parte de la aplicación vigente
+src/App.legacy.jsx
+src/styles.legacy.css
+src/app/legacy/
+
+# Supabase local
+supabase/.temp/

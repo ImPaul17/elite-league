@@ -1,0 +1,6 @@
+project_id = "elite-league"
+
+[functions.invite-president]
+# Session validity and the admin role are checked inside the function.
+# The legacy-secret gateway cannot validate the project's asymmetric JWTs.
+verify_jwt = false
