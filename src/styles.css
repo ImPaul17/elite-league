@@ -633,14 +633,6 @@ textarea { min-height: 84px; padding-top: 10px; resize: vertical; }
 .action-toast button { width: 24px; height: 24px; border: 0; border-radius: 50%; background: rgba(255,255,255,.08); color: var(--ink); font-size: 1rem; }
 @keyframes toast-in { from { opacity: 0; transform: translateY(12px); } }
 
-.site-footer { border-top: 1px solid var(--line); background: #0a0e0b; }
-.footer-grid { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 35px; min-height: 190px; padding: 32px 0; }
-.footer-logo { width: 122px; margin-bottom: 11px; filter: brightness(0) invert(1); }
-.footer-grid p { max-width: 300px; margin-bottom: 0; font-size: .75rem; }
-.footer-links { display: flex; gap: 18px; color: var(--muted); font-size: .68rem; font-weight: 740; text-transform: uppercase; }
-.footer-links a:hover { color: var(--green-bright); }
-.footer-grid > small { justify-self: end; max-width: 230px; color: var(--subtle); font-size: .62rem; line-height: 1.4; text-align: right; }
-
 .reveal-item { animation: rise-in 470ms both; }
 @keyframes rise-in { from { opacity: 0; transform: translateY(13px); } to { opacity: 1; transform: translateY(0); } }
 @supports (animation-timeline: view()) {
@@ -702,7 +694,6 @@ textarea { min-height: 84px; padding-top: 10px; resize: vertical; }
   .stat-summary-grid > div { padding: 17px; }.stat-summary-grid strong { font-size: 1.8rem; }.article-page { margin-top: 20px; }.article-visual { height: 210px; margin: 24px 0; }.news-feed-card { grid-template-columns: 1fr auto; gap: 12px; padding: 18px; }.news-feed-card > div { grid-column: 1 / -1; }.news-feed-card h2 { font-size: 1.12rem; }
   .format-card { min-height: 150px; }.format-card strong { font-size: 1.65rem; }.formation-builder { padding: 18px; }.formation-summary { flex-direction: column; }.formation-counts { width: 100%; }.formation-counts span { flex: 1; }.pitch-board { min-height: 300px; }.pitch-slot { min-width: 55px; max-width: 65px; min-height: 32px; font-size: .53rem; }.pitch-slot-1 { left: 6%; }.pitch-slot-2 { left: 29%; }.pitch-slot-3 { right: 29%; }.pitch-slot-4 { right: 6%; }.formation-actions { align-items: stretch; flex-direction: column; }.formation-actions > div { display: grid; grid-template-columns: 1fr 1fr; }.player-choice { grid-template-columns: 23px 25px minmax(0, 1fr) 22px; }
   .result-editor { padding: 13px; }.result-editor-clubs { gap: 7px; }.result-editor-clubs > div:first-child, .result-editor-clubs > div:last-child { font-size: .62rem; }.result-editor-clubs .club-crest-xs { display: none; }.penalty-inputs { justify-content: center; flex-wrap: wrap; }.penalty-inputs > span:first-child { width: 100%; text-align: center; }.result-editor .button { width: 100%; }.player-registration-form, .news-editor-form, .match-event-form, .president-invite-form, .matchday-config-form, .match-schedule-form { grid-template-columns: 1fr; }.player-registration-form .button, .news-editor-form label:nth-child(3), .news-editor-form .form-error, .match-event-form .button, .match-event-form .form-error { grid-column: auto; }.admin-layout { gap: 18px; }
-  .footer-grid { grid-template-columns: 1fr; gap: 23px; min-height: 0; padding: 38px 0; }.footer-links { flex-wrap: wrap; }.footer-grid > small { justify-self: start; max-width: none; text-align: left; }
   .action-toast { right: 12px; bottom: 12px; max-width: calc(100vw - 24px); }
 }
 

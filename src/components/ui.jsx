@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { NAVIGATION } from "../app/routes";
 import { useLeague } from "../context/LeagueContext";
+import "./footer.css";
 
 const publicBase = import.meta.env?.BASE_URL ?? "/";
 export const siteAsset = (path) => `${publicBase}${path.replace(/^\//, "")}`;
@@ -326,20 +327,60 @@ export function AppHeader({ activePath }) {
 }
 
 export function AppFooter() {
+  const [isPaused, setIsPaused] = useState(false);
+
   return (
     <footer className="site-footer">
-      <div className="shell footer-grid">
-        <div>
-          <img className="footer-logo" src={siteAsset("/logos/logo-elite-league.svg")} alt="Elite League" />
-          <p>Competición oficial de FC Rush creada para que cada jornada cuente.</p>
+      <div className="shell footer-branding">
+        <AppLink to="/" className="footer-brand-link" aria-label="Elite League, inicio">
+          <img className="footer-league-logo" src={siteAsset("/logos/logo-elite-league.svg")} alt="Elite League" width="1000" height="340" />
+        </AppLink>
+        <img className="footer-adidas-logo" src={siteAsset("/sponsors/powered-by-adidas.png")} alt="Powered by adidas" width="1920" height="542" />
+      </div>
+      <div
+        id="footer-sponsors"
+        className={`footer-sponsors${isPaused ? " is-paused" : ""}`}
+        role="region"
+        aria-label="Patrocinadores de Elite League"
+        tabIndex={0}
+      >
+        <div className="footer-sponsors-track">
+          {/* The PNG includes the spacing at its left edge: no extra gap at the loop seam.
+              A third copy also covers ultrawide screens while the first copy scrolls out. */}
+          {[0, 1, 2].map((copy) => (
+            <img
+              key={copy}
+              className="footer-sponsors-strip"
+              src={siteAsset("/sponsors/sponsor-strip-white.png")}
+              width="9669"
+              height="200"
+              alt={copy === 0 ? "Agencia Tributaria, Amazon, Bandai, Carrefour, CCCP, Coca-Cola, Cola Cao, Danone, DAZN, Emirates Fly Better, Fanta, Mahou, Mercadona, Microsoft, Pepsi, Pixar, Quilmes, Spotify y Xokas Eats" : ""}
+              aria-hidden={copy > 0 ? true : undefined}
+              draggable="false"
+            />
+          ))}
         </div>
-        <div className="footer-links">
+      </div>
+      <div className="shell footer-bottom">
+        <small>© {new Date().getFullYear()} Elite League</small>
+        <nav className="footer-links" aria-label="Navegación del pie de página">
           <AppLink to="/competicion">Competición</AppLink>
           <AppLink to="/partidos">Calendario</AppLink>
           <AppLink to="/noticias">Actualidad</AppLink>
           <AppLink to="/patrocinadores">Patrocinadores</AppLink>
-        </div>
-        <small>© {new Date().getFullYear()} Elite League</small>
+        </nav>
+        <button
+          className="footer-motion-toggle"
+          type="button"
+          aria-controls="footer-sponsors"
+          aria-label={isPaused ? "Reanudar animación de patrocinadores" : "Pausar animación de patrocinadores"}
+          onClick={() => setIsPaused((paused) => !paused)}
+        >
+          <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true">
+            {isPaused ? <path d="M4 2.5v11L13 8z" /> : <path d="M3 2h3v12H3zm7 0h3v12h-3z" />}
+          </svg>
+          {isPaused ? "Reanudar" : "Pausar"}
+        </button>
       </div>
     </footer>
   );
