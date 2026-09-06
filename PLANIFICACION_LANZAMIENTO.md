@@ -16,7 +16,11 @@ Reorganización posterior acordada: todos acceden por «Mi equipo» y Pablo tien
 
 Vista de presidentes ampliada a toda la web: identidad efectiva, escudo y permisos visibles permanecen al navegar, con Mi cuenta y Mi equipo propios. Barra global para cambiar de usuario o regresar a administración; sin cambiar sesiones ni permitir escrituras. La vista administrativa abre directamente el panel, sin pedir cambiar contraseñas ni simular un inicio de sesión. El cambio de contraseña temporal sigue siendo obligatorio para el propietario en su acceso real. Validación de la ampliación inicial: 84 pruebas y compilación correctas, navegación pública/privada y móvil revisados.
 
-Avance en revisión: acceso por usuario, gestión de presidentes, cambio obligatorio de contraseña, editor completo de Noticias, página de Patrocinadores en espera del material, estados sin jugadores y mejoras de accesibilidad. 59 pruebas unitarias y compilación correctas; QA local del borrador → publicación → retirada comprobada sin escribir en producción. Esta actualización de código ya está en `main` (`b10dc01`), con [despliegue de GitHub Pages correcto](https://github.com/ImPaul17/elite-league/actions/runs/34012888966) a las 07:01 de Madrid del 6 de septiembre. Todavía no se ha probado el guardado con una cuenta real desbloqueada. DNS autoritativo y Cloudflare correctos; la caché del router conserva la IP anterior y el certificado HTTPS de GitHub para el dominio aún no es válido. No probar credenciales en el dominio hasta resolver HTTPS.
+Registro de una tanda anterior: acceso por usuario, gestión de presidentes, cambio obligatorio de contraseña, editor completo de Noticias, página de Patrocinadores en espera del material, estados sin jugadores y mejoras de accesibilidad. 59 pruebas unitarias y compilación correctas; QA local del borrador → publicación → retirada comprobada sin escribir en producción. Esta actualización de código ya está en `main` (`b10dc01`), con [despliegue de GitHub Pages correcto](https://github.com/ImPaul17/elite-league/actions/runs/34012888966) a las 07:01 de Madrid del 6 de septiembre. Todavía no se ha probado el guardado con una cuenta real desbloqueada. DNS autoritativo y Cloudflare correctos; la caché del router conserva la IP anterior y el certificado HTTPS de GitHub para el dominio aún no es válido. No probar credenciales en el dominio hasta resolver HTTPS.
+
+### Decisión actual de patrocinadores — confirmada por Pablo el 6 de septiembre
+
+Se elimina completamente la página de Patrocinadores, su ruta y sus enlaces. Las referencias a esa página en los registros anteriores son históricas: no se planifica reconstruirla ni se considera pendiente de contenido. Los patrocinadores aparecen exclusivamente en el footer, con Elite League y Powered by adidas blancos, centrados y alineados, y debajo la tira PNG ya facilitada a ancho de pantalla. La marquesina es lenta y continua, sin botón de pausa ni pausa al pasar el ratón; se mantiene el respeto de la preferencia de movimiento reducido.
 
 ## Resultado que queremos entregar
 
@@ -25,7 +29,7 @@ Avance en revisión: acceso por usuario, gestión de presidentes, cambio obligat
 - Permisos por rol y por club; cambios de gestión guardados y visibles para otros visitantes.
 - Calendario y fecha de inicio del tercer split confirmados y visibles.
 - Noticias completas, anuncio del regreso y tráiler integrados.
-- Página de patrocinadores con el material que facilite Pablo.
+- Patrocinadores exclusivamente en el footer, con logos blancos y tira PNG en marquesina lenta continua, sin controles de pausa ni pausa por hover; sin página propia.
 - Equipos, escudos, histórico, clasificación y partidos revisados, manteniendo el estilo ya acordado.
 - Plantillas y estadísticas individuales presentadas como pendientes de incorporación; los formularios que necesitan jugadores no deben invitar a realizar acciones imposibles.
 
@@ -40,7 +44,7 @@ El login y la persistencia son requisitos de esta entrega. Dejarlos como demostr
 | Administración | Dentro de Mi equipo: resultados, noticias y restablecimientos; vista previa de presidentes. Sin creación de cuentas ni editor de fechas/plazos. | Comprobar escrituras reales autorizadas, permisos y visibilidad pública. Integrar las fechas definitivas cuando se faciliten. |
 | Noticias | Editor completo y auditoría editorial desplegada: cuerpo, portada por URL, enlace al tráiler, borradores, edición, publicación, retirada y destacado. | Flujo editorial local comprobado. Probar escrituras reales con administrador desbloqueado e integrar contenido aprobado. |
 | Split 3 | 66 partidos cargados; fechas y horas pendientes. | Recibir el calendario definitivo, cargarlo y mostrarlo en todas las vistas. |
-| Patrocinadores | Página implementada con estado «Próximamente», sin marcas ficticias. | Incorporar enlaces, logos y orden de aparición confirmados. |
+| Patrocinadores — footer | Logos reales y tira PNG incorporados al footer. Página, ruta y enlaces de Patrocinadores retirados; sin botón de pausa ni pausa por hover. | Comprobar alineación, ancho de pantalla, proporción de la imagen y continuidad del bucle lento en móvil y escritorio. No hay una página pendiente. |
 | Publicación | Código en `main` de [ImPaul17/elite-league](https://github.com/ImPaul17/elite-league), variables Supabase guardadas y primer despliegue de Pages correcto. Propiedad del dominio verificada por GitHub; delegación y DNS autoritativos correctos. | Confirmar actualización de cachés DNS, comprobación DNS de Pages y HTTPS; comprobar la aplicación alojada. Completar y confirmar la retirada manual de la copia remota subida por error al alojamiento anterior. |
 
 La presencia de código no cuenta como prueba de funcionamiento en producción. Las comprobaciones de cierre están definidas más abajo.
@@ -76,7 +80,7 @@ Todas las filas son necesarias para el alcance descrito, salvo los elementos dep
 | 5 | Noticias | Crear y editar título, resumen, cuerpo y portada; destacar, publicar y retirar una noticia. Incluir el tráiler mediante vídeo o enlace. Sustituir las noticias de ejemplo. | Codex; Pablo aprueba contenido | Texto, portada y URL del tráiler. La programación automática no es necesaria si se publica manualmente. |
 | 6 | Calendario e información | Fecha de inicio, jornadas, horas y fases finales coherentes en Inicio, Partidos y fichas de equipo. Reglas y comunicados revisados. | Pablo confirma; Codex integra | Una única lista definitiva de fechas e información. |
 | 7 | Tráiler del tercer split | Guion, selección de material, montaje, revisión, exportación, miniatura y vídeo subido con enlace comprobable. | Pablo | Material audiovisual, mensaje principal y fechas aprobadas. |
-| 8 | Patrocinadores | Página terminada con nombres, logos, enlaces y jerarquía acordada. | Codex; Pablo facilita material | Lista y recursos de patrocinadores. |
+| 8 | Patrocinadores en el footer | Elite League y Powered by adidas blancos, centrados y alineados; tira PNG a ancho de pantalla en bucle lento continuo, sin botón de pausa ni pausa por hover. Sin página ni enlace a Patrocinadores. | Codex + revisión visual de Pablo | Logos y tira PNG ya facilitados. |
 | 9 | Acabado público | Inicio preparado para el regreso; contenido claro; selectores, tamaños, colores y animaciones coherentes. Estados sin jugadores resueltos. | Codex + revisión visual de Pablo | Bloques editoriales anteriores. |
 | 10 | Pruebas y entrega | Recorrido completo en móvil y escritorio, acceso real, persistencia, enlaces y versión final comprobados. | Codex + revisión final de Pablo | Todo lo anterior. |
 
@@ -90,10 +94,10 @@ Horario de Madrid. Son bloques de trabajo propuestos, no tareas programadas auto
 | --- | --- | --- | --- |
 | Domingo 6, 10:00–13:00 | Preparar publicación de prueba y conexión real; revisar datos y acceso existente. | Cerrar el mensaje del regreso, guion del tráiler y lista de fechas pendientes. Facilitar las cuentas de servicio necesarias. | Saber dónde se publica y tener resuelta la conexión antes de avanzar con el panel. |
 | Domingo 6, 14:00–18:00 | Login por usuario, contraseñas, roles y cuentas; probar permisos y sesión persistente. | Seleccionar recursos y montar la primera versión del tráiler; cerrar calendario con la organización. | Acceso real probado con administrador y presidente de prueba. |
-| Domingo 6, 18:00–21:00 | Guardado de horarios/resultados y construcción de Noticias. | Primera revisión del tráiler; preparar comunicado, portada y material de patrocinadores. | Una modificación persiste y la ve otra sesión. Noticia completa en la versión de prueba. |
+| Domingo 6, 18:00–21:00 | Guardado de horarios/resultados y construcción de Noticias. | Primera revisión del tráiler; preparar comunicado y portada, y revisar los recursos de patrocinadores del footer. | Una modificación persiste y la ve otra sesión. Noticia completa en la versión de prueba. |
 | Domingo 6, 21:00–21:30 | Revisar bloqueos y ajustar el lunes según resultados reales. | Revisar primer montaje y confirmar qué material falta. | No dejar problemas de conexión o acceso para la última hora del lunes. |
 | Lunes 7, 09:00–12:00 | Cerrar Noticias, integrar calendario y revisar Competición. | Terminar fechas y textos oficiales; correcciones del tráiler. | Calendario, reglas y contenido editorial confirmados a las 12:00. |
-| Lunes 7, 13:00–16:00 | Patrocinadores, Inicio y ajustes para la versión sin jugadores. | Exportar el tráiler, preparar miniatura, subirlo y comprobar audio e imagen. | Versión completa de la web para revisar; vídeo listo o procesándose. |
+| Lunes 7, 13:00–16:00 | Revisar el footer de patrocinadores, Inicio y ajustes para la versión sin jugadores. | Exportar el tráiler, preparar miniatura, subirlo y comprobar audio e imagen. | Versión completa de la web para revisar; vídeo listo o procesándose. |
 | Lunes 7, 16:00–19:00 | Pruebas de acceso, recuperación, permisos, noticias, resultados y móvil. Integrar enlace definitivo del vídeo. | Ver el tráiler completo y revisar fechas, textos y marcas en la web. | Tráiler y recursos finales entregados antes de las 18:00; lista concreta de fallos a las 19:00. |
 | Lunes 7, 19:00–21:00 | Corregir fallos y comprobar la publicación final. | Dar conformidad al contenido y a la hora de los anuncios. | Cerrar funcionalidades a las 21:00. |
 | Lunes 7, 21:00–22:30 | Margen reservado para incidencias y revisión final en la URL pública. | Última comprobación del anuncio, tráiler y enlaces. | Versión aprobada y copia recuperable antes de las 22:30. |
@@ -107,7 +111,7 @@ Horario de Madrid. Son bloques de trabajo propuestos, no tareas programadas auto
 | Identificar al administrador inicial y una cuenta propia de prueba de presidente, con su club | Domingo, antes de probar accesos | Comprobar los dos roles y el cambio/restablecimiento de contraseña. Crear solo cuentas autorizadas; introducir contraseñas en privado, no en el chat. |
 | Calendario único: jornada, fecha, hora y posibles excepciones por partido; inicio y fases finales | Lunes, 12:00 | Evitar diferencias entre tráiler, noticia, calendario y fichas. |
 | Texto del regreso, información de la competición y enlaces sociales | Lunes, 12:00 | Cerrar Inicio, Noticias y Competición. |
-| Patrocinadores: nombre, logo, enlace y orden de aparición | Lunes, 12:00 | Terminar esa página con contenido real. |
+| Revisión de los logos y la tira PNG de patrocinadores ya facilitados | Lunes, 12:00 | Comprobar su presentación exclusivamente en el footer; no hay una página que completar. |
 | Tráiler final, miniatura y URL; confirmar hora de estreno | Lunes, 18:00 | Dejar tiempo para procesar el vídeo y comprobarlo integrado en la web. |
 
 ## Qué quiere decir «sin jugadores»
@@ -132,7 +136,7 @@ Los resultados por equipo, penaltis y clasificación sí deben funcionar sin jug
 - [ ] Crear, editar, publicar y retirar una noticia; comprobar cuerpo, portada y vídeo en Inicio, listado y detalle.
 - [ ] Comprobar las 11 jornadas y los 66 cruces contra el calendario final, así como las fechas de las fases finales acordadas.
 - [ ] Ver el tráiler entero y comprobar que sus fechas coinciden con la web y el comunicado.
-- [ ] Revisar todos los patrocinadores y sus enlaces.
+- [ ] Revisar los logos blancos y alineados del footer y la tira PNG a ancho de pantalla: bucle lento continuo, sin botón de pausa ni pausa por hover, respetando movimiento reducido. Confirmar que no existe página, ruta ni enlace a Patrocinadores.
 - [ ] Verificar navegación, selectores de splits, fichas, visor de escudos, tablas y formularios en móvil y escritorio; mantener el diseño existente.
 - [ ] Compilación y pruebas pertinentes correctas; comprobar rutas directas, recarga, imágenes y enlaces en la URL alojada.
 - [ ] Producción con login real, sin selector de cuentas demo, noticias de muestra ni cambios de prueba.
@@ -142,7 +146,7 @@ Los resultados por equipo, penaltis y clasificación sí deben funcionar sin jug
 
 Si el domingo por la tarde no funciona la conexión o el acceso real, pasa a ser la primera tarea y se ajusta el tiempo de pulido visual. El login se mantiene dentro del alcance; no se dará por terminado con una demostración.
 
-Si faltan fechas o patrocinadores en sus puntos de control, se terminará la estructura y se registrará qué contenido falta. Esa sección seguirá pendiente, sin inventar datos ni marcarla como entregada. Si el fallo impide cumplir las 23:00, se comunicará en cuanto se detecte para decidir el ajuste de plazo o alcance.
+Si faltan fechas en sus puntos de control, se terminará la estructura y se registrará qué información falta. Ese contenido seguirá pendiente, sin inventar datos ni marcarlo como entregado. Los recursos de patrocinadores ya están facilitados y su revisión se limita al footer, sin reabrir una página propia. Si el fallo impide cumplir las 23:00, se comunicará en cuanto se detecte para decidir el ajuste de plazo o alcance.
 
 A partir del lunes a las 21:00, el plan reserva el trabajo para correcciones y publicación. Los cambios nuevos de diseño se valorarán aparte para proteger el margen de comprobación.
 
@@ -154,7 +158,7 @@ El procedimiento incremental y los pendientes de prueba están en `ACTIVACION_CU
 
 - 58/58 tests y compilación de producción correctos en la tanda anterior. Corregidos marcadores vacíos convertidos en cero, penaltis inválidos y doble publicación por clic repetido. El formato final solicitado es `nombre.club`, sin iniciales de apellido, con contraseñas temporales de siete caracteres y definitivas de 12–128.
 - Prueba local de Noticias: borrador oculto → publicación → detalle con párrafos/enlaces → retirada y vuelta a oculto. Sin datos ficticios en Supabase.
-- Revisión visual a 390 × 844: título de Patrocinadores ajustado; «Mi cuenta» y cierre de sesión accesibles en el menú móvil. Acceso por usuario revisado en escritorio.
+- Revisión visual a 390 × 844: título de Patrocinadores ajustado; «Mi cuenta» y cierre de sesión accesibles en el menú móvil. Acceso por usuario revisado en escritorio. Esta referencia a Patrocinadores corresponde a la página histórica ya eliminada, no a una tarea pendiente.
 - Verificación de solo lectura en Supabase: 12 clubes, 11 jornadas, 66 partidos, cero jugadores/noticias; perfiles, membresías y auditoría protegidos frente a visitantes.
 - Rama de preparación subida: `codex/preparacion-lanzamiento`, commit de código `cd0f536`. `main` y el despliegue público no deben actualizarse hasta activar Supabase y pasar la prueba real de acceso.
 - SQL incremental y función `club-accounts` preparados en sus editores, **sin ejecutar ni desplegar**. La confirmación previa de cambio de permisos queda pendiente.

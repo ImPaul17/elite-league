@@ -327,8 +327,6 @@ export function AppHeader({ activePath }) {
 }
 
 export function AppFooter() {
-  const [isPaused, setIsPaused] = useState(false);
-
   return (
     <footer className="site-footer">
       <div className="shell footer-branding">
@@ -339,7 +337,7 @@ export function AppFooter() {
       </div>
       <div
         id="footer-sponsors"
-        className={`footer-sponsors${isPaused ? " is-paused" : ""}`}
+        className="footer-sponsors"
         role="region"
         aria-label="Patrocinadores de Elite League"
         tabIndex={0}
@@ -367,20 +365,7 @@ export function AppFooter() {
           <AppLink to="/competicion">Competición</AppLink>
           <AppLink to="/partidos">Calendario</AppLink>
           <AppLink to="/noticias">Actualidad</AppLink>
-          <AppLink to="/patrocinadores">Patrocinadores</AppLink>
         </nav>
-        <button
-          className="footer-motion-toggle"
-          type="button"
-          aria-controls="footer-sponsors"
-          aria-label={isPaused ? "Reanudar animación de patrocinadores" : "Pausar animación de patrocinadores"}
-          onClick={() => setIsPaused((paused) => !paused)}
-        >
-          <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true">
-            {isPaused ? <path d="M4 2.5v11L13 8z" /> : <path d="M3 2h3v12H3zm7 0h3v12h-3z" />}
-          </svg>
-          {isPaused ? "Reanudar" : "Pausar"}
-        </button>
       </div>
     </footer>
   );

@@ -1,0 +1,42 @@
+import assert from "node:assert/strict";
+import { existsSync, readFileSync } from "node:fs";
+import test from "node:test";
+
+const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
+const footer = read("../src/components/ui.jsx").split("export function AppFooter() {")[1];
+const css = read("../src/components/footer.css");
+
+test("el footer conserva la tira original y su proporción de 9669 por 200", () => {
+  const png = readFileSync(new URL("../public/sponsors/sponsor-strip-white.png", import.meta.url));
+  assert.equal(png.subarray(1, 4).toString(), "PNG");
+  assert.equal(png.readUInt32BE(16), 9669);
+  assert.equal(png.readUInt32BE(20), 200);
+  assert.equal(png[25], 6, "RGBA conserva la transparencia");
+  assert.match(footer, /width="9669"\s+height="200"/);
+  assert.match(css, /max-width: none/);
+});
+
+test("el carrusel repite tres copias sin controles ni pausa por ratón o foco", () => {
+  assert.match(footer, /\[0, 1, 2\]\.map/);
+  assert.match(footer, /aria-hidden=\{copy > 0 \? true : undefined\}/);
+  assert.doesNotMatch(footer, /<button|isPaused|is-paused/);
+  assert.doesNotMatch(css, /animation-play-state:\s*paused|footer-sponsors:hover|footer-sponsors:focus/);
+  assert.match(css, /footer-sponsors-scroll 125s linear infinite/);
+  assert.match(css, /translateX\(calc\(-100% \/ 3\)\)/);
+  assert.match(css, /prefers-reduced-motion: reduce/);
+});
+
+test("Patrocinadores ya no tiene página, ruta ni enlace de navegación", () => {
+  assert.equal(existsSync(new URL("../src/pages/SponsorsPage.jsx", import.meta.url)), false);
+  for (const source of [footer, read("../src/App.jsx"), read("../src/app/routes.js")]) {
+    assert.doesNotMatch(source, /SponsorsPage|\/patrocinadores/);
+  }
+  assert.doesNotMatch(read("../src/styles.css"), /sponsors-hero/);
+});
+
+test("el footer conserva ambas marcas y elimina la frase anterior", () => {
+  assert.match(footer, /alt="Elite League"/);
+  assert.match(footer, /alt="Powered by adidas"/);
+  assert.match(css, /filter: brightness\(0\) invert\(1\)/);
+  assert.doesNotMatch(footer, /Competición oficial de FC Rush|creada para que cada jornada cuente/);
+});

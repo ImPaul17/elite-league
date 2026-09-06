@@ -6,7 +6,6 @@ import { LeagueProvider, useLeague } from "./context/LeagueContext";
 import { UserPreviewProvider } from "./context/UserPreviewContext";
 import { AdminPage } from "./pages/AdminPage";
 import { AccountPage } from "./pages/AccountPage";
-import { SponsorsPage } from "./pages/SponsorsPage";
 import { ClubPortalPage } from "./pages/ClubPortalPage";
 import { CompetitionPage } from "./pages/CompetitionPage";
 import { HomePage } from "./pages/HomePage";
@@ -46,7 +45,6 @@ function RouteView({ path }) {
   if (parts[0] === "noticias" && parts[1]) return <NewsPage articleId={parts[1]} />;
   if (path === "/competicion") return <CompetitionPage />;
   if (path === "/cuenta") return <AccountPage key={viewer?.id ?? "anonymous"} />;
-  if (path === "/patrocinadores") return <SponsorsPage />;
   return <NotFoundPage />;
 }
 
@@ -112,7 +110,6 @@ function AppContent() {
       "/club/admin": "Administración · Elite League",
       "/admin": "Administración · Elite League",
       "/cuenta": "Mi cuenta · Elite League",
-      "/patrocinadores": "Patrocinadores · Elite League",
     };
     const selectedMatchesEdition = parts[0] === "partidos" && parts[1] ? getCompetitionEdition(parts[1]) : null;
     const selectedStandingsEdition = parts[0] === "clasificacion" && parts[1] ? getCompetitionEdition(parts[1]) : null;

@@ -751,5 +751,4 @@ textarea { min-height: 84px; padding-top: 10px; resize: vertical; }
 .account-manager-row > div { display: grid; gap: 5px; min-width: 0; overflow-wrap: anywhere; }
 .account-manager-row span, .account-manager-row small { color: var(--text-muted, #a4b0a4); }
 .account-reset { flex-basis: 100%; }
-.sponsors-hero h1 { font-size: clamp(1.6rem, 5vw, 4.5rem); overflow-wrap: anywhere; }
 .button-row { display: flex; flex-wrap: wrap; gap: 12px; }

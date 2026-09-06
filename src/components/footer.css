@@ -32,7 +32,7 @@
 .footer-sponsors-track {
   display: flex;
   width: max-content;
-  animation: footer-sponsors-scroll 150s linear infinite;
+  animation: footer-sponsors-scroll 125s linear infinite;
   will-change: transform;
 }
 
@@ -43,12 +43,6 @@
   max-width: none;
   height: var(--sponsor-strip-height);
   user-select: none;
-}
-
-.footer-sponsors.is-paused .footer-sponsors-track,
-.footer-sponsors:focus-within .footer-sponsors-track,
-.footer-sponsors:hover .footer-sponsors-track {
-  animation-play-state: paused;
 }
 
 @keyframes footer-sponsors-scroll {
@@ -78,24 +72,6 @@
 
 .footer-links a { transition: color 180ms ease; }
 .footer-links a:hover { color: var(--green-bright); }
-.footer-motion-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-self: end;
-  gap: 7px;
-  min-height: 32px;
-  padding: 6px 8px;
-  border: 0;
-  border-radius: 5px;
-  background: transparent;
-  color: var(--muted);
-  font-size: .62rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  transition: color 180ms ease;
-}
-
-.footer-motion-toggle:hover { color: #fff; }
 .site-footer :focus-visible { outline: 2px solid var(--green); outline-offset: 5px; }
 
 @media (max-width: 760px) {
@@ -103,12 +79,12 @@
   .footer-branding { gap: 28px; padding-bottom: 32px; }
   .footer-league-logo, .footer-adidas-logo { height: 40px; }
   .footer-sponsors { padding: 22px 0; }
-  .footer-bottom { grid-template-columns: 1fr auto; gap: 19px; padding: 22px 0; }
+  .footer-bottom { grid-template-columns: 1fr; gap: 19px; padding: 22px 0; text-align: center; }
   .footer-links { grid-column: 1 / -1; grid-row: 1; gap: 14px 20px; font-size: .6rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .footer-sponsors { overflow-x: auto; }
   .footer-sponsors-track { animation: none; transform: none; will-change: auto; }
-  .footer-sponsors-strip[aria-hidden="true"], .footer-motion-toggle { display: none; }
+  .footer-sponsors-strip[aria-hidden="true"] { display: none; }
 }
