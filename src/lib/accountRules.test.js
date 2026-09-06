@@ -3,22 +3,25 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { ACCOUNT_DOMAIN, TEMPORARY_PASSWORD_CHARACTERS, accountIdentifier, normalizeUsername, validUsername, passwordError, temporaryPasswordError } from "../../supabase/functions/_shared/accountRules.js";
 
-test("normaliza el usuario presidente/club sin quitar espacios internos ni inventar separadores", () => {
-  assert.equal(normalizeUsername("  Pablo/Pico "), "pablo/pico");
-  assert.equal(normalizeUsername("Pablo / Pico"), "pablo / pico");
+test("normaliza el usuario presidente.club sin quitar espacios internos ni inventar separadores", () => {
+  assert.equal(normalizeUsername("  Pablo.Pico "), "pablo.pico");
+  assert.equal(normalizeUsername("Pablo . Pico"), "pablo . pico");
+  assert.equal(normalizeUsername("Pablo/Pico"), "pablo/pico");
   assert.equal(normalizeUsername(null), "");
-  assert.equal(accountIdentifier("  Pablo/Pico "), `pablo--pico@${ACCOUNT_DOMAIN}`);
-  assert.equal(accountIdentifier("alvaros/coca"), `alvaros--coca@${ACCOUNT_DOMAIN}`);
-  assert.equal(accountIdentifier("danir/mugiwaras"), `danir--mugiwaras@${ACCOUNT_DOMAIN}`);
+  assert.equal(accountIdentifier("  Pablo.Pico "), `pablo--pico@${ACCOUNT_DOMAIN}`);
+  assert.equal(accountIdentifier("alvaro.coca"), `alvaro--coca@${ACCOUNT_DOMAIN}`);
+  assert.equal(accountIdentifier("alvaro.rayo"), `alvaro--rayo@${ACCOUNT_DOMAIN}`);
+  assert.equal(accountIdentifier("dani.mugiwaras"), `dani--mugiwaras@${ACCOUNT_DOMAIN}`);
+  assert.equal(accountIdentifier("dani.caudillo"), `dani--caudillo@${ACCOUNT_DOMAIN}`);
 });
 
 test("usuario: exactamente dos partes alfanuméricas minúsculas de hasta 24 y 20 caracteres", () => {
-  for (const value of ["a/b", "pablo/pico", "presidente24/club2026", `${"p".repeat(24)}/${"c".repeat(20)}`]) assert.equal(validUsername(value), true, value);
-  for (const value of ["", "pablo", "/pico", "pablo/", "pablo/pico/otro", "pablo//pico", "pablo pico", "pablo /pico", "pablo/ pico", "pá blo/pico", "pá/pico", "pablo/picó", "Pablo/pico", "pablo/Pico", " pablo/pico", "pablo/pico ", "pablo/pico\n", "pablo.fc/pico", "pablo-fc/pico", "pablo_fc/pico", "pablo/pi.co", "pablo/pi-co", "pablo/pi_co", "pablo@pico", "pablo/../../", "pablo\\pico", `${"p".repeat(25)}/pico`, `pablo/${"c".repeat(21)}`, null, undefined, 12, {}, []]) assert.equal(validUsername(value), false, String(value));
+  for (const value of ["a.b", "pablo.pico", "presidente24.club2026", `${"p".repeat(24)}.${"c".repeat(20)}`]) assert.equal(validUsername(value), true, value);
+  for (const value of ["", "pablo", ".pico", "pablo.", "pablo.pico.otro", "pablo..pico", "pablo/pico", "pablo//pico", "pablo pico", "pablo .pico", "pablo. pico", "pá blo.pico", "pá.pico", "pablo.picó", "Pablo.pico", "pablo.Pico", " pablo.pico", "pablo.pico ", "pablo.pico\n", "pablo.fc.pico", "pablo-fc.pico", "pablo_fc.pico", "pablo.pi.co", "pablo.pi-co", "pablo.pi_co", "pablo@pico", "pablo/../../", "pablo\\pico", `${"p".repeat(25)}.pico`, `pablo.${"c".repeat(21)}`, null, undefined, 12, {}, []]) assert.equal(validUsername(value), false, String(value));
 });
 
 test("el identificador de Auth conserva ambas partes sin colisiones y cabe en un correo válido", () => {
-  const usernames = ["a/bc", "ab/c", "pablo/pico", "pablopico/club", "pablo/picoclub", `${"p".repeat(24)}/${"c".repeat(20)}`];
+  const usernames = ["a.bc", "ab.c", "pablo.pico", "pablopico.club", "pablo.picoclub", "alvaro.coca", "alvaro.rayo", "dani.mugiwaras", "dani.caudillo", `${"p".repeat(24)}.${"c".repeat(20)}`];
   const identifiers = usernames.map(accountIdentifier);
   assert.equal(new Set(identifiers).size, usernames.length);
   for (const identifier of identifiers) {
@@ -27,12 +30,12 @@ test("el identificador de Auth conserva ambas partes sin colisiones y cabe en un
     assert.ok(local.length <= 64);
     assert.match(local, /^[a-z0-9]+--[a-z0-9]+$/);
   }
-  for (const value of ["pablo--pico", "pablo--/pico", "pablo/pico--", "pablo/pico/otro", "pablo@otro.com"]) assert.throws(() => accountIdentifier(value));
+  for (const value of ["pablo--pico", "pablo--.pico", "pablo.pico--", "pablo.pico.otro", "pablo..pico", "pablo/pico", "pablo@otro.com"]) assert.throws(() => accountIdentifier(value));
 });
 
-test("la restricción SQL utiliza el mismo formato canónico presidente/club", () => {
+test("la restricción SQL utiliza el mismo formato canónico presidente.club", () => {
   const sql = readFileSync(new URL("../../supabase/migrations/0003_username_accounts_and_news_audit.sql", import.meta.url), "utf8");
-  assert.ok(sql.includes("username ~ '^[a-z0-9]{1,24}/[a-z0-9]{1,20}$'"));
+  assert.ok(sql.includes("username ~ '^[a-z0-9]{1,24}\\.[a-z0-9]{1,20}$'"));
 });
 
 test("temporales: seis dígitos seguidos de una letra ASCII o símbolo permitido", () => {

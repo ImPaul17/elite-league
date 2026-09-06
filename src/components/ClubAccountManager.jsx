@@ -39,7 +39,7 @@ export function ClubAccountManager() {
     event.preventDefault();
     if (busyRef.current) return;
     const selectedPassword = action === "create" ? password : resetPassword;
-    const validation = temporaryPasswordError(selectedPassword) || (action === "create" && !validUsername(normalizeUsername(username)) ? "Usa presidente/clubabreviado, en minúsculas y sin espacios. Por ejemplo: pablo/pico." : "");
+    const validation = temporaryPasswordError(selectedPassword) || (action === "create" && !validUsername(normalizeUsername(username)) ? "Usa nombre.clubabreviado, en minúsculas y sin apellidos. Por ejemplo: pablo.pico." : "");
     if (validation) { setFeedback({ error: validation }); return; }
     busyRef.current = true;
     setBusy(true);
@@ -59,10 +59,10 @@ export function ClubAccountManager() {
 
   if (isDemoMode) return <Notice tone="info">La creación y el restablecimiento de cuentas solo están disponibles en producción para administración. No se crean usuarios ficticios desde la demostración.</Notice>;
   return <div className="account-manager">
-    <p>Usa presidente/clubabreviado, sin tildes ni espacios. Entrega a cada persona una contraseña temporal distinta: seis números y una letra o símbolo al final. Tendrá que cambiarla antes de utilizar su panel.</p>
+    <p>Usa nombre.clubabreviado, sin apellidos, tildes ni espacios. Entrega a cada persona una contraseña temporal distinta: seis números y una letra o símbolo al final. Tendrá que cambiarla antes de utilizar su panel.</p>
     <form className="stack-form" onSubmit={(event) => submit(event, "create")} aria-busy={busy}>
       <label>Nombre del presidente<input value={displayName} onChange={(event) => setDisplayName(event.target.value)} maxLength={80} required disabled={busy} autoComplete="off" /></label>
-      <label>Usuario<input value={username} onChange={(event) => setUsername(event.target.value)} minLength={3} maxLength={45} placeholder="pablo/pico" required disabled={busy} autoCapitalize="none" autoComplete="off" spellCheck={false} /></label>
+      <label>Usuario<input value={username} onChange={(event) => setUsername(event.target.value)} minLength={3} maxLength={45} placeholder="pablo.pico" required disabled={busy} autoCapitalize="none" autoComplete="off" spellCheck={false} /></label>
       <label>Club<select value={clubSlug} onChange={(event) => setClubSlug(event.target.value)} required disabled={busy}>{league.clubs.map((club) => <option value={club.id} key={club.id}>{club.name}</option>)}</select></label>
       <label>Contraseña temporal<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} minLength={7} maxLength={7} required disabled={busy} autoComplete="new-password" /></label>
       <button type="submit" className="button button-primary" disabled={busy || feedback?.partial}>{busy ? "Procesando…" : "Crear cuenta de presidente"}</button>

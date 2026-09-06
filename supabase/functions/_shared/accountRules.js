@@ -6,16 +6,16 @@ export function normalizeUsername(value) {
 }
 
 export function validUsername(value) {
-  return typeof value === "string" && value === value.trim() && /^[a-z0-9]{1,24}\/[a-z0-9]{1,20}$/.test(value);
+  return typeof value === "string" && value === value.trim() && /^[a-z0-9]{1,24}\.[a-z0-9]{1,20}$/.test(value);
 }
 
 // Supabase Auth uses an internal identifier. This is not a contact address and
 // no messages are sent to it: accounts are provisioned only by administration.
 export function accountIdentifier(value) {
   const username = normalizeUsername(value);
-  if (!validUsername(username)) throw new Error("Usa presidente/clubabreviado, en minúsculas y sin espacios: hasta 24 letras o números para presidente y 20 para club.");
-  // Neither part permits hyphens, so replacing the only slash with -- is injective.
-  return `${username.replace("/", "--")}@${ACCOUNT_DOMAIN}`;
+  if (!validUsername(username)) throw new Error("Usa presidente.clubabreviado, en minúsculas y sin espacios: hasta 24 letras o números para presidente y 20 para club.");
+  // Neither part permits hyphens, so replacing the only dot with -- is injective.
+  return `${username.replace(".", "--")}@${ACCOUNT_DOMAIN}`;
 }
 
 export function temporaryPasswordError(value) {

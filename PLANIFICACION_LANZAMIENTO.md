@@ -10,9 +10,9 @@ La entrega incluye la web pública, el login real y las funciones de gestión qu
 
 El acceso será con **nombre de usuario asignado por la organización y contraseña temporal**, no con un correo electrónico. Cada presidente podrá cambiar la contraseña desde su panel. La recuperación de una cuenta se resolverá mediante restablecimiento por administración, sin exigir SMTP ni invitaciones por correo. Las referencias anteriores a SMTP describen la preparación inicial, no una dependencia del nuevo lanzamiento.
 
-Frontend y función segura de cuentas implementados localmente. Falta aplicar la migración 0003, desplegar las funciones y probar cuentas autorizadas. El identificador interno de Supabase no exige que el presidente tenga correo. Conviene entregar una contraseña temporal distinta por cuenta y solicitar su cambio en el primer acceso.
+Frontend y función segura de cuentas implementados. Migración 0003 aplicada y funciones desplegadas; doce cuentas autorizadas creadas, sin iniciales de apellidos, con formato `nombre.club`. Login y asignación de permisos comprobados con Supabase real para las doce. Solo `pablo.pico` tiene administración. Cada cuenta tiene una contraseña temporal distinta y gestión bloqueada hasta cambiarla. Falta que el titular pruebe el cambio completo y las operaciones de gestión desbloqueadas.
 
-Avance local en revisión: acceso por usuario, gestión de presidentes, cambio obligatorio de contraseña, editor completo de Noticias, página de Patrocinadores en espera del material, estados sin jugadores y mejoras de accesibilidad. Pruebas unitarias y compilación correctas; QA local del borrador → publicación → retirada comprobada sin escribir en producción. Los cambios están respaldados en la rama `codex/preparacion-lanzamiento` de GitHub; todavía no están en `main` ni se ha probado el guardado con una cuenta real. DNS/HTTPS siguen pendientes según la última comprobación documentada.
+Avance en revisión: acceso por usuario, gestión de presidentes, cambio obligatorio de contraseña, editor completo de Noticias, página de Patrocinadores en espera del material, estados sin jugadores y mejoras de accesibilidad. 59 pruebas unitarias y compilación correctas; QA local del borrador → publicación → retirada comprobada sin escribir en producción. Publicación de esta actualización en `main` en preparación; todavía no se ha probado el guardado con una cuenta real desbloqueada. DNS autoritativo y Cloudflare correctos; la caché del router conserva la IP anterior y el certificado HTTPS de GitHub para el dominio aún no es válido. No probar credenciales en el dominio hasta resolver HTTPS.
 
 ## Resultado que queremos entregar
 
@@ -32,16 +32,18 @@ El login y la persistencia son requisitos de esta entrega. Dejarlos como demostr
 | Área | Estado comprobado | Pendiente |
 | --- | --- | --- |
 | Equipos, clasificación y partidos | Ya implementados, con histórico y diseños propios. | Revisión final y comprobación con datos reales del servidor. |
-| Login y cuentas | Supabase conectado; registro abierto y anónimo desactivados. La nueva interfaz local ya utiliza usuario. | Activar migración y servicio seguro; crear cuentas autorizadas y probar cambio temporal/restablecimiento y permisos. |
+| Login y cuentas | Migración y funciones desplegadas; doce cuentas reales creadas y login, club y bloqueo temporal comprobados. | Probar cambio temporal/restablecimiento y sesión persistente desde la interfaz. |
 | Administración | Hay formularios de resultados, fechas, noticias y cuentas por usuario. | Comprobar que guardan, que respetan permisos y que los cambios llegan a la web pública. |
-| Noticias | Editor completo implementado localmente: cuerpo, portada por URL, enlace al tráiler, borradores, edición, publicación, retirada y destacado. | Flujo editorial local comprobado. Activar auditoría editorial y probar escrituras reales con administrador autorizado. Integrar contenido aprobado. |
+| Noticias | Editor completo y auditoría editorial desplegada: cuerpo, portada por URL, enlace al tráiler, borradores, edición, publicación, retirada y destacado. | Flujo editorial local comprobado. Probar escrituras reales con administrador desbloqueado e integrar contenido aprobado. |
 | Split 3 | 66 partidos cargados; fechas y horas pendientes. | Recibir el calendario definitivo, cargarlo y mostrarlo en todas las vistas. |
 | Patrocinadores | Página implementada con estado «Próximamente», sin marcas ficticias. | Incorporar enlaces, logos y orden de aparición confirmados. |
 | Publicación | Código en `main` de [ImPaul17/elite-league](https://github.com/ImPaul17/elite-league), variables Supabase guardadas y primer despliegue de Pages correcto. Propiedad del dominio verificada por GitHub; delegación y DNS autoritativos correctos. | Confirmar actualización de cachés DNS, comprobación DNS de Pages y HTTPS; comprobar la aplicación alojada. Completar y confirmar la retirada manual de la copia remota subida por error al alojamiento anterior. |
 
 La presencia de código no cuenta como prueba de funcionamiento en producción. Las comprobaciones de cierre están definidas más abajo.
 
-### Avance de infraestructura comprobado el 6 de septiembre
+### Registro inicial de infraestructura del 6 de septiembre
+
+Las entradas siguientes conservan el primer despliegue como referencia histórica. El estado más reciente de cuentas y migraciones figura arriba y en `ACTIVACION_CUENTAS.md`.
 
 - Supabase: proyecto `ujsexqffgmkxzyvvholp` inicializado con las dos migraciones y el seed corregidos. Se verifican 12 clubes, 11 jornadas, 66 partidos, cero jugadores y cero noticias de muestra.
 - RLS y permisos: las consultas anónimas a perfiles, membresías y auditoría no exponen datos; el rol autenticado no puede actualizar `profiles.global_role`.
@@ -146,7 +148,7 @@ El procedimiento incremental y los pendientes de prueba están en `ACTIVACION_CU
 
 ### Cierre de esta tanda de desarrollo
 
-- 58/58 tests y compilación de producción correctos. Corregidos marcadores vacíos convertidos en cero, penaltis inválidos y doble publicación por clic repetido. Probado el formato `presidente/club` y la separación entre contraseñas temporales de siete caracteres y definitivas de 12–128.
+- 58/58 tests y compilación de producción correctos en la tanda anterior. Corregidos marcadores vacíos convertidos en cero, penaltis inválidos y doble publicación por clic repetido. El formato final solicitado es `nombre.club`, sin iniciales de apellido, con contraseñas temporales de siete caracteres y definitivas de 12–128.
 - Prueba local de Noticias: borrador oculto → publicación → detalle con párrafos/enlaces → retirada y vuelta a oculto. Sin datos ficticios en Supabase.
 - Revisión visual a 390 × 844: título de Patrocinadores ajustado; «Mi cuenta» y cierre de sesión accesibles en el menú móvil. Acceso por usuario revisado en escritorio.
 - Verificación de solo lectura en Supabase: 12 clubes, 11 jornadas, 66 partidos, cero jugadores/noticias; perfiles, membresías y auditoría protegidos frente a visitantes.
@@ -155,7 +157,7 @@ El procedimiento incremental y los pendientes de prueba están en `ACTIVACION_CU
 
 ### Preparación de los doce accesos
 
-- Usuarios definidos a partir de los presidentes y abreviaturas actuales; solo `pablo/pico` tendrá administración. Los otros once tendrán su membresía de presidente.
+- Usuarios definidos a partir del nombre sin apellidos y abreviaturas actuales; solo `pablo.pico` tendrá administración. Los otros once tendrán su membresía de presidente.
 - Credenciales temporales únicas preparadas fuera del proyecto web y del repositorio, marcadas como pendientes de creación. No se han enviado contraseñas a GitHub ni se han creado usuarios todavía.
 - Diagnóstico SQL de solo lectura en Supabase: cero usuarios Auth, cero administradores, cero membresías, cero columnas de la migración 0003 y doce clubes activos. La activación remota sigue pendiente.
 - Ayudante local regenerado con el nuevo formato. No reutilizar código o SQL antiguo que haya quedado abierto en los editores del navegador.

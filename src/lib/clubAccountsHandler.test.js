@@ -7,7 +7,7 @@ const password = "permanent-for-tests-only";
 const temporaryPassword = "012345!";
 function harness({ role = "admin", temporary = false, signedIn = true, verified = true, targetAdmin = false, auditError = false } = {}) {
   const calls = [];
-  const own = { id: "caller", global_role: role, username: "pablo/pico", must_change_password: temporary };
+  const own = { id: "caller", global_role: role, username: "pablo.pico", must_change_password: temporary };
   function from(table) {
     const query = { table, action: "select", where: {} };
     const chain = {
@@ -21,7 +21,7 @@ function harness({ role = "admin", temporary = false, signedIn = true, verified 
       calls.push({ ...query });
       if (table === "audit_logs" && auditError) return { error: new Error("unavailable") };
       if (query.action !== "select") return { data: { id: query.where.id || "created" }, error: null };
-      if (table === "profiles") return { data: query.where.id === "caller" ? own : { id: "target", username: "alvaros/coca", global_role: targetAdmin ? "admin" : "member" } };
+      if (table === "profiles") return { data: query.where.id === "caller" ? own : { id: "target", username: "alvaro.coca", global_role: targetAdmin ? "admin" : "member" } };
       if (table === "clubs") return { data: { id: "club", name: "Pico FC" } };
       if (table === "club_memberships") return { data: [{ id: "member" }] };
       return { data: [] };
@@ -76,9 +76,9 @@ test("cuentas: restablecer bloquea primero y excluye al propio admin u otros adm
 });
 test("cuentas: crear confirma el identificador interno y no devuelve ni audita contraseñas", async () => {
   const app = harness();
-  const result = await app.request({ action: "create", username: " Pablo/Pico ", displayName: "Pablo", clubSlug: "pico-fc", password: temporaryPassword });
+  const result = await app.request({ action: "create", username: " Pablo.Pico ", displayName: "Pablo", clubSlug: "pico-fc", password: temporaryPassword });
   assert.equal(result.data.ok, true);
-  assert.equal(result.data.username, "pablo/pico");
+  assert.equal(result.data.username, "pablo.pico");
   const creation = app.calls.find((call) => call.action === "createUser");
   assert.equal(creation.value.email, "pablo--pico@accounts.eliteleague.qd.je");
   assert.equal(creation.value.password, temporaryPassword);
@@ -86,6 +86,21 @@ test("cuentas: crear confirma el identificador interno y no devuelve ni audita c
   assert.equal(JSON.stringify(result).includes(temporaryPassword), false);
   assert.equal(JSON.stringify(app.calls.filter((call) => call.table === "audit_logs")).includes(temporaryPassword), false);
   assert.equal(app.calls.find((call) => call.table === "profiles" && call.action === "update").value.must_change_password, true);
+});
+
+test("cuentas: el mismo nombre de presidente en clubes distintos mantiene identificadores separados", async () => {
+  const emails = [];
+  for (const [username, clubSlug] of [["pablo.pico", "pico-fc"], ["alvaro.coca", "ca-coca-jrs"], ["alvaro.rayo", "rayo-zeta"], ["dani.mugiwaras", "los-mugiwaras-fc"], ["dani.caudillo", "el-caudillo-fc"]]) {
+    const app = harness();
+    const result = await app.request({ action: "create", username, displayName: username.split(".")[0], clubSlug, password: temporaryPassword });
+    assert.equal(result.data.ok, true, username);
+    assert.equal(result.data.username, username);
+    const email = app.calls.find((call) => call.action === "createUser").value.email;
+    assert.equal(email, `${username.replace(".", "--")}@accounts.eliteleague.qd.je`);
+    assert.equal(app.calls.find((call) => call.table === "profiles" && call.action === "update").value.username, username);
+    emails.push(email);
+  }
+  assert.equal(new Set(emails).size, emails.length);
 });
 
 test("cuentas: un fallo de auditoría no oculta que la contraseña ya se cambió", async () => {
@@ -97,7 +112,7 @@ test("cuentas: un fallo de auditoría no oculta que la contraseña ya se cambió
 test("cuentas: create y reset exigen la temporal de seis dígitos y un carácter antes de escribir", async () => {
   for (const action of ["create", "reset"]) for (const invalid of [password, "12345!", "1234567", "123456!a", "!123456", "123456 ", "123456!\n", "123456ñ", "123456/", null]) {
     const app = harness();
-    const result = await app.request({ action, username: "pablo/pico", displayName: "Pablo", clubSlug: "pico-fc", userId: "target", password: invalid });
+    const result = await app.request({ action, username: "pablo.pico", displayName: "Pablo", clubSlug: "pico-fc", userId: "target", password: invalid });
     assert.equal(result.status, 400, `${action}: ${String(invalid)}`);
     assert.equal(app.calls.some((call) => ["insert", "update", "createUser", "updateUser"].includes(call.action)), false);
   }
@@ -106,13 +121,13 @@ test("cuentas: create y reset exigen la temporal de seis dígitos y un carácter
 test("cuentas: create y reset aceptan temporales con letra o símbolo conservando ceros iniciales", async () => {
   for (const action of ["create", "reset"]) for (const valid of ["012345a", "012345Z", "000000?", "123456@", "123456#", "123456$", "123456%", "123456&"]) {
     const app = harness();
-    assert.equal((await app.request({ action, username: "pablo/pico", displayName: "Pablo", clubSlug: "pico-fc", userId: "target", password: valid })).data.ok, true);
+    assert.equal((await app.request({ action, username: "pablo.pico", displayName: "Pablo", clubSlug: "pico-fc", userId: "target", password: valid })).data.ok, true);
     assert.equal(app.calls.find((call) => call.action === (action === "create" ? "createUser" : "updateUser")).value.password, valid);
   }
 });
 
 test("cuentas: no crea usuarios con formatos anteriores, espacios internos ni partes demasiado largas", async () => {
-  for (const username of ["pablo", "pablo.pico", "pablo--pico", "pablo /pico", "pablo/pico/otro", "pablo-fc/pico", "pablo/pi_co", `${"p".repeat(25)}/pico`, `pablo/${"c".repeat(21)}`]) {
+  for (const username of ["pablo", "pablo/pico", "pablo--pico", "pablo .pico", "pablo.pico.otro", "pablo..pico", "pablo/pico/otro", "pablo-fc.pico", "pablo.pi_co", `${"p".repeat(25)}.pico`, `pablo.${"c".repeat(21)}`]) {
     const app = harness();
     assert.equal((await app.request({ action: "create", username, displayName: "Pablo", clubSlug: "pico-fc", password: temporaryPassword })).status, 400);
     assert.equal(app.calls.some((call) => call.action === "createUser"), false);
