@@ -1,5 +1,5 @@
 .site-footer {
-  padding-top: 54px;
+  padding-top: 28px;
   border-top: 1px solid var(--line);
   background: #0a0e0b;
 }
@@ -9,7 +9,7 @@
   align-items: center;
   justify-content: center;
   gap: clamp(32px, 4vw, 60px);
-  padding-bottom: 42px;
+  padding-bottom: 28px;
 }
 
 .footer-brand-link { flex: 0 0 auto; }
@@ -75,8 +75,8 @@
 .site-footer :focus-visible { outline: 2px solid var(--green); outline-offset: 5px; }
 
 @media (max-width: 760px) {
-  .site-footer { padding-top: 38px; }
-  .footer-branding { gap: 28px; padding-bottom: 32px; }
+  .site-footer { padding-top: 22px; }
+  .footer-branding { gap: 28px; padding-bottom: 22px; }
   .footer-league-logo, .footer-adidas-logo { height: 40px; }
   .footer-sponsors { padding: 22px 0; }
   .footer-bottom { grid-template-columns: 1fr; gap: 19px; padding: 22px 0; text-align: center; }
