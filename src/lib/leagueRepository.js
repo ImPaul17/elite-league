@@ -1,5 +1,6 @@
 import { CLUBS_BY_ID, SEASON } from "../data/league";
-import { supabase } from "./supabase";
+import { publicSupabase, supabase } from "./supabase";
+import { formatNewsDate, makeNewsSlug, newsPublicationDate, validateNewsInput } from "./news";
 
 const publicBase = import.meta.env?.BASE_URL ?? "/";
 const siteAsset = (path) => (path?.startsWith("/") ? `${publicBase}${path.slice(1)}` : path);
@@ -26,19 +27,28 @@ function toPublicClub(record) {
   };
 }
 
+const NEWS_FIELDS = "id, slug, title, excerpt, body, category, cover_path, is_featured, published_at, created_at, updated_at";
+
 function toPublicNews(record) {
   return {
     id: record.slug,
     databaseId: record.id,
     category: record.category,
-    date: new Intl.DateTimeFormat("es-ES", { dateStyle: "medium" }).format(new Date(record.published_at)),
+    date: formatNewsDate(record.published_at),
     title: record.title,
     excerpt: record.excerpt,
+    body: record.body ?? "",
+    coverPath: record.cover_path ?? "",
     featured: record.is_featured,
+    publishedAt: record.published_at,
+    createdAt: record.created_at,
+    updatedAt: record.updated_at,
   };
 }
 
 export async function loadPublicLeague() {
+  // Use anonymous RLS for this entire load, including nested results and events.
+  const supabase = publicSupabase;
   if (!supabase) throw new Error("Supabase no está configurado.");
 
   const [{ data: phase, error: phaseError }, { data: clubRows, error: clubsError }, { data: newsRows, error: newsError }] = await Promise.all([
@@ -51,7 +61,7 @@ export async function loadPublicLeague() {
       .limit(1)
       .maybeSingle(),
     supabase.from("clubs").select("id, slug, name, short_name, city, founded_year, primary_color, representative_colors, founder_name, competitive_honours, crest_path").eq("is_active", true).order("name"),
-    supabase.from("news_posts").select("id, slug, title, excerpt, category, is_featured, published_at").not("published_at", "is", null).order("published_at", { ascending: false }),
+    supabase.from("news_posts").select(NEWS_FIELDS).not("published_at", "is", null).lte("published_at", new Date().toISOString()).order("published_at", { ascending: false }),
   ]);
 
   if (phaseError) throw phaseError;
@@ -185,6 +195,7 @@ export async function loadPublicLeague() {
     matchEvents,
     officialStandings,
     news: (newsRows ?? []).map(toPublicNews),
+    adminNews: [],
     auditEvents: [],
   };
 }
@@ -192,7 +203,7 @@ export async function loadPublicLeague() {
 export async function getProductionViewer(user) {
   if (!supabase || !user) return null;
   const [{ data: profile, error: profileError }, { data: memberships, error: membershipError }, { data: clubs, error: clubsError }] = await Promise.all([
-    supabase.from("profiles").select("id, display_name, global_role").eq("id", user.id).maybeSingle(),
+    supabase.from("profiles").select("id, display_name, global_role, username, must_change_password").eq("id", user.id).maybeSingle(),
     supabase.from("club_memberships").select("club_id, role, created_at").eq("user_id", user.id).eq("is_active", true).order("created_at"),
     supabase.from("clubs").select("id, slug"),
   ]);
@@ -203,7 +214,9 @@ export async function getProductionViewer(user) {
   const slugById = new Map((clubs ?? []).map((club) => [club.id, club.slug]));
   return {
     id: user.id,
-    name: profile?.display_name || user.email || "Usuario de Elite League",
+    name: profile?.display_name || profile?.username || "Usuario de Elite League",
+    username: profile?.username ?? "",
+    requiresPasswordChange: profile?.must_change_password ?? false,
     role: profile?.global_role === "admin" ? "admin" : membership?.role ?? "member",
     clubId: slugById.get(membership?.club_id) ?? null,
     source: "supabase",
@@ -241,6 +254,13 @@ function describeAuditEvent(row) {
   if (row.action === "match_schedule_configured") return "Horario y límite de alineaciones actualizados.";
   if (row.action === "player_registered") return "Jugador registrado en la fase actual.";
   if (row.action === "news_published") return `Noticia publicada: ${data.title ?? "sin título"}.`;
+  if (row.action === "news_draft_saved") return `Borrador guardado: ${data.title ?? "sin título"}.`;
+  if (row.action === "news_updated") return `Noticia actualizada: ${data.title ?? "sin título"}.`;
+  if (row.action === "news_withdrawn") return `Noticia retirada: ${data.title ?? "sin título"}.`;
+  if (row.action === "news_deleted") return "Noticia eliminada; título conservado en el registro de auditoría del servidor.";
+  if (row.action === "club_account_created") return `Cuenta de presidente creada: ${data.username ?? "usuario"}.`;
+  if (row.action === "account_password_reset") return `Contraseña temporal restablecida: ${data.username ?? "usuario"}.`;
+  if (row.action === "account_password_changed") return "El usuario ha cambiado su contraseña.";
   if (row.action === "match_event_recorded") return `Evento de partido registrado: ${data.event_type ?? "actualización"}.`;
   if (row.action === "president_invited") return `Invitación enviada a ${data.email ?? "presidencia"}.`;
   return "Cambio registrado en la competición.";
@@ -318,22 +338,33 @@ export async function createProductionPlayer({ name, club, phaseId, positionGrou
   if (error) throw error;
 }
 
-export async function createProductionNews({ title, excerpt, category }) {
+export async function loadProductionAdminNews() {
   if (!supabase) throw new Error("Supabase no está configurado.");
-  const slugBase = title
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "")
-    .slice(0, 72) || "noticia";
-  const { error } = await supabase.rpc("publish_news", {
-    p_slug: `${slugBase}-${Date.now()}`,
-    p_title: title.trim(),
-    p_excerpt: excerpt.trim(),
-    p_category: category?.trim() || "Actualidad",
-  });
+  const { data, error } = await supabase.from("news_posts").select(NEWS_FIELDS).order("updated_at", { ascending: false });
   if (error) throw error;
+  return (data ?? []).map(toPublicNews);
+}
+
+export async function saveProductionNews({ article, input, authorId }) {
+  if (!supabase) throw new Error("Supabase no está configurado.");
+  const { value, error: validationError } = validateNewsInput(input);
+  if (validationError) throw new Error(validationError);
+  const record = {
+    title: value.title,
+    excerpt: value.excerpt,
+    body: value.body,
+    category: value.category,
+    cover_path: value.coverPath || null,
+    is_featured: value.featured,
+    published_at: newsPublicationDate(article, value.publish),
+  };
+  // Direct writes are covered by news_admin_manage; never use a service key in the browser.
+  const query = article?.databaseId
+    ? supabase.from("news_posts").update(record).eq("id", article.databaseId)
+    : supabase.from("news_posts").insert({ ...record, slug: makeNewsSlug(value.title, crypto.randomUUID()), author_id: authorId });
+  const { data, error } = await query.select(NEWS_FIELDS).single();
+  if (error) throw error;
+  return toPublicNews(data);
 }
 
 export async function createProductionMatchEvent({ match, player, eventType, minute }) {

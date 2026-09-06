@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { getRouteParts, readHashRoute } from "./routes";
-import { AppFooter, AppHeader, Notice, PageHero } from "./components/ui";
+import { ActionToast, AppFooter, AppHeader, Notice, PageHero } from "./components/ui";
 import { LeagueProvider, useLeague } from "./context/LeagueContext";
 import { AdminPage } from "./pages/AdminPage";
+import { AccountPage } from "./pages/AccountPage";
+import { SponsorsPage } from "./pages/SponsorsPage";
 import { ClubPortalPage } from "./pages/ClubPortalPage";
 import { CompetitionPage } from "./pages/CompetitionPage";
 import { HomePage } from "./pages/HomePage";
@@ -20,7 +22,7 @@ function isStandingsEdition(edition) {
 }
 
 function RouteView({ path }) {
-  const { league } = useLeague();
+  const { league, viewer } = useLeague();
   const parts = getRouteParts(path);
   if (path === "/") return <HomePage />;
   if (path === "/clasificacion") return <StandingsPage />;
@@ -40,6 +42,8 @@ function RouteView({ path }) {
   if (path === "/competicion") return <CompetitionPage />;
   if (path === "/club") return <ClubPortalPage />;
   if (path === "/admin") return <AdminPage />;
+  if (path === "/cuenta") return <AccountPage key={viewer?.id ?? "anonymous"} />;
+  if (path === "/patrocinadores") return <SponsorsPage />;
   return <NotFoundPage />;
 }
 
@@ -103,6 +107,8 @@ function AppContent() {
       "/competicion": "Competición · Elite League",
       "/club": "Portal de club · Elite League",
       "/admin": "Administración · Elite League",
+      "/cuenta": "Mi cuenta · Elite League",
+      "/patrocinadores": "Patrocinadores · Elite League",
     };
     const selectedMatchesEdition = parts[0] === "partidos" && parts[1] ? getCompetitionEdition(parts[1]) : null;
     const selectedStandingsEdition = parts[0] === "clasificacion" && parts[1] ? getCompetitionEdition(parts[1]) : null;
@@ -143,6 +149,7 @@ function AppContent() {
         ) : <RouteView path={path} />}
       </main>
       <AppFooter />
+      <ActionToast />
     </div>
   );
 }

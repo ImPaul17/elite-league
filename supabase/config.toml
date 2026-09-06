@@ -4,3 +4,7 @@ project_id = "elite-league"
 # Session validity and the admin role are checked inside the function.
 # The legacy-secret gateway cannot validate the project's asymmetric JWTs.
 verify_jwt = false
+
+[functions.club-accounts]
+# Every request is verified with Auth.getUser; admin operations check the profile.
+verify_jwt = false

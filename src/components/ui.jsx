@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { NAVIGATION } from "../app/routes";
 import { useLeague } from "../context/LeagueContext";
 
@@ -92,23 +92,51 @@ export function ActionToast() {
 }
 
 function AuthDialog({ isOpen, onClose }) {
-  const { demoAccounts, isDemoMode, passwordRecovery, requestPasswordReset, signInAsDemo, signInWithSupabase, updatePassword, viewer } = useLeague();
+  const { demoAccounts, isDemoMode, passwordRecovery, signInAsDemo, signInWithSupabase, updatePassword, viewer } = useLeague();
   const titleId = useId();
   const [accountId, setAccountId] = useState(demoAccounts[0]?.id ?? "");
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
   const [mode, setMode] = useState("login");
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [success, setSuccess] = useState("");
+  const busyRef = useRef(false);
+  const mountedRef = useRef(false);
+  const dialogRef = useRef(null);
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
+  const dialogMode = passwordRecovery ? "new-password" : mode;
 
   useEffect(() => {
     if (!isOpen) return undefined;
+    mountedRef.current = true;
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     const closeOnEscape = (event) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") closeRef.current();
+      if (event.key !== "Tab") return;
+      const focusable = [...(dialogRef.current?.querySelectorAll('button:not([disabled]), input:not([disabled]), select:not([disabled]), a[href]') ?? [])];
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (!dialogRef.current?.contains(document.activeElement)) { event.preventDefault(); first?.focus(); }
+      else if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
     };
     window.addEventListener("keydown", closeOnEscape);
-    return () => window.removeEventListener("keydown", closeOnEscape);
-  }, [isOpen, onClose]);
+    return () => {
+      mountedRef.current = false;
+      window.removeEventListener("keydown", closeOnEscape);
+      document.body.style.overflow = previousOverflow;
+      if (previousFocus?.isConnected) previousFocus.focus();
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen) (dialogRef.current?.querySelector("input, select") ?? dialogRef.current?.querySelector("button"))?.focus();
+  }, [isOpen, dialogMode]);
 
   if (!isOpen) return null;
 
@@ -124,23 +152,7 @@ function AuthDialog({ isOpen, onClose }) {
 
   async function handleProductionSubmit(event) {
     event.preventDefault();
-    const result = await signInWithSupabase(email, password);
-    if (!result.ok) {
-      setError(result.error);
-      return;
-    }
-    onClose();
-  }
-
-  async function handleResetRequest(event) {
-    event.preventDefault();
-    const result = await requestPasswordReset(email);
-    if (!result.ok) {
-      setError(result.error);
-      return;
-    }
-    setError("");
-    setMode("login");
+    await runRequest(() => signInWithSupabase(username, password), onClose);
   }
 
   async function handlePasswordUpdate(event) {
@@ -149,34 +161,51 @@ function AuthDialog({ isOpen, onClose }) {
       setError("Las contraseñas no coinciden.");
       return;
     }
-    const result = await updatePassword(password);
-    if (!result.ok) {
-      setError(result.error);
-      return;
-    }
-    setError("");
-    setPassword("");
-    setConfirmation("");
-    onClose();
+    await runRequest(() => updatePassword(password), () => {
+      setPassword("");
+      setConfirmation("");
+      onClose();
+    });
   }
 
-  const dialogMode = passwordRecovery ? "new-password" : mode;
+  async function runRequest(action, onSuccess) {
+    if (busyRef.current) return;
+    busyRef.current = true;
+    setBusy(true);
+    setError("");
+    setSuccess("");
+    try {
+      const result = await action();
+      if (!mountedRef.current) return;
+      if (!result.ok) {
+        const message = result.error || "No se ha podido completar la operación.";
+        setError(/invalid login credentials/i.test(message) ? "El usuario o la contraseña no son correctos." : message);
+      } else onSuccess();
+    } catch {
+      if (mountedRef.current) setError("No se ha podido conectar. Comprueba tu conexión y vuelve a intentarlo.");
+    } finally {
+      busyRef.current = false;
+      if (mountedRef.current) setBusy(false);
+    }
+  }
+
   const dialogTitle = dialogMode === "new-password" ? "Elige una nueva contraseña" : dialogMode === "reset" ? "Restablecer contraseña" : viewer ? "Cambiar acceso" : "Acceso a Elite League";
 
   return (
     <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
-      <section className="auth-dialog" role="dialog" aria-modal="true" aria-labelledby={titleId} onMouseDown={(event) => event.stopPropagation()}>
+      <section ref={dialogRef} className="auth-dialog" role="dialog" aria-modal="true" aria-labelledby={titleId} aria-busy={busy} onMouseDown={(event) => event.stopPropagation()}>
         <button className="dialog-close" type="button" onClick={onClose} aria-label="Cerrar acceso">×</button>
         <p className="eyebrow">Área privada</p>
         <h2 id={titleId}>{dialogTitle}</h2>
-        <p className="dialog-description">{dialogMode === "new-password" ? "La invitación o el enlace de recuperación está verificado. Define una contraseña segura para continuar." : dialogMode === "reset" ? "Te enviaremos un enlace seguro al correo asociado a tu cuenta." : "Los clubes enviarán su alineación 4+1 y el administrador podrá gestionar toda la competición desde aquí."}</p>
+        <p className="dialog-description">{dialogMode === "new-password" ? "Define una contraseña segura para continuar con tu cuenta." : dialogMode === "reset" ? "Pide a la organización que restablezca tu contraseña. Te dará una contraseña temporal que podrás cambiar al entrar." : "Introduce el usuario y la contraseña que te haya facilitado la organización."}</p>
+        {success && <p className="notice notice-info" role="status">{success}</p>}
 
         {dialogMode === "new-password" ? (
           <form className="stack-form" onSubmit={handlePasswordUpdate}>
             <label>Nueva contraseña<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} required minLength="8" autoComplete="new-password" autoFocus /></label>
             <label>Repite la contraseña<input type="password" value={confirmation} onChange={(event) => setConfirmation(event.target.value)} required minLength="8" autoComplete="new-password" /></label>
             {error && <p className="form-error" role="alert">{error}</p>}
-            <button className="button button-primary" type="submit">Guardar nueva contraseña</button>
+            <button className="button button-primary" type="submit" disabled={busy}>{busy ? "Guardando…" : "Guardar nueva contraseña"}</button>
           </form>
         ) : isDemoMode ? (
           <form className="stack-form" onSubmit={handleDemoSubmit}>
@@ -193,25 +222,22 @@ function AuthDialog({ isOpen, onClose }) {
             <button className="button button-primary" type="submit">Abrir acceso de demostración</button>
           </form>
         ) : dialogMode === "reset" ? (
-          <form className="stack-form" onSubmit={handleResetRequest}>
-            <label>Correo electrónico<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required autoComplete="email" autoFocus /></label>
-            {error && <p className="form-error" role="alert">{error}</p>}
-            <button className="button button-primary" type="submit">Enviar enlace de recuperación</button>
-            <button className="text-button" type="button" onClick={() => { setError(""); setMode("login"); }}>Volver al acceso</button>
-          </form>
+          <div className="stack-form">
+            <button className="text-button" type="button" disabled={busy} onClick={() => { setError(""); setSuccess(""); setMode("login"); }}>Volver al acceso</button>
+          </div>
         ) : (
           <form className="stack-form" onSubmit={handleProductionSubmit}>
             <label>
-              Correo electrónico
-              <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required autoComplete="email" />
+              Usuario
+              <input type="text" value={username} onChange={(event) => setUsername(event.target.value)} required minLength={3} maxLength={32} autoComplete="username" autoCapitalize="none" spellCheck={false} disabled={busy} />
             </label>
             <label>
               Contraseña
-              <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} required autoComplete="current-password" />
+              <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} required autoComplete="current-password" disabled={busy} />
             </label>
             {error && <p className="form-error" role="alert">{error}</p>}
-            <button className="button button-primary" type="submit">Iniciar sesión</button>
-            <button className="text-button" type="button" onClick={() => { setError(""); setMode("reset"); }}>He olvidado mi contraseña</button>
+            <button className="button button-primary" type="submit" disabled={busy}>{busy ? "Entrando…" : "Iniciar sesión"}</button>
+            <button className="text-button" type="button" disabled={busy} onClick={() => { setError(""); setSuccess(""); setPassword(""); setMode("reset"); }}>He olvidado mi contraseña</button>
           </form>
         )}
       </section>
@@ -236,7 +262,7 @@ export function AppHeader({ activePath }) {
   return (
     <>
       <a className="skip-link" href="#main-content">Saltar al contenido</a>
-      <header className="site-header">
+      <header className={`site-header${viewer ? " has-account" : ""}`}>
         <div className="header-main shell">
           <AppLink to="/" className="brand" aria-label="Elite League, inicio">
             <span
@@ -257,14 +283,19 @@ export function AppHeader({ activePath }) {
                 {item.label}
               </AppLink>
             ))}
+            {viewer && <div className="mobile-account-navigation">
+              <AppLink to="/cuenta" onClick={() => setIsMenuOpen(false)}>Mi cuenta</AppLink>
+              <button className="button button-quiet" type="button" onClick={async () => { const result = await signOut(); if (result.ok) setIsMenuOpen(false); }}>Cerrar sesión</button>
+            </div>}
           </nav>
           <div className="header-actions">
             {viewer ? (
               <div className="account-actions">
-                <AppLink className="account-chip" to={viewer.role === "admin" ? "/admin" : "/club"}>
+                <AppLink className="account-chip" to={viewer.requiresPasswordChange ? "/cuenta" : viewer.role === "admin" ? "/admin" : "/club"}>
                   <span className="account-dot" />
                   <span>{viewer.role === "admin" ? "Administración" : "Mi club"}</span>
                 </AppLink>
+                <AppLink className="button button-quiet" to="/cuenta">Mi cuenta</AppLink>
                 <button className="button button-quiet" type="button" onClick={signOut}>Salir</button>
               </div>
             ) : (
@@ -287,7 +318,7 @@ export function AppHeader({ activePath }) {
           </div>
         </nav>
       </header>
-      <AuthDialog isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
+      {isAuthOpen && <AuthDialog isOpen onClose={() => setIsAuthOpen(false)} />}
     </>
   );
 }
@@ -304,8 +335,9 @@ export function AppFooter() {
           <AppLink to="/competicion">Formato y reglas</AppLink>
           <AppLink to="/partidos">Calendario</AppLink>
           <AppLink to="/noticias">Actualidad</AppLink>
+          <AppLink to="/patrocinadores">Patrocinadores</AppLink>
         </div>
-        <small>© {new Date().getFullYear()} Elite League · Base preparada para gestión oficial.</small>
+        <small>© {new Date().getFullYear()} Elite League</small>
       </div>
     </footer>
   );

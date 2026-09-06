@@ -1,10 +1,13 @@
-import { AppLink, PageHero, SectionHeading, StatusBadge } from "../components/ui";
+import { AppLink, EmptyState, PageHero, SectionHeading, StatusBadge } from "../components/ui";
+import { NewsCard } from "../components/NewsContent";
 import { OfficialMatchdayBoard, OfficialStandingsBoard, StatisticLeaderboard } from "../components/competition";
 import { useLeague } from "../context/LeagueContext";
 import { getStatisticLeaders } from "../lib/leagueEngine";
+import { getPublishedNews } from "../lib/news";
 
 export function HomePage() {
-  const { league, standings, currentMatchday, playerStatistics } = useLeague();
+  const { league, standings, currentMatchday, playerStatistics, dataStatus } = useLeague();
+  const news = getPublishedNews(league.news, { limit: 3 });
   const scorers = getStatisticLeaders(playerStatistics, "goals", 3);
   const assistLeaders = getStatisticLeaders(playerStatistics, "assists", 3);
   const mvpLeaders = getStatisticLeaders(playerStatistics, "mvps", 3);
@@ -39,16 +42,9 @@ export function HomePage() {
 
       <section className="content-section reveal-item">
         <SectionHeading eyebrow="Actualidad" title="Últimas noticias" action={<AppLink to="/noticias" className="text-link">Ver todas →</AppLink>} />
-        <div className="news-grid">
-          {league.news.map((article) => (
-            <article className={`news-card ${article.featured ? "is-featured" : ""}`} key={article.id}>
-              <div className="news-card-mark"><span>{article.category}</span><small>{article.date}</small></div>
-              <h3>{article.title}</h3>
-              <p>{article.excerpt}</p>
-              <AppLink to={`/noticias/${article.id}`} className="text-link">Leer noticia →</AppLink>
-            </article>
-          ))}
-        </div>
+        {news.length ? <div className="news-grid news-public-grid">{news.map((article) => <NewsCard article={article} key={article.id} />)}</div>
+          : dataStatus === "loading" ? <p role="status">Cargando noticias…</p>
+            : <EmptyState title={dataStatus === "error" ? "No se han podido cargar las noticias" : "Todavía no hay noticias publicadas"} description={dataStatus === "error" ? "Puedes volver a intentarlo en la sección Noticias." : "Aquí aparecerán los próximos anuncios de Elite League."} />}
       </section>
     </>
   );

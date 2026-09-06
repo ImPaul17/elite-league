@@ -2,7 +2,7 @@
 
 Web oficial de **Elite League**, una competición de FC Rush 5v5. Este repositorio reúne el sitio público, la gestión de competición y una base preparada para presidentes de club y administración.
 
-> Estado comprobado el 6 de septiembre de 2026: el código está en [ImPaul17/elite-league](https://github.com/ImPaul17/elite-league) y el primer despliegue de GitHub Pages ha terminado correctamente. Supabase está conectado con 12 clubes, 11 jornadas y 66 partidos, sin jugadores ni noticias de muestra. GitHub ha verificado la propiedad de `eliteleague.qd.je`; la delegación y los registros DNS autoritativos son correctos. Siguen pendientes la actualización de cachés DNS, la comprobación DNS de Pages, HTTPS y la revisión pública de la web. SMTP, pruebas con cuentas reales y retirada de una copia remota errónea también están pendientes. Véase `PLANIFICACION_LANZAMIENTO.md` para el estado de entrega.
+> Estado comprobado el 6 de septiembre de 2026: el código está en [ImPaul17/elite-league](https://github.com/ImPaul17/elite-league) y el primer despliegue de GitHub Pages ha terminado correctamente. Supabase está conectado con 12 clubes, 11 jornadas y 66 partidos, sin jugadores ni noticias de muestra. GitHub ha verificado la propiedad de `eliteleague.qd.je`; la delegación y los registros DNS autoritativos son correctos. Siguen pendientes la actualización de cachés DNS, la comprobación DNS de Pages, HTTPS y la revisión pública de la web. La nueva versión de acceso por usuario, el editor de Noticias y Patrocinadores están implementados localmente; siguen pendientes su activación y las pruebas con cuentas reales, además de la retirada de una copia remota errónea. Véase `PLANIFICACION_LANZAMIENTO.md` para el estado de entrega.
 
 ![Tarjeta de Elite League](public/og.png)
 
@@ -16,12 +16,12 @@ Web oficial de **Elite League**, una competición de FC Rush 5v5. Este repositor
 - Archivo de resultados de Split 1, Split 2 y Elite Cup: clasificación calculada, partidos de fase regular o grupos y eliminatorias por club.
 - Calendario de Partidos con selector por edición: Split 3 actual, Split 1, Split 2 y Elite Cup, incluidos filtros de grupos y play-offs históricos.
 - Páginas de estadísticas, noticias, formato de competición y reglamento operativo.
-- Portal de presidente de club: plantilla, siguiente partido y constructor de formación de **4 jugadores de campo + 1 portero**.
-- Panel de administración para configurar jornadas, horarios y límites 4+1; registrar jugadores, resultados, eventos, noticias e invitaciones de presidentes.
+- Portal de presidente: calendario, resultados y clasificación de su club. Jugadores y alineaciones quedan inactivos para este lanzamiento.
+- Panel de administración para jornadas, horarios, resultados, Noticias y usuarios de presidentes; «Mi cuenta» para cambiar contraseña.
 - Fichas institucionales de los 12 clubes con año de fundación, presidencia, colores representativos y palmarés competitivo.
 - Diseño responsive, barra de clubes con scroll-snap, tableros editoriales de clasificación y jornada, transiciones sutiles y respeto de `prefers-reduced-motion`.
 - Base de datos versionada de Supabase con autenticación, recuperación de contraseña, roles, RLS, alineaciones, resultados, eventos, auditoría y clasificación calculada en servidor.
-- Función de servidor para invitar presidentes sin exponer una clave de administración en el frontend.
+- Función segura de cuentas por usuario, contraseña temporal obligatoria y restablecimiento administrativo. No requiere correo ni SMTP.
 - Flujo de publicación para GitHub Pages y una tarjeta social de Elite League.
 
 ## Principio de funcionamiento
@@ -31,13 +31,13 @@ Visitante
   └─ consulta clubes, noticias, jornadas, resultados y clasificación pública
 
 Presidente de club
-  └─ gestiona solo la plantilla de su club y presenta la formación 4+1
+  └─ consulta su club y calendario; cambia su contraseña desde Mi cuenta
 
 Administrador
   └─ organiza temporadas, clubes, jugadores, jornadas, resultados, noticias y reglas
 
 React + Vite (GitHub Pages)
-  └─ Supabase Auth + PostgreSQL + RLS + Storage + Edge Function de invitaciones
+  └─ Supabase Auth + PostgreSQL + RLS + Storage + Edge Function de cuentas
 ```
 
 La arquitectura de publicación elegida es GitHub Pages para el frontend estático y Supabase para las cuentas, la seguridad, los datos y las operaciones que no pueden vivir de forma segura en el navegador. GitHub conserva el código y su historial; el proyecto local se puede seguir editando y sincronizando mediante Git.
@@ -90,11 +90,10 @@ Este comando ejecuta las pruebas de reglas de clasificación y forma la compilac
 
 1. Abre **Acceso clubes** en la cabecera.
 2. Elige `Administrador · Pico FC` para entrar como organizador y presidente de Pico FC. No hay contraseña de ejemplo porque no se debe entrenar a los usuarios a usar credenciales visibles.
-3. En **Administración**, configura el estado, fecha, horario y límite de una jornada; registra jugadores de prueba y publica uno o varios resultados.
-4. Registra goles, asistencias o MVP de un partido confirmado: las estadísticas se actualizan automáticamente.
-5. La clasificación se recalcula en el acto con las reglas oficiales.
-6. En **Mi club**, abre la siguiente jornada y selecciona un portero y cuatro jugadores de campo. Puedes guardar un borrador o enviar la formación.
-6. Usa **Restaurar datos de demostración** desde administración para volver al estado inicial.
+3. En **Administración**, prueba resultados, penaltis, horarios y el editor de Noticias.
+4. Guarda un borrador, publícalo, abre su detalle y retíralo. Estos cambios no llegan a Supabase.
+5. En **Mi club**, consulta el calendario; las funciones de jugadores están pendientes.
+6. Recarga para descartar todos los cambios de la demostración.
 
 Los cambios de demostración viven solo en memoria. Su objetivo es probar los flujos de producto sin confundirlos con un backend real.
 
@@ -150,63 +149,34 @@ El bracket debe ser configurable por temporada. El material histórico de Split 
 
 ## Supabase: puesta en producción
 
-El proyecto de esta entrega ya está inicializado y la función de invitaciones está desplegada. Los pasos de creación, migraciones y seed siguientes documentan la preparación de un entorno nuevo: no deben repetirse sobre producción sin revisar su estado. Siguen pendientes SMTP, las cuentas autorizadas y las pruebas completas de acceso y permisos.
+El proyecto existente ya tiene las migraciones 0001 y 0002 y el seed público. **No repetir la instalación inicial sobre producción.** La activación incremental del nuevo acceso se documenta en [ACTIVACION_CUENTAS.md](ACTIVACION_CUENTAS.md).
 
-### 1. Crear el proyecto
+### 1. Entorno nuevo
 
-Crea un proyecto nuevo en Supabase y usa una región cercana a los jugadores. Activa el proveedor de correo y contraseña, desactiva el registro abierto y configura las URL de redirección para `http://localhost:3000`, tu URL de GitHub Pages y el dominio final. La aplicación utiliza recuperación de contraseña con flujo PKCE, compatible con sus rutas con hash.
+Solo para una base nueva: aplicar 0001, 0002, el seed y después 0003. Mantener desactivado el registro abierto. Las cuentas se crean desde administración; no hay registro público.
 
-### 2. Aplicar esquema y seed
+### 2. Actualizar el entorno existente
 
-En el SQL Editor de Supabase, ejecuta todas las migraciones en este orden:
+Aplicar `supabase/migrations/0003_username_accounts_and_news_audit.sql`: añade el usuario, el requisito de cambio de contraseña y auditoría de noticias. No modifica resultados, fechas ni miembros existentes.
 
-```text
-supabase/migrations/0001_elite_league.sql
-supabase/migrations/0002_club_profiles.sql
-```
+### 3. Desplegar el servicio de cuentas
 
-Después ejecuta:
-
-```text
-supabase/seed.sql
-```
-
-El seed instala únicamente contenido público: los 12 clubes, Split 3 y la liga regular. No carga jugadores ni noticias de ejemplo. No subas contratos, datos personales, vídeos o recursos de mod privados.
-
-La migración también crea el bucket público `elite-public`. Úsalo solo para escudos, fotos autorizadas, portadas y recursos optimizados; las políticas permiten subir, actualizar o borrar archivos únicamente a administración.
-
-### 3. Desplegar la invitación segura de presidentes
-
-La web incluye `supabase/functions/invite-president/index.ts`. Esta función verifica la sesión contra Supabase Auth y que quien la llama sea administrador, crea la invitación y vincula al presidente con su club. La clave `service_role` se mantiene exclusivamente en Supabase. `supabase/config.toml` desactiva solo el verificador de firma heredada del gateway: la comprobación de sesión y rol dentro de la función es obligatoria.
-
-Configura SMTP antes de invitar a los presidentes: el correo predeterminado de Supabase solo envía a direcciones autorizadas del equipo del proyecto. No se deben desactivar las confirmaciones de correo para eludir esta limitación.
-
-Una vez enlazado el proyecto con la CLI de Supabase, despliega la función y limita los orígenes permitidos:
+Con la CLI autenticada en el proyecto correcto:
 
 ```bash
+supabase functions deploy club-accounts
 supabase functions deploy invite-president
-supabase secrets set APP_URL=https://TU-USUARIO.github.io/elite-league/ ALLOWED_ORIGINS=https://TU-USUARIO.github.io,https://tudominio.com
 ```
 
-`APP_URL` debe ser la URL pública exacta de la web, incluido `/elite-league/` si usas GitHub Pages de proyecto. Después, en **Administración → Invitar presidente de club**, introduce nombre, correo y club. La persona recibirá un enlace seguro para elegir su contraseña.
+La segunda función queda desactivada para impedir que se sigan usando las invitaciones antiguas. `club-accounts` valida la sesión en Auth y el rol en perfiles protegidos. El servicio soporta crear/listar presidentes, restablecer su contraseña y cambiar la propia tras verificar la contraseña actual.
 
-### 4. Nombrar el primer administrador
+Configurar `ALLOWED_ORIGINS` con los orígenes autorizados. Las claves privadas pertenecen exclusivamente al servidor. Los identificadores internos de Auth no son correos de contacto; no requiere SMTP.
 
-Después de crear la cuenta del organizador, localiza su UUID en `Authentication → Users` y ejecuta este SQL sustituyendo los marcadores:
+### 4. Primer administrador y prueba real
 
-```sql
-update public.profiles
-set global_role = 'admin', display_name = 'Nombre del administrador'
-where id = 'UUID_DEL_ADMIN';
+El propietario del proyecto crea la primera cuenta y asigna su rol por UUID verificado. Ver el procedimiento de [activación](ACTIVACION_CUENTAS.md); no publicar credenciales ni UUID ficticios. Después se crean los presidentes desde el panel.
 
-insert into public.club_memberships (club_id, user_id, role)
-select c.id, 'UUID_DEL_ADMIN', 'president'
-from public.clubs c
-where c.slug = 'pico-fc'
-on conflict (club_id, user_id) do update set role = excluded.role, is_active = true;
-```
-
-Así la misma cuenta tendrá dos permisos independientes: presidente de Pico FC y administrador global. No existe ningún bypass basado en el nombre de un club dentro del frontend.
+Antes de darlo por terminado, probar inicio/cierre, recarga, cambio obligatorio, contraseña antigua rechazada, restablecimiento y permisos desde cuentas autorizadas distintas.
 
 ### 5. Variables del frontend
 

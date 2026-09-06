@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLeague } from "../context/LeagueContext";
 import { getMatchStatus, isOfficialResult } from "../lib/leagueEngine";
 import { ClubCrest, EmptyState, Notice, StatusBadge } from "./ui";
@@ -122,6 +122,8 @@ export function ResultEditor({ match }) {
     awayPenalties: match.penalties?.away ?? "",
   });
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const busyRef = useRef(false);
   const status = getMatchStatus(match);
 
   useEffect(() => {
@@ -140,12 +142,23 @@ export function ResultEditor({ match }) {
 
   async function submit(event) {
     event.preventDefault();
-    const result = await updateMatchResult({ matchId: match.id, ...form });
-    if (!result.ok) setError(result.error);
+    if (busyRef.current) return;
+    busyRef.current = true;
+    setBusy(true);
+    setError("");
+    try {
+      const result = await updateMatchResult({ matchId: match.id, ...form });
+      if (!result.ok) setError(result.error);
+    } catch {
+      setError("No se ha podido publicar el resultado. Comprueba la conexión.");
+    } finally {
+      busyRef.current = false;
+      setBusy(false);
+    }
   }
 
   return (
-    <form className="result-editor" onSubmit={submit}>
+    <form className="result-editor" onSubmit={submit} aria-busy={busy}>
       <div className="result-editor-meta">
         <span>J{String(match.matchdayNumber).padStart(2, "0")} · Partido {String(match.order).padStart(2, "0")}</span>
         <StatusBadge tone={status.tone}>{status.label}</StatusBadge>
@@ -153,20 +166,20 @@ export function ResultEditor({ match }) {
       <div className="result-editor-clubs">
         <div><ClubCrest club={home} size="xs" decorative /><strong>{home.name}</strong></div>
         <div className="score-inputs">
-          <label><span className="visually-hidden">Goles de {home.name}</span><input aria-label={`Goles de ${home.name}`} value={form.homeScore} inputMode="numeric" onChange={(event) => setField("homeScore", event.target.value)} /></label>
+          <label><span className="visually-hidden">Goles de {home.name}</span><input aria-label={`Goles de ${home.name}`} value={form.homeScore} inputMode="numeric" required disabled={busy} onChange={(event) => setField("homeScore", event.target.value)} /></label>
           <span>—</span>
-          <label><span className="visually-hidden">Goles de {away.name}</span><input aria-label={`Goles de ${away.name}`} value={form.awayScore} inputMode="numeric" onChange={(event) => setField("awayScore", event.target.value)} /></label>
+          <label><span className="visually-hidden">Goles de {away.name}</span><input aria-label={`Goles de ${away.name}`} value={form.awayScore} inputMode="numeric" required disabled={busy} onChange={(event) => setField("awayScore", event.target.value)} /></label>
         </div>
         <div><ClubCrest club={away} size="xs" decorative /><strong>{away.name}</strong></div>
       </div>
       <div className="penalty-inputs">
         <span>Penaltis (solo si hay empate)</span>
-        <label><span className="visually-hidden">Penaltis de {home.name}</span><input aria-label={`Penaltis de ${home.name}`} value={form.homePenalties} inputMode="numeric" onChange={(event) => setField("homePenalties", event.target.value)} /></label>
+        <label><span className="visually-hidden">Penaltis de {home.name}</span><input aria-label={`Penaltis de ${home.name}`} value={form.homePenalties} inputMode="numeric" disabled={busy} onChange={(event) => setField("homePenalties", event.target.value)} /></label>
         <span>—</span>
-        <label><span className="visually-hidden">Penaltis de {away.name}</span><input aria-label={`Penaltis de ${away.name}`} value={form.awayPenalties} inputMode="numeric" onChange={(event) => setField("awayPenalties", event.target.value)} /></label>
+        <label><span className="visually-hidden">Penaltis de {away.name}</span><input aria-label={`Penaltis de ${away.name}`} value={form.awayPenalties} inputMode="numeric" disabled={busy} onChange={(event) => setField("awayPenalties", event.target.value)} /></label>
       </div>
       {error && <p className="form-error" role="alert">{error}</p>}
-      <button className="button button-primary button-small" type="submit">Publicar resultado</button>
+      <button className="button button-primary button-small" type="submit" disabled={busy}>{busy ? "Publicando…" : "Publicar resultado"}</button>
     </form>
   );
 }
@@ -199,32 +212,7 @@ export function PlayerRegistrationForm() {
   );
 }
 
-export function NewsEditorForm() {
-  const { addNews } = useLeague();
-  const [form, setForm] = useState({ title: "", category: "Actualidad", excerpt: "" });
-  const [error, setError] = useState("");
-
-  async function submit(event) {
-    event.preventDefault();
-    const result = await addNews(form);
-    if (!result.ok) {
-      setError(result.error);
-      return;
-    }
-    setError("");
-    setForm({ title: "", category: "Actualidad", excerpt: "" });
-  }
-
-  return (
-    <form className="news-editor-form" onSubmit={submit}>
-      <label>Título<input value={form.title} onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))} placeholder="Titular oficial" required /></label>
-      <label>Categoría<select value={form.category} onChange={(event) => setForm((current) => ({ ...current, category: event.target.value }))}><option>Actualidad</option><option>Competición</option><option>Clubes</option><option>Reglamento</option></select></label>
-      <label>Resumen<textarea value={form.excerpt} onChange={(event) => setForm((current) => ({ ...current, excerpt: event.target.value }))} placeholder="Texto visible en el listado de noticias" required rows="3" /></label>
-      {error && <p className="form-error" role="alert">{error}</p>}
-      <button className="button button-primary button-small" type="submit">Publicar noticia</button>
-    </form>
-  );
-}
+export { NewsEditorForm } from "./NewsEditorForm";
 
 const EVENT_LABELS = {
   goal: "Gol",
@@ -342,33 +330,5 @@ export function MatchdayConfigurationForm({ matchday }) {
       </form>
       {error && <p className="form-error" role="alert">{error}</p>}
     </div>
-  );
-}
-
-export function PresidentInviteForm() {
-  const { league, invitePresident, isDemoMode } = useLeague();
-  const [form, setForm] = useState({ displayName: "", email: "", clubId: league.clubs[0]?.id ?? "" });
-  const [error, setError] = useState("");
-
-  async function submit(event) {
-    event.preventDefault();
-    const result = await invitePresident(form);
-    if (!result.ok) {
-      setError(result.error);
-      return;
-    }
-    setError("");
-    setForm((current) => ({ ...current, displayName: "", email: "" }));
-  }
-
-  return (
-    <form className="president-invite-form" onSubmit={submit}>
-      {isDemoMode && <Notice tone="info">La invitación real se habilita cuando conectes Supabase y despliegues la función segura incluida en el proyecto.</Notice>}
-      <label>Nombre<input value={form.displayName} onChange={(event) => setForm((current) => ({ ...current, displayName: event.target.value }))} placeholder="Nombre público" required /></label>
-      <label>Correo<input type="email" value={form.email} onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))} placeholder="presidencia@club.com" required /></label>
-      <label>Club<select value={form.clubId} onChange={(event) => setForm((current) => ({ ...current, clubId: event.target.value }))}>{league.clubs.map((club) => <option value={club.id} key={club.id}>{club.name}</option>)}</select></label>
-      {error && <p className="form-error" role="alert">{error}</p>}
-      <button className="button button-primary button-small" type="submit">Enviar invitación</button>
-    </form>
   );
 }

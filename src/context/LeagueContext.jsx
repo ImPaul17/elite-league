@@ -8,22 +8,25 @@ import {
   isOfficialResult,
   validateLineup,
 } from "../lib/leagueEngine";
-import { initializeInvitationSession, isSupabaseConfigured, supabase } from "../lib/supabase";
+import { clearVerifiedPasswordRecovery, hasVerifiedPasswordRecovery, initializeInvitationSession, initializePasswordRecoverySession, isSupabaseConfigured, supabase } from "../lib/supabase";
 import { createSessionSynchronizer } from "../lib/sessionSynchronizer";
 import {
   configureProductionMatchSchedule,
   configureProductionMatchday,
   createProductionMatchEvent,
-  createProductionNews,
   createProductionPlayer,
   getProductionViewer,
-  inviteProductionPresident,
   loadProductionAuditEvents,
+  loadProductionAdminNews,
   loadPrivateLineups,
   loadPublicLeague,
   saveProductionLineup,
   saveProductionResult,
+  saveProductionNews,
 } from "../lib/leagueRepository";
+import { formatNewsDate, getPublishedNews, newsPublicationDate, validateNewsInput } from "../lib/news";
+import { accountIdentifier } from "../../supabase/functions/_shared/accountRules.js";
+import { validateMatchResultInput } from "../lib/matchResultInput";
 
 const LeagueContext = createContext(null);
 const EVENT_TYPES = new Set(["goal", "assist", "mvp", "yellow_card", "blue_card", "red_card"]);
@@ -79,6 +82,7 @@ export function LeagueProvider({ children }) {
   const [league, setLeague] = useState(() => {
     const initialLeague = createLeagueSeed();
     if (isSupabaseConfigured) initialLeague.news = [];
+    initialLeague.adminNews = [];
     return initialLeague;
   });
   const [viewer, setViewer] = useState(null);
@@ -114,12 +118,14 @@ export function LeagueProvider({ children }) {
     try {
       const publicLeague = await loadPublicLeague();
       if (!isCurrent()) return;
-      if (viewerForPrivate?.clubId) {
+      if (viewerForPrivate?.clubId && !viewerForPrivate.requiresPasswordChange) {
         publicLeague.lineups = await loadPrivateLineups({ clubId: viewerForPrivate.clubId, league: publicLeague });
       }
       if (!isCurrent()) return;
-      if (viewerForPrivate?.role === "admin") {
+      if (viewerForPrivate?.role === "admin" && !viewerForPrivate.requiresPasswordChange) {
         publicLeague.auditEvents = await loadProductionAuditEvents();
+        if (!isCurrent()) return;
+        publicLeague.adminNews = await loadProductionAdminNews();
       }
       if (!isCurrent()) return;
       setLeague(publicLeague);
@@ -144,7 +150,7 @@ export function LeagueProvider({ children }) {
         viewerRef.current = null;
         setViewer(null);
         setPasswordRecovery(false);
-        setLeague((previous) => ({ ...previous, lineups: [], auditEvents: [] }));
+        setLeague((previous) => ({ ...previous, lineups: [], auditEvents: [], adminNews: [] }));
       },
       onRecovery() { setPasswordRecovery(true); },
       async synchronize(session, isCurrent) {
@@ -153,7 +159,7 @@ export function LeagueProvider({ children }) {
           return;
         }
         const setupMode = new URLSearchParams(window.location.search).get("setup");
-        if (setupMode === "recovery" || (setupMode === "invite" && session.user.id === invitedUserId)) setPasswordRecovery(true);
+        if (hasVerifiedPasswordRecovery(session) || (setupMode === "invite" && session.user.id === invitedUserId)) setPasswordRecovery(true);
         let nextViewer;
         try {
           nextViewer = await getProductionViewer(session.user);
@@ -161,7 +167,7 @@ export function LeagueProvider({ children }) {
           if (isCurrent()) {
             viewerRef.current = null;
             setViewer(null);
-            setLeague((previous) => ({ ...previous, lineups: [], auditEvents: [] }));
+            setLeague((previous) => ({ ...previous, lineups: [], auditEvents: [], adminNews: [] }));
             // Keep public content available even when the private profile fails.
             await reloadProductionLeague().catch(() => {});
           }
@@ -179,7 +185,7 @@ export function LeagueProvider({ children }) {
     sessionSynchronizerRef.current = synchronizer;
     // Resolve an invitation before exposing a previously saved account. The
     // initial auth event then supplies the accepted session without getSession.
-    initializeInvitationSession().then(({ data, error }) => {
+    Promise.all([initializeInvitationSession(), initializePasswordRecoverySession()]).then(([{ data, error }, recovery]) => {
       if (!isActive) return;
       if (error) {
         setPasswordRecovery(false);
@@ -189,6 +195,10 @@ export function LeagueProvider({ children }) {
         setLastAction({ tone: "error", message: `No se ha podido aceptar la invitación: ${error.message}` });
       } else {
         invitedUserId = data?.session?.user?.id ?? null;
+      }
+      if (recovery.error) {
+        setPasswordRecovery(false);
+        setLastAction({ tone: "error", message: recovery.error.message });
       }
       listener = supabase.auth.onAuthStateChange((event, session) => {
         synchronizer.sync(event, session);
@@ -209,6 +219,7 @@ export function LeagueProvider({ children }) {
     const account = DEMO_ACCOUNTS.find((candidate) => candidate.id === accountId);
     if (!account) return { ok: false, error: "No se ha encontrado ese acceso de demostración." };
     setViewer(account);
+    if (account.role !== "admin") setLeague((previous) => ({ ...previous, adminNews: [] }));
     setLastAction({ tone: "success", message: `Sesión de demostración iniciada: ${account.name}.` });
     return { ok: true };
   }, []);
@@ -226,42 +237,30 @@ export function LeagueProvider({ children }) {
         return { ok: false, error: message };
       }
     }
+    clearVerifiedPasswordRecovery();
     setViewer(null);
+    setLeague((previous) => ({ ...previous, adminNews: [] }));
     setPasswordRecovery(false);
     setLastAction({ tone: "neutral", message: "Sesión cerrada." });
     return { ok: true };
   }, []);
 
-  const signInWithSupabase = useCallback(async (email, password) => {
+  const signInWithSupabase = useCallback(async (username, password) => {
     if (!supabase) {
       return { ok: false, error: "Supabase aún no está configurado. Usa el acceso de demostración para revisar los flujos." };
     }
 
     try {
       await initializeInvitationSession();
-      const { data, error } = await supabase.auth.signInWithPassword({ email: email?.trim(), password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email: accountIdentifier(username), password });
       if (error) return { ok: false, error: error.message };
       if (!data.session || !sessionSynchronizerRef.current) return { ok: false, error: "No se ha podido iniciar la sesión." };
       setPasswordRecovery(false);
-      return await sessionSynchronizerRef.current.sync("SIGNED_IN", data.session);
+      const result = await sessionSynchronizerRef.current.sync("SIGNED_IN", data.session);
+      if (result.ok) window.location.hash = viewerRef.current?.requiresPasswordChange ? "/cuenta" : viewerRef.current?.role === "admin" ? "/admin" : "/club";
+      return result;
     } catch (error) {
       return { ok: false, error: error?.message ?? "No se ha podido conectar con el servicio de acceso." };
-    }
-  }, []);
-
-  const requestPasswordReset = useCallback(async (email) => {
-    if (!supabase) return { ok: false, error: "Supabase aún no está configurado." };
-    const cleanEmail = email?.trim();
-    if (!cleanEmail) return { ok: false, error: "Introduce tu correo electrónico." };
-    const basePath = import.meta.env.BASE_URL ?? "/";
-    const redirectTo = `${window.location.origin}${basePath}?setup=recovery#/`;
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, { redirectTo });
-      if (error) return { ok: false, error: error.message };
-      setLastAction({ tone: "success", message: "Si la cuenta existe, recibirás un correo para restablecer la contraseña." });
-      return { ok: true };
-    } catch (error) {
-      return { ok: false, error: error?.message ?? "No se ha podido solicitar el correo de recuperación." };
     }
   }, []);
 
@@ -271,6 +270,7 @@ export function LeagueProvider({ children }) {
     try {
       const { error } = await supabase.auth.updateUser({ password });
       if (error) return { ok: false, error: error.message };
+      clearVerifiedPasswordRecovery();
       setPasswordRecovery(false);
       const cleanUrl = new URL(window.location.href);
       cleanUrl.searchParams.delete("setup");
@@ -283,27 +283,16 @@ export function LeagueProvider({ children }) {
   }, []);
 
   const canManageClub = useCallback(
-    (clubId) => Boolean(viewer && (viewer.role === "admin" || (["president", "staff"].includes(viewer.role) && viewer.clubId === clubId))),
+    (clubId) => Boolean(viewer && !viewer.requiresPasswordChange && (viewer.role === "admin" || (["president", "staff"].includes(viewer.role) && viewer.clubId === clubId))),
     [viewer],
   );
 
   const updateMatchResult = useCallback(
     async ({ matchId, homeScore, awayScore, homePenalties, awayPenalties, status = "confirmed" }) => {
-      const parsedHome = Number(homeScore);
-      const parsedAway = Number(awayScore);
-      const parsedHomePenalties = homePenalties === "" || homePenalties == null ? null : Number(homePenalties);
-      const parsedAwayPenalties = awayPenalties === "" || awayPenalties == null ? null : Number(awayPenalties);
-
       if (!viewer || viewer.role !== "admin") return { ok: false, error: "Solo administración puede publicar resultados oficiales." };
-      if (![parsedHome, parsedAway].every((value) => Number.isInteger(value) && value >= 0)) {
-        return { ok: false, error: "Introduce un marcador válido de números enteros." };
-      }
-      if (parsedHome === parsedAway && !(Number.isInteger(parsedHomePenalties) && Number.isInteger(parsedAwayPenalties) && parsedHomePenalties !== parsedAwayPenalties)) {
-        return { ok: false, error: "Un empate necesita un resultado de penaltis diferente para cada equipo." };
-      }
-      if (parsedHome !== parsedAway && (parsedHomePenalties != null || parsedAwayPenalties != null)) {
-        return { ok: false, error: "Los penaltis solo se registran si el partido termina empatado." };
-      }
+      const validated = validateMatchResultInput({ homeScore, awayScore, homePenalties, awayPenalties });
+      if (!validated.ok) return validated;
+      const { homeScore: parsedHome, awayScore: parsedAway, homePenalties: parsedHomePenalties, awayPenalties: parsedAwayPenalties } = validated;
 
       const targetMatch = matches.find((match) => match.id === matchId);
       if (!targetMatch) return { ok: false, error: "No se ha encontrado el partido seleccionado." };
@@ -476,45 +465,43 @@ export function LeagueProvider({ children }) {
     [league.clubs, league.season.phaseId, reloadProductionLeague, viewer],
   );
 
-  const addNews = useCallback(
-    async ({ title, excerpt, category }) => {
-      if (!viewer || viewer.role !== "admin") return { ok: false, error: "Solo administración puede publicar noticias." };
-      if (!title?.trim() || !excerpt?.trim()) return { ok: false, error: "Completa el título y el resumen de la noticia." };
+  const saveNews = useCallback(async ({ articleId, ...input }) => {
+    if (!viewer || viewer.role !== "admin") return { ok: false, error: "Solo administración puede gestionar noticias." };
+    const { value: normalized, error: validationError } = validateNewsInput(input);
+    if (validationError) return { ok: false, error: validationError };
+    const existing = articleId ? (league.adminNews ?? []).find((article) => article.id === articleId) : null;
+    if (articleId && !existing) return { ok: false, error: "No se ha encontrado la noticia. Recarga el panel antes de editar." };
 
-      if (viewer.source === "supabase") {
-        try {
-          await createProductionNews({ title, excerpt, category });
-          await reloadProductionLeague(viewer);
-          setLastAction({ tone: "success", message: "Noticia publicada en el sitio oficial." });
-          return { ok: true };
-        } catch (error) {
-          return { ok: false, error: error.message };
-        }
+    let article;
+    if (viewer.source === "supabase") {
+      try {
+        article = await saveProductionNews({ article: existing, input: normalized, authorId: viewer.id });
+      } catch (error) {
+        return { ok: false, error: error?.message ?? "No se ha podido guardar la noticia." };
       }
+      // A session change while saving must not bring back private editorial data.
+      if (viewerRef.current !== viewer) return { ok: false, error: "La sesión ha cambiado. Vuelve a entrar al panel para comprobar el guardado." };
+    } else {
+      const publishedAt = newsPublicationDate(existing, normalized.publish);
+      article = { ...existing, ...normalized, id: existing?.id ?? createId("news"), publishedAt, date: formatNewsDate(publishedAt), updatedAt: new Date().toISOString() };
+    }
+    // Reflect the confirmed write immediately, including withdrawal, even if refresh fails.
+    setLeague((previous) => ({
+      ...previous,
+      adminNews: [article, ...(previous.adminNews ?? []).filter((item) => item.id !== article.id)],
+      news: getPublishedNews([article, ...previous.news.filter((item) => item.id !== article.id)]),
+    }));
+    let refreshWarning = "";
+    if (viewer.source === "supabase") {
+      try { await reloadProductionLeague(viewer); }
+      catch { refreshWarning = "El guardado está confirmado, pero no se ha podido recargar el panel. Recarga antes de seguir editando."; }
+    }
+    const message = article.publishedAt ? "Noticia guardada y publicada." : "Borrador guardado. No es visible en la web pública.";
+    setLastAction({ tone: refreshWarning ? "warning" : "success", message: refreshWarning || message });
+    return { ok: true, article, warning: refreshWarning };
+  }, [league.adminNews, reloadProductionLeague, viewer]);
 
-      const article = {
-        id: createId("news"),
-        category: category?.trim() || "Actualidad",
-        date: "Ahora",
-        title: title.trim(),
-        excerpt: excerpt.trim(),
-        featured: false,
-      };
-      setLeague((previous) => ({
-        ...previous,
-        news: [article, ...previous.news],
-        auditEvents: appendAuditEvent(previous.auditEvents, {
-          actor: viewer.name,
-          action: "news_published",
-          target: article.id,
-          detail: `Noticia publicada: ${article.title}.`,
-        }),
-      }));
-      setLastAction({ tone: "success", message: "Noticia añadida a la demostración." });
-      return { ok: true };
-    },
-    [reloadProductionLeague, viewer],
-  );
+  const addNews = saveNews;
 
   const addMatchEvent = useCallback(
     async ({ matchId, playerId, eventType, minute }) => {
@@ -563,23 +550,6 @@ export function LeagueProvider({ children }) {
       return { ok: true, event };
     },
     [league.players, matches, reloadProductionLeague, viewer],
-  );
-
-  const invitePresident = useCallback(
-    async ({ email, displayName, clubId }) => {
-      if (!viewer || viewer.role !== "admin") return { ok: false, error: "Solo administración puede invitar presidentes." };
-      const club = league.clubs.find((candidate) => candidate.id === clubId);
-      if (!displayName?.trim() || !email?.trim() || !club) return { ok: false, error: "Completa el nombre, correo y club del presidente." };
-      if (viewer.source !== "supabase") return { ok: false, error: "La invitación real se activa al conectar Supabase y desplegar la función segura." };
-      try {
-        await inviteProductionPresident({ email, displayName, club });
-        setLastAction({ tone: "success", message: `Invitación enviada a ${email.trim()} para ${club.name}.` });
-        return { ok: true };
-      } catch (error) {
-        return { ok: false, error: error.message };
-      }
-    },
-    [league.clubs, viewer],
   );
 
   const submitLineup = useCallback(
@@ -659,7 +629,6 @@ export function LeagueProvider({ children }) {
       setLastAction,
       signInAsDemo,
       signInWithSupabase,
-      requestPasswordReset,
       updatePassword,
       signOut,
       canManageClub,
@@ -668,8 +637,8 @@ export function LeagueProvider({ children }) {
       updateMatchSchedule,
       addPlayer,
       addNews,
+      saveNews,
       addMatchEvent,
-      invitePresident,
       submitLineup,
       resetDemo,
       reloadProductionLeague,
@@ -687,7 +656,6 @@ export function LeagueProvider({ children }) {
       lastAction,
       signInAsDemo,
       signInWithSupabase,
-      requestPasswordReset,
       updatePassword,
       signOut,
       canManageClub,
@@ -696,8 +664,8 @@ export function LeagueProvider({ children }) {
       updateMatchSchedule,
       addPlayer,
       addNews,
+      saveNews,
       addMatchEvent,
-      invitePresident,
       submitLineup,
       resetDemo,
       reloadProductionLeague,

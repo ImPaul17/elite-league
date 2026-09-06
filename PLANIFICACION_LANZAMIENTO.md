@@ -6,10 +6,18 @@ Actualizada el domingo 6 de septiembre de 2026. Sustituye la planificación ante
 
 La entrega incluye la web pública, el login real y las funciones de gestión que no dependen de jugadores. La incorporación de jugadores y sus funciones asociadas queda para una fase posterior. La hora de estreno del tráiler y de los anuncios está pendiente de confirmar; las 23:00 son el plazo de entrega de la web.
 
+### Decisión actual de acceso — confirmada por Pablo el 6 de septiembre
+
+El acceso será con **nombre de usuario asignado por la organización y contraseña temporal**, no con un correo electrónico. Cada presidente podrá cambiar la contraseña desde su panel. La recuperación de una cuenta se resolverá mediante restablecimiento por administración, sin exigir SMTP ni invitaciones por correo. Las referencias anteriores a SMTP describen la preparación inicial, no una dependencia del nuevo lanzamiento.
+
+Frontend y función segura de cuentas implementados localmente. Falta aplicar la migración 0003, desplegar las funciones y probar cuentas autorizadas. El identificador interno de Supabase no exige que el presidente tenga correo. Conviene entregar una contraseña temporal distinta por cuenta y solicitar su cambio en el primer acceso.
+
+Avance local en revisión: acceso por usuario, gestión de presidentes, cambio obligatorio de contraseña, editor completo de Noticias, página de Patrocinadores en espera del material, estados sin jugadores y mejoras de accesibilidad. Pruebas unitarias y compilación correctas; QA local del borrador → publicación → retirada comprobada sin escribir en producción. Todavía no se han subido estos cambios a GitHub ni se ha probado el guardado con una cuenta real. DNS/HTTPS siguen pendientes según la última comprobación documentada.
+
 ## Resultado que queremos entregar
 
 - Web publicada y accesible desde ordenador y móvil.
-- Acceso real de administración y presidentes: iniciar sesión, cerrar sesión, recuperar contraseña y conservar la sesión al recargar.
+- Acceso real de administración y presidentes con usuario: iniciar sesión, cerrar sesión, cambiar la contraseña temporal y conservar la sesión al recargar. Restablecimiento por administración si se pierde el acceso.
 - Permisos por rol y por club; cambios de gestión guardados y visibles para otros visitantes.
 - Calendario y fecha de inicio del tercer split confirmados y visibles.
 - Noticias completas, anuncio del regreso y tráiler integrados.
@@ -24,11 +32,11 @@ El login y la persistencia son requisitos de esta entrega. Dejarlos como demostr
 | Área | Estado comprobado | Pendiente |
 | --- | --- | --- |
 | Equipos, clasificación y partidos | Ya implementados, con histórico y diseños propios. | Revisión final y comprobación con datos reales del servidor. |
-| Login y cuentas | Supabase conectado; registro abierto y anónimo desactivados; URL final y enlaces de invitación/recuperación configurados. | Crear las cuentas autorizadas y probar correo, acceso, recuperación y permisos por rol. |
-| Administración | Hay formularios de resultados, fechas, noticias e invitaciones. | Comprobar que guardan, que respetan permisos y que los cambios llegan a la web pública. |
-| Noticias | Listado y detalle básicos; el artículo sigue mostrando texto genérico. | Cuerpo real, portada, vídeo/enlace y gestión editorial útil. |
+| Login y cuentas | Supabase conectado; registro abierto y anónimo desactivados. La nueva interfaz local ya utiliza usuario. | Activar migración y servicio seguro; crear cuentas autorizadas y probar cambio temporal/restablecimiento y permisos. |
+| Administración | Hay formularios de resultados, fechas, noticias y cuentas por usuario. | Comprobar que guardan, que respetan permisos y que los cambios llegan a la web pública. |
+| Noticias | Editor completo implementado localmente: cuerpo, portada por URL, enlace al tráiler, borradores, edición, publicación, retirada y destacado. | Flujo editorial local comprobado. Activar auditoría editorial y probar escrituras reales con administrador autorizado. Integrar contenido aprobado. |
 | Split 3 | 66 partidos cargados; fechas y horas pendientes. | Recibir el calendario definitivo, cargarlo y mostrarlo en todas las vistas. |
-| Patrocinadores | No hay una página implementada. | Página, enlaces, logos y orden de aparición. |
+| Patrocinadores | Página implementada con estado «Próximamente», sin marcas ficticias. | Incorporar enlaces, logos y orden de aparición confirmados. |
 | Publicación | Código en `main` de [ImPaul17/elite-league](https://github.com/ImPaul17/elite-league), variables Supabase guardadas y primer despliegue de Pages correcto. Propiedad del dominio verificada por GitHub; delegación y DNS autoritativos correctos. | Confirmar actualización de cachés DNS, comprobación DNS de Pages y HTTPS; comprobar la aplicación alojada. Completar y confirmar la retirada manual de la copia remota subida por error al alojamiento anterior. |
 
 La presencia de código no cuenta como prueba de funcionamiento en producción. Las comprobaciones de cierre están definidas más abajo.
@@ -38,7 +46,7 @@ La presencia de código no cuenta como prueba de funcionamiento en producción. 
 - Supabase: proyecto `ujsexqffgmkxzyvvholp` inicializado con las dos migraciones y el seed corregidos. Se verifican 12 clubes, 11 jornadas, 66 partidos, cero jugadores y cero noticias de muestra.
 - RLS y permisos: las consultas anónimas a perfiles, membresías y auditoría no exponen datos; el rol autenticado no puede actualizar `profiles.global_role`.
 - La función `invite-president` está desplegada, con `APP_URL` y `ALLOWED_ORIGINS` configurados. Rechaza solicitudes sin sesión o con token inválido (401). La sesión y el rol administrador se validan dentro de la función; no se usa la comprobación de firma heredada del gateway.
-- El login local muestra correo y contraseña, sin selector de cuentas demo. No se han creado ni invitado usuarios todavía.
+- El login local muestra usuario y contraseña, sin selector de cuentas demo cuando Supabase está conectado. No se han creado ni invitado usuarios todavía.
 - Corregida la sincronización de sesiones para evitar bloqueos y descartar respuestas privadas antiguas al salir o cambiar de cuenta. Los enlaces de invitación se validan antes de mostrar una sesión previa. La compilación exige variables de conexión reales. Validación final: 20/20 pruebas y build correctos; falta la prueba E2E con cuentas autorizadas.
 - La carpeta remota `/htdocs/Elite League`, subida por error al alojamiento anterior, **no se ha podido eliminar** con el gestor, tampoco manualmente según Pablo. A petición suya, se han cerrado Filemanager y el panel de alojamiento y se continúa con GitHub. La copia remota sigue pendiente de retirada; cerrar los paneles o cambiar el DNS no la borra. No se han borrado los originales locales ni cancelado la cuenta de alojamiento.
 - El repositorio **público** [ImPaul17/elite-league](https://github.com/ImPaul17/elite-league) ya contiene 126 archivos revisados en `main`, commit `f5ac956`. Las dos variables públicas de Supabase están guardadas y Pages usa GitHub Actions. La [ejecución 34008474567](https://github.com/ImPaul17/elite-league/actions/runs/34008474567) terminó correctamente.
@@ -46,18 +54,18 @@ La presencia de código no cuenta como prueba de funcionamiento en producción. 
 - `eliteleague.qd.je` está guardado como dominio personalizado en Pages. Se restauró DigitalPlat DNS desde la delegación anterior y se registraron cuatro A en `@` (`185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`, TTL 300), CNAME `www` hacia `impaul17.github.io.` y el TXT de propiedad solicitado por GitHub. El destino CNAME es absoluto, con punto final.
 - El reintento de configuración en DigitalPlat resolvió la delegación: los cuatro servidores del padre `qd.je` apuntan a `dns1.digitalplat.org` y `dns2.digitalplat.org`. Ambos nodos autoritativos devuelven los cuatro A, el CNAME de `www` y el TXT correctos. DigitalPlat muestra **Activo**, con la misma serie primaria y secundaria (`2026090606`). GitHub confirma **Successfully verified eliteleague.qd.je / Verified**.
 - Siguen pendientes las cachés de los resolutores públicos —la local todavía devuelve la IP anterior—, la comprobación DNS de Pages, el certificado para el dominio y HTTPS obligatorio, y la revisión de la aplicación pública. La comprobación TLS del destino nuevo aún no valida el dominio; HTTPS se mantiene pendiente hasta que el certificado esté disponible. El registro del dominio en DigitalPlat se conserva. La propiedad verificada y un despliegue de Actions correcto no sustituyen estas comprobaciones.
-- Falta configurar SMTP para las invitaciones y recuperaciones de los presidentes. El servicio de correo predeterminado de Supabase no sirve para enviar a usuarios externos del proyecto ([documentación](https://supabase.com/docs/guides/auth/auth-smtp)).
+- SMTP no es una dependencia del acceso por usuario acordado. La función antigua se desactiva en la actualización; no se enviarán invitaciones por correo.
 - No dar por completados el login, las invitaciones, la publicación ni el plazo de entrega hasta pasar las pruebas reales indicadas abajo.
 
 ## Trabajo por bloques
 
-Todas las filas son necesarias para el alcance descrito, salvo los elementos dependientes de jugadores. Los tiempos son orientativos y se ajustarán al comprobar la conexión y los correos.
+Todas las filas son necesarias para el alcance descrito, salvo los elementos dependientes de jugadores. Los tiempos son orientativos y se ajustarán al comprobar la conexión y las cuentas.
 
 | Orden | Bloque | Entregable / criterio de cierre | Responsable propuesto | Dependencia |
 | --- | --- | --- | --- | --- |
 | 1 | Publicación y base de datos | Repositorio público revisado, despliegue automático en GitHub Pages y dominio con HTTPS; conexión real y datos públicos correctos, conservando los recursos visuales e históricos actuales. Retirada confirmada de la copia remota errónea. | Codex + Pablo para las cuentas | Acceso a GitHub y DNS; Supabase ya preparado. |
-| 2 | Login y recuperación | Acceso y salida correctos, sesión persistente, contraseña incorrecta controlada, recuperación por correo y enlaces válidos en el dominio final. | Codex; Pablo comprueba su correo/cuenta | Bloque 1 y correo remitente configurado. |
-| 3 | Roles e invitaciones | Administrador operativo; presidente vinculado a su club; invitación y primer acceso probados con una cuenta de prueba autorizada. | Codex + Pablo | Bloque 2 y asignaciones de cuentas. |
+| 2 | Login y contraseña | Acceso por usuario, salida correcta, sesión persistente, contraseña incorrecta controlada y cambio de contraseña desde el panel. | Codex; Pablo prueba su cuenta | Supabase y cuentas autorizadas; HTTPS para la prueba pública. |
+| 3 | Roles y cuentas | Administrador operativo; creación de usuario y contraseña temporal para cada presidente vinculado a su club; primer acceso y restablecimiento administrativo probados. | Codex + Pablo | Bloque 2 y asignaciones de cuentas. No requiere correo. |
 | 4 | Panel y datos persistentes | Administrar fechas, horas y resultados, incluidos penaltis y correcciones. Ver los cambios al recargar y desde otra sesión. | Codex | Bloques 1–3. |
 | 5 | Noticias | Crear y editar título, resumen, cuerpo y portada; destacar, publicar y retirar una noticia. Incluir el tráiler mediante vídeo o enlace. Sustituir las noticias de ejemplo. | Codex; Pablo aprueba contenido | Texto, portada y URL del tráiler. La programación automática no es necesaria si se publica manualmente. |
 | 6 | Calendario e información | Fecha de inicio, jornadas, horas y fases finales coherentes en Inicio, Partidos y fichas de equipo. Reglas y comunicados revisados. | Pablo confirma; Codex integra | Una única lista definitiva de fechas e información. |
@@ -75,9 +83,9 @@ Horario de Madrid. Son bloques de trabajo propuestos, no tareas programadas auto
 | Día y hora | Web — Codex | Tráiler e información — Pablo | Punto de control |
 | --- | --- | --- | --- |
 | Domingo 6, 10:00–13:00 | Preparar publicación de prueba y conexión real; revisar datos y acceso existente. | Cerrar el mensaje del regreso, guion del tráiler y lista de fechas pendientes. Facilitar las cuentas de servicio necesarias. | Saber dónde se publica y tener resuelta la conexión antes de avanzar con el panel. |
-| Domingo 6, 14:00–18:00 | Login, recuperación, roles e invitaciones; probar permisos y sesión persistente. | Seleccionar recursos y montar la primera versión del tráiler; cerrar calendario con la organización. | Acceso real probado con administrador y presidente de prueba. |
+| Domingo 6, 14:00–18:00 | Login por usuario, contraseñas, roles y cuentas; probar permisos y sesión persistente. | Seleccionar recursos y montar la primera versión del tráiler; cerrar calendario con la organización. | Acceso real probado con administrador y presidente de prueba. |
 | Domingo 6, 18:00–21:00 | Guardado de horarios/resultados y construcción de Noticias. | Primera revisión del tráiler; preparar comunicado, portada y material de patrocinadores. | Una modificación persiste y la ve otra sesión. Noticia completa en la versión de prueba. |
-| Domingo 6, 21:00–21:30 | Revisar bloqueos y ajustar el lunes según resultados reales. | Revisar primer montaje y confirmar qué material falta. | No dejar problemas de conexión o correo para la última hora del lunes. |
+| Domingo 6, 21:00–21:30 | Revisar bloqueos y ajustar el lunes según resultados reales. | Revisar primer montaje y confirmar qué material falta. | No dejar problemas de conexión o acceso para la última hora del lunes. |
 | Lunes 7, 09:00–12:00 | Cerrar Noticias, integrar calendario y revisar Competición. | Terminar fechas y textos oficiales; correcciones del tráiler. | Calendario, reglas y contenido editorial confirmados a las 12:00. |
 | Lunes 7, 13:00–16:00 | Patrocinadores, Inicio y ajustes para la versión sin jugadores. | Exportar el tráiler, preparar miniatura, subirlo y comprobar audio e imagen. | Versión completa de la web para revisar; vídeo listo o procesándose. |
 | Lunes 7, 16:00–19:00 | Pruebas de acceso, recuperación, permisos, noticias, resultados y móvil. Integrar enlace definitivo del vídeo. | Ver el tráiler completo y revisar fechas, textos y marcas en la web. | Tráiler y recursos finales entregados antes de las 18:00; lista concreta de fallos a las 19:00. |
@@ -90,7 +98,7 @@ Horario de Madrid. Son bloques de trabajo propuestos, no tareas programadas auto
 | Necesitamos | Momento propuesto | Para qué |
 | --- | --- | --- |
 | Acceso a GitHub y gestión DNS para ejecutar el destino ya autorizado: `ImPaul17/elite-league` público, GitHub Pages y `eliteleague.qd.je` | Domingo, primer bloque | Publicación y dominio; Supabase ya está preparado. Las contraseñas y claves privadas no se comparten por el chat. |
-| Identificar al administrador inicial y una cuenta propia de prueba de presidente, con su club | Domingo, antes de probar accesos | Comprobar los dos roles y el correo real. Las invitaciones a presidentes se enviarán cuando Pablo indique destinatarios y momento. |
+| Identificar al administrador inicial y una cuenta propia de prueba de presidente, con su club | Domingo, antes de probar accesos | Comprobar los dos roles y el cambio/restablecimiento de contraseña. Crear solo cuentas autorizadas; introducir contraseñas en privado, no en el chat. |
 | Calendario único: jornada, fecha, hora y posibles excepciones por partido; inicio y fases finales | Lunes, 12:00 | Evitar diferencias entre tráiler, noticia, calendario y fichas. |
 | Texto del regreso, información de la competición y enlaces sociales | Lunes, 12:00 | Cerrar Inicio, Noticias y Competición. |
 | Patrocinadores: nombre, logo, enlace y orden de aparición | Lunes, 12:00 | Terminar esa página con contenido real. |
@@ -109,8 +117,8 @@ Los resultados por equipo, penaltis y clasificación sí deben funcionar sin jug
 - [x] Delegación y registros autoritativos de `eliteleague.qd.je` comprobados; GitHub confirma la propiedad del dominio como Verified.
 - [ ] Verificar `eliteleague.qd.je` apuntando a la publicación correcta, con certificado válido y HTTPS obligatorio; comprobar que un cambio posterior en `main` puede publicarse mediante el mismo flujo.
 - [ ] Entrar con una cuenta real, recargar y mantener la sesión; cerrar sesión y perder el acceso privado.
-- [ ] Recibir y completar la recuperación de contraseña desde un enlace válido; tratar correctamente enlaces caducados y credenciales incorrectas.
-- [ ] Completar una invitación y abrir el portal del club correcto con la cuenta de prueba.
+- [ ] Entrar con usuario y contraseña temporal; cambiarla en el panel, comprobar rechazo de la anterior y probar restablecimiento por administración.
+- [ ] Crear una cuenta de presidente desde administración y abrir el portal del club correcto con la cuenta de prueba autorizada.
 - [ ] Un visitante no puede escribir; un presidente no puede administrar otro club ni la competición, ni convertirse en administrador modificando su perfil. Verificarlo también en los permisos del servidor.
 - [ ] Guardar un horario y comprobarlo desde otra sesión tras recargar.
 - [ ] Probar un resultado normal y otro con penaltis en el entorno de prueba; comprobar puntos y corrección del marcador.
@@ -126,8 +134,21 @@ Los resultados por equipo, penaltis y clasificación sí deben funcionar sin jug
 
 ## Si aparece un bloqueo
 
-Si el domingo por la tarde no funciona la conexión, el correo o el acceso real, pasa a ser la primera tarea y se ajusta el tiempo de pulido visual. El login se mantiene dentro del alcance; no se dará por terminado con una demostración.
+Si el domingo por la tarde no funciona la conexión o el acceso real, pasa a ser la primera tarea y se ajusta el tiempo de pulido visual. El login se mantiene dentro del alcance; no se dará por terminado con una demostración.
 
 Si faltan fechas o patrocinadores en sus puntos de control, se terminará la estructura y se registrará qué contenido falta. Esa sección seguirá pendiente, sin inventar datos ni marcarla como entregada. Si el fallo impide cumplir las 23:00, se comunicará en cuanto se detecte para decidir el ajuste de plazo o alcance.
 
 A partir del lunes a las 21:00, el plan reserva el trabajo para correcciones y publicación. Los cambios nuevos de diseño se valorarán aparte para proteger el margen de comprobación.
+
+## Activación de la actualización local
+
+El procedimiento incremental y los pendientes de prueba están en `ACTIVACION_CUENTAS.md`. La migración 0003 cambia permisos de cuentas y auditoría; el ayudante `scripts/prepare-launch-update.mjs` solo prepara código, no ejecuta cambios remotos. Los tests de credenciales usan servicios simulados, sin cuentas de prueba en producción.
+
+### Cierre de esta tanda de desarrollo
+
+- 49/49 tests y compilación de producción correctos. Corregidos marcadores vacíos convertidos en cero, penaltis inválidos y doble publicación por clic repetido.
+- Prueba local de Noticias: borrador oculto → publicación → detalle con párrafos/enlaces → retirada y vuelta a oculto. Sin datos ficticios en Supabase.
+- Revisión visual a 390 × 844: título de Patrocinadores ajustado; «Mi cuenta» y cierre de sesión accesibles en el menú móvil. Acceso por usuario revisado en escritorio.
+- Verificación de solo lectura en Supabase: 12 clubes, 11 jornadas, 66 partidos, cero jugadores/noticias; perfiles, membresías y auditoría protegidos frente a visitantes.
+- Rama de preparación prevista: `codex/preparacion-lanzamiento`. `main` y el despliegue público no deben actualizarse hasta activar Supabase y pasar la prueba real de acceso.
+- SQL incremental y función `club-accounts` preparados en sus editores, **sin ejecutar ni desplegar**. La confirmación previa de cambio de permisos queda pendiente.
