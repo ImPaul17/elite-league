@@ -124,13 +124,13 @@ test("los clubes inactivos solo reciben la imagen completa de los splits donde e
   }
 });
 
-test("el estado Inactivo queda debajo del nombre del club y centrado", () => {
+test("el estado Inactivo queda debajo del nombre del club y alineado a la izquierda en las cards", () => {
   const component = read("../src/components/competition.jsx");
   const nameIndex = component.indexOf("<strong>{club.name}</strong>");
   const statusIndex = component.indexOf('className="club-directory-status"', nameIndex);
   assert.ok(nameIndex >= 0 && statusIndex > nameIndex);
   const css = read("../src/styles.css");
-  assert.match(css, /\.club-directory-status\s*\{[^}]*justify-self:\s*center;/);
+  assert.match(css, /\.club-directory-status\s*\{[^}]*justify-self:\s*start;[^}]*text-align:\s*left;/);
 });
 
 test("la ficha pública y Mi equipo muestran una sección tras la información y reinician el visor al cambiar de club", () => {

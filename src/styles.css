@@ -404,7 +404,7 @@ p { color: var(--muted); line-height: 1.6; }
 .club-directory-copy em { overflow: hidden; color: #d2dbd1; font-size: clamp(.9rem, 1.25vw, 1.07rem); font-style: normal; font-weight: 610; letter-spacing: .015em; line-height: 1; text-overflow: ellipsis; white-space: nowrap; }
 .club-directory-meta { display: grid; gap: 4px; min-width: 0; }
 .club-directory-meta em { font-size: clamp(.8rem, 1.06vw, .95rem); }
-.club-directory-status { justify-self: center; color: #b8c0b7; font-size: .61rem; font-weight: 800; letter-spacing: .095em; line-height: 1; text-transform: uppercase; }
+.club-directory-status { justify-self: start; color: #b8c0b7; font-size: .61rem; font-weight: 800; letter-spacing: .095em; line-height: 1; text-align: left; text-transform: uppercase; }
 
 .back-link { display: inline-flex; margin-bottom: 20px; color: var(--green-bright); font-size: .75rem; font-weight: 780; }
 .club-profile-route-transition { position: relative; min-width: 0; }
