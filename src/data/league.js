@@ -1,4 +1,5 @@
 import { CURRENT_MATCHDAY, RESULTS_VISIBLE, SPLIT_3_MATCHDAYS } from "./split3.js";
+import { getMatchdayMatchOrder } from "../lib/matchOrder.js";
 
 const publicBase = import.meta.env?.BASE_URL ?? "/";
 const asset = (path) => `${publicBase}${path.replace(/^\//, "")}`;
@@ -61,7 +62,7 @@ export const MATCHDAYS = SPLIT_3_MATCHDAYS.map((matchday) => ({
     id: `split-3-j${matchday.number}-m${index + 1}`,
     matchdayId: `split-3-j${matchday.number}`,
     matchdayNumber: matchday.number,
-    order: index + 1,
+    order: getMatchdayMatchOrder(matchday.number, index),
     homeClubId: CLUBS_BY_NAME[match.home]?.id,
     awayClubId: CLUBS_BY_NAME[match.away]?.id,
     status: match.status === "completed" ? "confirmed" : match.status ?? "scheduled",

@@ -1,4 +1,5 @@
 import { getEditionGroups } from "./history.js";
+import { getMatchdayMatchOrder, getPlayoffMatchOrder } from "../lib/matchOrder.js";
 
 const SPLIT_1_RESULTS = {
   matchdays: [
@@ -86,11 +87,11 @@ const PLAYOFF_STAGE_LABELS = {
   final: "Final",
 };
 
-function makeMatch(editionId, rawMatch, { matchdayNumber = null, order, stage = null, dateLabel = null, groupId = null }) {
+function makeMatch(editionId, rawMatch, { matchdayNumber = null, order, localOrder = order, stage = null, dateLabel = null, groupId = null }) {
   const [homeClubId, homeScore, awayScore, awayClubId, homePenalties, awayPenalties] = rawMatch;
   const hasPenalties = Number.isFinite(homePenalties) && Number.isFinite(awayPenalties);
   return {
-    id: `${editionId}-${stage ? `playoffs-${stage}` : `j${matchdayNumber}`}-m${order}`,
+    id: `${editionId}-${stage ? `playoffs-${stage}` : `j${matchdayNumber}`}-m${localOrder}`,
     homeClubId,
     awayClubId,
     matchdayNumber,
@@ -122,7 +123,7 @@ export function getHistoricCompetitionData(editionId, currentClubs) {
       status: "completed",
       matches: matches.map((match, matchIndex) => {
         const groupId = groupByClubId[match[0]] === groupByClubId[match[3]] ? groupByClubId[match[0]] : null;
-        return makeMatch(editionId, match, { matchdayNumber: index + 1, order: matchIndex + 1, dateLabel, groupId });
+        return makeMatch(editionId, match, { matchdayNumber: index + 1, order: getMatchdayMatchOrder(index + 1, matchIndex), localOrder: matchIndex + 1, dateLabel, groupId });
       }),
     };
   });
@@ -131,10 +132,11 @@ export function getHistoricCompetitionData(editionId, currentClubs) {
     ...group,
     regularMatches: regularMatches.filter((match) => match.groupId === group.id),
   }));
+  let playoffMatchIndex = 0;
   const playoffStages = Object.entries(resultSource.playoffs).map(([stage, matches]) => ({
     id: stage,
     label: PLAYOFF_STAGE_LABELS[stage] ?? stage,
-    matches: matches.map((match, matchIndex) => makeMatch(editionId, match, { stage: PLAYOFF_STAGE_LABELS[stage] ?? stage, order: matchIndex + 1 })),
+    matches: matches.map((match, matchIndex) => makeMatch(editionId, match, { stage: PLAYOFF_STAGE_LABELS[stage] ?? stage, order: getPlayoffMatchOrder(regularMatchdays.length, playoffMatchIndex++), localOrder: matchIndex + 1 })),
   }));
 
   return {

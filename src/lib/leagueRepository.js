@@ -1,6 +1,7 @@
 import { CLUBS_BY_ID, SEASON } from "../data/league";
 import { publicSupabase, supabase } from "./supabase";
 import { formatNewsDate, makeNewsSlug, newsPublicationDate, validateNewsInput } from "./news";
+import { getMatchdayMatchOrder } from "./matchOrder.js";
 
 const publicBase = import.meta.env?.BASE_URL ?? "/";
 const siteAsset = (path) => (path?.startsWith("/") ? `${publicBase}${path.slice(1)}` : path);
@@ -108,7 +109,7 @@ export async function loadPublicLeague() {
           databaseId: match.id,
           matchdayId: `phase-${phase.id}-j${matchday.number}`,
           matchdayNumber: matchday.number,
-          order: match.match_order,
+          order: getMatchdayMatchOrder(matchday.number, match.match_order - 1),
           homeClubId: slugByDatabaseId.get(match.home_club_id),
           awayClubId: slugByDatabaseId.get(match.away_club_id),
           status: match.status,

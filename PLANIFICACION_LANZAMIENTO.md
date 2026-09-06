@@ -114,7 +114,7 @@ Horario de Madrid. Son bloques de trabajo propuestos, no tareas programadas auto
 
 No se cargarán jugadores, fotos, dorsales ni estadísticas individuales. El portal de cada presidente sí debe permitir entrar y consultar su club y calendario. Las plantillas tendrán un mensaje claro de incorporación pendiente; registro de jugadores, alineaciones y eventos individuales quedarán inactivos o fuera de la navegación hasta esa fase.
 
-Los resultados por equipo, penaltis y clasificación sí deben funcionar sin jugadores. Los cruces de playoffs del Split 3 muestran las posiciones finales de liga y referencias a ganadores (P1–P10) con el orden y emparejamientos confirmados, tanto en Competición como en Partidos → Split 3 → Eliminatorias. Se sustituyen así los antiguos «Por decidir», sin asignar todavía clubes concretos ni fechas. Tampoco se publicarán resultados de prueba como si fueran partidos reales.
+Los resultados por equipo, penaltis y clasificación sí deben funcionar sin jugadores. La numeración se reinicia por día, agrupando dos jornadas: impares 1–6 y pares 7–12. La última jornada se agrupa con los playoffs (J11 en los splits, J5 en Elite Cup). Los cruces de playoffs del Split 3 muestran las posiciones finales de liga y referencias a ganadores (P7–P16) con el orden y emparejamientos confirmados, tanto en Competición como en Partidos → Split 3 → Eliminatorias. Se sustituyen así los antiguos «Por decidir», sin asignar todavía clubes concretos ni fechas. Tampoco se publicarán resultados de prueba como si fueran partidos reales.
 
 ## Pruebas que deben pasar para dar la entrega por terminada
 

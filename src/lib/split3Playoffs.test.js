@@ -6,35 +6,36 @@ const matches = SPLIT_3_PLAYOFF_STAGES.flatMap((stage) => stage.matches);
 const entrants = matches.flatMap((match) => [match.home, match.away]);
 const entrantKey = (entrant) => entrant.type === "seed" ? `S${entrant.position}` : `G${entrant.matchOrder}`;
 
-test("los cruces P1–P10 respetan exactamente el orden local y visitante confirmado", () => {
+test("los cruces P7–P16 respetan exactamente el orden local y visitante confirmado", () => {
   assert.deepEqual(matches.map((match) => [match.code, entrantKey(match.home), entrantKey(match.away)]), [
-    ["P1", "S10", "S11"],
-    ["P2", "S5", "G1"],
-    ["P3", "S6", "S9"],
-    ["P4", "S7", "S8"],
-    ["P5", "S2", "G4"],
-    ["P6", "S3", "G3"],
-    ["P7", "S4", "G2"],
-    ["P8", "S1", "G7"],
-    ["P9", "G5", "G6"],
-    ["P10", "G8", "G9"],
+    ["P7", "S10", "S11"],
+    ["P8", "S5", "G7"],
+    ["P9", "S6", "S9"],
+    ["P10", "S7", "S8"],
+    ["P11", "S2", "G10"],
+    ["P12", "S3", "G9"],
+    ["P13", "S4", "G8"],
+    ["P14", "S1", "G13"],
+    ["P15", "G11", "G12"],
+    ["P16", "G14", "G15"],
   ]);
 });
 
-test("la numeración es consecutiva de 1 a 10 y cada partido tiene ID y código únicos", () => {
-  assert.deepEqual(matches.map((match) => match.order), Array.from({ length: 10 }, (_, index) => index + 1));
-  assert.deepEqual(matches.map((match) => match.code), Array.from({ length: 10 }, (_, index) => `P${index + 1}`));
+test("la numeración continúa de 7 a 16 tras J11 y mantiene los diez IDs estables", () => {
+  assert.deepEqual(matches.map((match) => match.order), Array.from({ length: 10 }, (_, index) => index + 7));
+  assert.deepEqual(matches.map((match) => match.code), Array.from({ length: 10 }, (_, index) => `P${index + 7}`));
+  assert.deepEqual(matches.map((match) => match.id), Array.from({ length: 10 }, (_, index) => `split-3-playoff-${index + 1}`));
   assert.equal(new Set(matches.map((match) => match.id)).size, 10);
   assert.ok(matches.every((match) => typeof match.id === "string" && match.id.length > 0));
 });
 
 test("los partidos pertenecen a su ronda de acceso, octavos, cuartos, semifinales y final", () => {
   assert.deepEqual(SPLIT_3_PLAYOFF_STAGES.map((stage) => [stage.id, stage.matches.map((match) => match.order)]), [
-    ["last-octavos-place", [1]],
-    ["round-of-16", [2, 3, 4]],
-    ["quarterfinals", [5, 6, 7]],
-    ["semifinals", [8, 9]],
-    ["final", [10]],
+    ["last-octavos-place", [7]],
+    ["round-of-16", [8, 9, 10]],
+    ["quarterfinals", [11, 12, 13]],
+    ["semifinals", [14, 15]],
+    ["final", [16]],
   ]);
 });
 
@@ -63,7 +64,7 @@ test("cada referencia de ganador apunta a un partido anterior existente y el gra
     visiting.delete(order);
     visited.add(order);
   }
-  visit(10);
+  visit(16);
   assert.equal(visited.size, 10, "Todos los partidos deben conducir a la final");
 });
 
@@ -75,11 +76,11 @@ test("cada clasificado del primero al undécimo entra una sola vez y el duodéci
   assert.equal(seeds.includes(12), false);
 });
 
-test("cada ganador de P1 a P9 avanza exactamente una vez y el ganador de P10 no vuelve a jugar", () => {
+test("cada ganador de P7 a P15 avanza exactamente una vez y el ganador de P16 no vuelve a jugar", () => {
   const winnerOrders = entrants.filter((entrant) => entrant.type === "winner").map((entrant) => entrant.matchOrder);
-  assert.deepEqual(winnerOrders.toSorted((a, b) => a - b), Array.from({ length: 9 }, (_, index) => index + 1));
+  assert.deepEqual(winnerOrders.toSorted((a, b) => a - b), Array.from({ length: 9 }, (_, index) => index + 7));
   assert.equal(new Set(winnerOrders).size, 9);
-  assert.equal(winnerOrders.includes(10), false);
+  assert.equal(winnerOrders.includes(16), false);
 });
 
 test("los escudos local y visitante se conservan y todos los participantes tienen una etiqueta informativa", () => {
@@ -90,6 +91,7 @@ test("los escudos local y visitante se conservan y todos los participantes tiene
       assert.equal(typeof entrant.label, "string");
       assert.ok(entrant.label.trim().length > 0, `${match.code}: etiqueta vacía`);
       assert.doesNotMatch(entrant.label, /por\s+decidir/i, `${match.code}: etiqueta pendiente antigua`);
+      assert.equal(entrant.label, entrant.type === "winner" ? `Ganador P${entrant.matchOrder}` : `${entrant.position}.º de liga`, `${match.code}: etiqueta y referencia deben coincidir`);
     }
   }
 });

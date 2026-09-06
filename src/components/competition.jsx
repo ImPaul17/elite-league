@@ -460,7 +460,7 @@ export function Split3PlayoffBoard({ stages }) {
                 style={{ top: `${(SPLIT3_PLAYOFF_ROW_POSITIONS[index] / 2576) * 100}%` }}
                 key={match.id}
               >
-                <div className="official-split3-playoff-order" role="cell">{match.code}</div>
+                <div className="official-split3-playoff-order" role="cell">{match.order}º</div>
                 <div className="official-split3-playoff-team official-split3-playoff-home" role="cell">{teamLabel(match.home)}</div>
                 <img className="official-split3-playoff-crest official-split3-playoff-home-crest" src={publicAsset(match.home.crest)} alt="" />
                 <div className="official-split3-playoff-versus" role="cell">VS</div>
@@ -479,7 +479,7 @@ export function Split3PlayoffBoard({ stages }) {
             <div className="split3-playoff-mobile-round">
               {stage.matches.map((match) => (
                 <article className="split3-playoff-mobile-row" aria-label={`Partido ${match.order}: local, ${match.home.label}; visitante, ${match.away.label}`} key={match.id}>
-                  <span className="split3-playoff-mobile-order">{match.code}</span>
+                  <span className="split3-playoff-mobile-order">{match.order}º</span>
                   <div className="split3-playoff-mobile-team split3-playoff-mobile-home">
                     {teamLabel(match.home)}
                     <img src={publicAsset(match.home.crest)} alt="" />

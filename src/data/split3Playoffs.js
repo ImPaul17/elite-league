@@ -1,3 +1,5 @@
+import { getPlayoffMatchOrder } from "../lib/matchOrder.js";
+
 const HOME_CREST = "/clubs/rest-of-elite-local.png";
 const AWAY_CREST = "/clubs/rest-of-elite-away.png";
 
@@ -10,11 +12,15 @@ export const SPLIT_3_PLAYOFF_QUALIFICATION = [
 ];
 
 const seed = (position) => ({ type: "seed", position, label: `${position}.º de liga` });
-const winner = (matchOrder) => ({ type: "winner", matchOrder, label: `Ganador P${matchOrder}` });
+const winner = (matchSequence) => {
+  const matchOrder = getPlayoffMatchOrder(11, matchSequence - 1);
+  return { type: "winner", matchOrder, label: `Ganador P${matchOrder}` };
+};
 
-function playoffMatch(order, home, away) {
+function playoffMatch(sequence, home, away) {
+  const order = getPlayoffMatchOrder(11, sequence - 1);
   return {
-    id: `split-3-playoff-${order}`,
+    id: `split-3-playoff-${sequence}`,
     code: `P${order}`,
     order,
     home: { ...home, crest: HOME_CREST },
@@ -24,6 +30,7 @@ function playoffMatch(order, home, away) {
 
 // Positions refer to the FINAL regular-season standings, not today's table.
 // Winner references define advancement without inventing teams or results.
+// The private sequence keeps match IDs stable; public orders continue after J11.
 export const SPLIT_3_PLAYOFF_STAGES = [
   {
     id: "last-octavos-place",

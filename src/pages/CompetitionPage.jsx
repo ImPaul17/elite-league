@@ -26,6 +26,8 @@ export function CompetitionPage() {
           <p className="competition-key-figure">12 equipos<span>11 jornadas</span></p>
           <p>Los doce equipos disputan una liga de once jornadas, todos contra todos a una sola vuelta. Cada club se enfrenta una vez a los otros once.</p>
           <p>Se juegan seis partidos por jornada: un total de 66 encuentros que determinan la clasificación y el acceso a la fase final.</p>
+          <p>Se disputan dos jornadas por día: J1 + J2, J3 + J4, J5 + J6, J7 + J8 y J9 + J10. El último día reúne la J11 y los playoffs.</p>
+          <p>La numeración empieza de nuevo cada día: las jornadas impares ocupan los partidos 1–6 y las pares, los partidos 7–12.</p>
           <p className="competition-card-note">FC Rush · Cuatro jugadores de campo y un portero por equipo.</p>
         </section>
 
@@ -51,7 +53,8 @@ export function CompetitionPage() {
           </dl>
           <section className="competition-playoff-order" aria-labelledby="competition-playoff-order-title">
             <h3 id="competition-playoff-order-title">Cruces y orden de partidos</h3>
-            <p>Las posiciones corresponden a la clasificación final de la fase regular. P significa partido: «Ganador P1» es quien gane el partido P1. En cada cruce, el local está a la izquierda y el visitante a la derecha.</p>
+            <p>Los playoffs se juegan después de los seis encuentros de J11, el mismo día: empiezan con el partido 7 y terminan con el 16.</p>
+            <p>Las posiciones corresponden a la clasificación final de la fase regular. P significa partido: «Ganador P7» es quien gane el partido P7. En cada cruce, el local está a la izquierda y el visitante a la derecha.</p>
             <div className="competition-playoff-rounds">
               {SPLIT_3_PLAYOFF_STAGES.map((stage) => <section className="competition-playoff-round" key={stage.id} aria-labelledby={`competition-round-${stage.id}`}>
                 <h4 id={`competition-round-${stage.id}`}>{stage.label}</h4>

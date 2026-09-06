@@ -147,7 +147,9 @@ Una alineación es una instantánea del partido, no una referencia mutable a la 
 
 Formato de Split 3 confirmado por la organización: los once primeros acceden a la fase final. El 1.º pasa directamente a semifinales, del 2.º al 4.º a cuartos y del 5.º al 9.º a octavos. El 10.º y el 11.º disputan entre sí la última plaza de octavos; el 12.º queda eliminado. Se juegan un partido de acceso, tres octavos, tres cuartos, dos semifinales y la final. Esta confirmación sustituye al top 10 del reglamento antiguo. Los destinos por posición, rondas y cruces se conservan en `src/data/split3Playoffs.js`, compartidos por Competición y Partidos. Los participantes se indican por posición final de liga o ganador de un partido, sin asignar clubes mientras siga la fase regular.
 
-Orden confirmado (local primero, visitante después): P1: 10.º–11.º; P2: 5.º–ganador P1; P3: 6.º–9.º; P4: 7.º–8.º; P5: 2.º–ganador P4; P6: 3.º–ganador P3; P7: 4.º–ganador P2; P8: 1.º–ganador P7; P9: ganador P5–ganador P6; P10: ganador P8–ganador P9. La numeración P1–P10 corresponde exclusivamente a los playoffs. Las siete pruebas de `src/lib/split3Playoffs.test.js` comprueban los cruces, el orden y las referencias entre ganadores.
+El orden se reinicia cada día de competición, agrupando dos jornadas: J1/J2, J3/J4, J5/J6, J7/J8 y J9/J10. Las impares ocupan 1–6 y las pares 7–12; J11 ocupa 1–6 y sus playoffs continúan a partir del 7. Elite Cup sigue el mismo criterio con J5 como última jornada. `src/lib/matchOrder.js` comparte la numeración entre el calendario local, los datos de Supabase y los históricos, sin modificar los IDs ni el orden persistido dentro de cada jornada.
+
+Orden confirmado del Split 3 (local primero, visitante después): P7: 10.º–11.º; P8: 5.º–ganador P7; P9: 6.º–9.º; P10: 7.º–8.º; P11: 2.º–ganador P10; P12: 3.º–ganador P9; P13: 4.º–ganador P8; P14: 1.º–ganador P13; P15: ganador P11–ganador P12; P16: ganador P14–ganador P15. Las pruebas de `src/lib/split3Playoffs.test.js` y `src/lib/matchOrder.test.js` comprueban los cruces, la numeración diaria y las referencias entre ganadores.
 
 ## Supabase: puesta en producción
 
