@@ -12,6 +12,24 @@ test("el título de patrocinadores queda encima y fuera de la tira animada", () 
   assert.match(css, /\.footer-sponsors-title\s*\{[^}]*font-weight: 820;[^}]*text-align: center;[^}]*text-transform: uppercase;/);
 });
 
+test("el copyright mantiene el año dinámico, centrado y tipografía de marca sin navegación en el footer", () => {
+  assert.match(footer, /<small className="footer-copyright">©\s*\{new Date\(\)\.getFullYear\(\)\}\s*Elite League<\/small>/);
+  assert.doesNotMatch(footer, /<nav\b|footer-links|to="\/(?:competicion|partidos|noticias)"/);
+  assert.doesNotMatch(css, /\.footer-links\b/);
+
+  const bottom = css.match(/\.footer-bottom\s*\{([^}]+)\}/)?.[1] ?? "";
+  assert.match(bottom, /display:\s*flex\s*;/);
+  assert.match(bottom, /justify-content:\s*center\s*;/);
+  assert.match(bottom, /padding:\s*25px\s+0\s*;/);
+
+  const copyright = css.match(/\.footer-copyright\s*\{([^}]+)\}/)?.[1] ?? "";
+  assert.match(copyright, /font-weight:\s*820\s*;/);
+  assert.match(copyright, /font-stretch:\s*115%\s*;/);
+  assert.match(copyright, /font-variation-settings:\s*"wdth"\s+115\s*;/);
+  assert.match(copyright, /text-transform:\s*uppercase\s*;/);
+  assert.match(copyright, /text-align:\s*center\s*;/);
+});
+
 test("el footer conserva la tira original y su proporción de 9669 por 200", () => {
   const png = readFileSync(new URL("../public/sponsors/sponsor-strip-white.png", import.meta.url));
   assert.equal(png.subarray(1, 4).toString(), "PNG");

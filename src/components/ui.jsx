@@ -361,12 +361,7 @@ export function AppFooter() {
         </div>
       </div>
       <div className="shell footer-bottom">
-        <small>© {new Date().getFullYear()} Elite League</small>
-        <nav className="footer-links" aria-label="Navegación del pie de página">
-          <AppLink to="/competicion">Competición</AppLink>
-          <AppLink to="/partidos">Calendario</AppLink>
-          <AppLink to="/noticias">Actualidad</AppLink>
-        </nav>
+        <small className="footer-copyright">© {new Date().getFullYear()} Elite League</small>
       </div>
     </footer>
   );
