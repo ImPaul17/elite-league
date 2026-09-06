@@ -63,8 +63,9 @@ p { color: var(--muted); line-height: 1.6; }
 .main-navigation a.is-active::after { transform: scaleX(1); }
 .header-actions, .account-actions { display: flex; align-items: center; gap: 9px; }
 .header-actions { margin-left: auto; }
-.account-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 38px; padding: 0 12px; border: 1px solid var(--line); border-radius: 999px; color: #dbe3d9; font-size: 0.73rem; font-weight: 760; }
-.account-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; box-shadow: 0 0 0 4px rgba(99, 199, 91, 0.13); }
+.button.account-chip { gap: 8px; padding: 0 12px; border-color: var(--line); color: var(--muted); font-size: .65rem; white-space: nowrap; }
+.button.account-chip:hover { border-color: var(--line-strong); background: rgba(255,255,255,.035); }
+.account-chip .club-crest { width: 24px; height: 24px; }
 .button { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 0 17px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: var(--ink); font-size: 0.73rem; font-weight: 820; letter-spacing: 0.055em; text-transform: uppercase; transition: transform 180ms ease, background 180ms ease, border-color 180ms ease; }
 .button:hover { transform: translateY(-1px); }
 .button-primary { background: var(--green); color: #071108; box-shadow: 0 8px 24px rgba(99, 199, 91, 0.18); }
@@ -675,7 +676,7 @@ textarea { min-height: 84px; padding-top: 10px; resize: vertical; }
 @media (max-width: 640px) {
   :root { --shell: min(100% - 24px, 1440px); }
   .competition-strip { min-height: 27px; padding-right: 12px; padding-left: 12px; gap: 12px; font-size: .57rem; }.competition-strip span + span::before { margin-right: 12px; }
-  .header-main { gap: 10px; }.brand { width: 92px; }.header-actions { margin-left: auto; }.header-actions > .button { min-height: 36px; padding: 0 9px; font-size: .59rem; }.account-chip { max-width: 108px; padding: 0 9px; overflow: hidden; font-size: .6rem; white-space: nowrap; }.account-chip span:last-child { overflow: hidden; text-overflow: ellipsis; }
+  .header-main { gap: 10px; }.brand { width: 92px; }.header-actions { margin-left: auto; }.header-actions > .button { min-height: 36px; padding: 0 9px; font-size: .59rem; }.button.account-chip { min-height: 38px; gap: 6px; padding: 0 9px; font-size: .6rem; }
   .main-navigation { top: 96px; }.club-rail { display: block; }.club-rail-track { justify-content: flex-start; min-height: 56px; margin: 0; width: 100%; padding: 0 12px; }.club-rail-item { width: 48px; min-width: 48px; height: 52px; padding: 0; border: 0 !important; }.club-rail-item .club-crest-sm { width: 38px; height: 38px; }
   .clubs-directory-page, .matches-page, .standings-page { padding-top: 0; }.clubs-directory-header, .matches-edition-header, .standings-edition-header { align-items: flex-start; flex-direction: column; gap: 12px; padding-bottom: 17px; margin-bottom: 18px; }.teams-split-selector, .matches-edition-selector { width: 100%; min-width: 0; }.teams-split-selector button, .matches-edition-selector button { min-width: 0; min-height: 38px; padding: 0 7px; font-size: .63rem; }.standings-group-selector { width: 100%; }.standings-group-selector button { flex: 1 1 0; }.classification-guides { grid-template-columns: 1fr; gap: 12px; margin-top: 26px; }.classification-guide-card { min-height: 0; padding: 18px 19px; }.matches-archive-controls { align-items: flex-start; flex-direction: column; margin-bottom: 20px; }.club-directory-card { grid-template-columns: 124px minmax(0, 1fr); min-height: 136px; }.club-directory-crest-stage { padding: 15px 0 0 17px; }.club-directory-crest-stage .club-crest-lg { width: 72px; height: 72px; }.club-directory-copy { gap: 7px; padding: 18px 18px 18px 0; }.club-directory-copy strong { font-size: 1.36rem; }.club-directory-meta em { font-size: .82rem; }
   .club-competition-switcher { justify-content: center; margin: 24px 0; }.club-competition-switcher-links { justify-content: center; }.club-competition-switcher-links a { min-height: 30px; padding: 0 8px; font-size: .61rem; }

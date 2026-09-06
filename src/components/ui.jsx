@@ -247,6 +247,7 @@ function AuthDialog({ isOpen, onClose }) {
 
 export function AppHeader({ activePath }) {
   const { viewer, signOut, league, passwordRecovery } = useLeague();
+  const accountClub = league.clubs.find((club) => club.id === viewer?.clubId);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
 
@@ -292,8 +293,8 @@ export function AppHeader({ activePath }) {
           <div className="header-actions">
             {viewer ? (
               <div className="account-actions">
-                <AppLink className="account-chip" to={viewer.requiresPasswordChange ? "/cuenta" : "/club"}>
-                  <span className="account-dot" />
+                <AppLink className="button account-chip" to={viewer.requiresPasswordChange ? "/cuenta" : "/club"}>
+                  {accountClub && <ClubCrest club={accountClub} size="xs" decorative />}
                   <span>Mi equipo</span>
                 </AppLink>
                 <AppLink className="button button-quiet" to="/cuenta">Mi cuenta</AppLink>
