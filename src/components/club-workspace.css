@@ -1,0 +1,25 @@
+.club-area-navigation { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+.club-area-navigation a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 10px 20px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--surface); color: var(--muted); font-size: .82rem; font-weight: 800; transition: color .2s, background .2s, border-color .2s; }
+.club-area-navigation a.is-active { border-color: var(--green); background: rgba(99,199,91,.12); color: var(--green-bright); }
+.club-area-navigation a:hover { color: var(--ink); border-color: var(--green); }
+.club-preview-controls { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding: 18px 22px; margin-bottom: 28px; border: 1px solid var(--line-strong); border-radius: 14px; background: var(--surface); }
+.club-preview-controls.is-preview { border-color: #64864b; background: #172114; }
+.club-preview-controls label { display: grid; gap: 8px; min-width: min(100%, 270px); font-size: .78rem; font-weight: 800; }
+.club-preview-controls select { width: 100%; min-height: 44px; }
+.club-preview-description { flex: 1 1 260px; }
+.club-preview-description strong { font-size: .88rem; }
+.club-preview-description p { margin: 7px 0 0; max-width: 600px; color: var(--muted); font-size: .8rem; line-height: 1.5; }
+.club-preview-controls .button-row { flex-wrap: wrap; }
+.club-portal-overview { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 24px 0; align-items: start; }
+.club-portal-overview > *, .club-lineups-panel { min-width: 0; }
+.club-lineups-panel { margin-bottom: 30px; }
+.club-lineups-panel .club-fixture-tabs { margin-top: 4px; }
+.club-lineups-fixture { max-width: 620px; margin: 22px auto; }
+.club-preview-readonly { margin: 18px 0; }
+@media (max-width: 700px) {
+  .club-area-navigation a { flex: 1 1 auto; padding: 10px 13px; font-size: .74rem; }
+  .club-preview-controls { padding: 16px; align-items: stretch; }
+  .club-preview-controls label { flex: 1 1 100%; min-width: 0; }
+  .club-preview-description { flex-basis: 100%; }
+  .club-portal-overview { grid-template-columns: 1fr; gap: 16px; }
+}

@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { MatchdayTabs } from "../components/competition";
-import { MatchdayConfigurationForm, MatchEventForm, NewsEditorForm, PlayerRegistrationForm, ResultEditor } from "../components/operations";
+import { MatchEventForm, NewsEditorForm, PlayerRegistrationForm, ResultEditor } from "../components/operations";
 import { EmptyState, Notice, PageHero, SectionHeading } from "../components/ui";
 import { useLeague } from "../context/LeagueContext";
 import { PLAYER_FEATURES_ENABLED } from "../lib/releaseFeatures";
 import { ClubAccountManager } from "../components/ClubAccountManager";
 import { AccountPage } from "./AccountPage";
+import { ClubAreaNavigation } from "../components/ClubAreaNavigation";
 
 export function AdminPage() {
   const { league, viewer, currentMatchday, resetDemo, isDemoMode } = useLeague();
@@ -17,13 +18,13 @@ export function AdminPage() {
   const matchday = league.matchdays.find((item) => item.number === selectedNumber) ?? league.matchdays[0];
   return (
     <>
-      <PageHero eyebrow="Organización" title="Panel de administración" description="Gestiona el calendario, los resultados, los accesos de los clubes y las noticias." meta={<span>{isDemoMode ? "Demostración local · no persistente" : "Conectado a producción"}</span>} />
+      <ClubAreaNavigation section="admin" />
+      <PageHero title="Panel de administración" description="Gestiona los resultados, los accesos de los clubes y las noticias." meta={isDemoMode ? <span>Demostración local · no persistente</span> : undefined} />
       {isDemoMode && <Notice tone="info">Esta vista prueba el flujo completo en memoria. Con Supabase configurado, las mismas acciones se guardarán con permisos y auditoría en el servidor.</Notice>}
       <section className="admin-layout">
         <div className="admin-main">
           <div className="panel reveal-item"><SectionHeading eyebrow="Resultados" title="Confirmar jornada" /><MatchdayTabs matchdays={league.matchdays} selectedNumber={selectedNumber} onSelect={setSelectedNumber} /><div className="result-editor-list">{matchday.matches.map((match) => <ResultEditor match={match} key={match.id} />)}</div></div>
-          <div className="panel reveal-item"><SectionHeading eyebrow="Calendario" title="Configurar jornada y plazos" /><MatchdayConfigurationForm matchday={matchday} /></div>
-          {PLAYER_FEATURES_ENABLED ? <><div className="panel reveal-item"><SectionHeading eyebrow="Estadísticas" title="Registrar eventos de partido" /><MatchEventForm matchday={matchday} /></div><div className="panel reveal-item"><SectionHeading eyebrow="Jugadores" title="Registro de plantilla" /><PlayerRegistrationForm /></div></> : <div className="panel reveal-item"><SectionHeading title="Plantillas" /><EmptyState title="Incorporación de jugadores pendiente" description="El registro de jugadores, las alineaciones y los eventos individuales se habilitarán en la siguiente fase. El calendario y los resultados por equipo ya se pueden gestionar." /></div>}
+          {PLAYER_FEATURES_ENABLED && <><div className="panel reveal-item"><SectionHeading eyebrow="Estadísticas" title="Registrar eventos de partido" /><MatchEventForm matchday={matchday} /></div><div className="panel reveal-item"><SectionHeading eyebrow="Jugadores" title="Registro de plantilla" /><PlayerRegistrationForm /></div></>}
           <div className="panel reveal-item"><SectionHeading eyebrow="Accesos" title="Usuarios de los clubes" /><ClubAccountManager key={viewer.id} /></div>
           <div className="panel reveal-item"><SectionHeading eyebrow="Contenido" title="Gestionar noticias" /><NewsEditorForm /></div>
         </div>

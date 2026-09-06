@@ -223,16 +223,42 @@ function ClubCrestHistoryDialog({ club, crestVersions }) {
   );
 }
 
+export function ClubProfileIdentity({ club, backTo, backLabel = "Todos los clubes" }) {
+  const crestVersions = getClubCrestVersions(club);
+  return <header className="club-profile-identity">
+    {backTo && <AppLink to={backTo} className="back-link">← {backLabel}</AppLink>}
+    <div className="club-profile-crest-stage"><ClubCrest club={club} size="xl" decorative /></div>
+    <div className="club-profile-title"><h1>{club.name}</h1>{club.status === "inactive" && <StatusBadge tone="finished">Inactivo</StatusBadge>}</div>
+    <ClubCrestHistoryDialog club={club} crestVersions={crestVersions} />
+  </header>;
+}
+
+export function ClubProfileOverview({ club }) {
+  const representativeColors = club.representativeColors?.length ? club.representativeColors : [club.color].filter(Boolean);
+  const honours = club.honours ?? [];
+  const trophyGroups = groupTrophies(honours);
+  const leadershipTitle = club.leadershipTitle ?? getClubLeadershipTitle(club);
+  const president = club.president ?? club.founder ?? "N/D";
+  return <section className="club-profile-overview">
+    <article className="panel">
+      <SectionHeading title="Información del equipo" />
+      <dl className="club-profile-facts">
+        <div><dt>Año de fundación</dt><dd>{club.founded || "N/D"}</dd></div>
+        <div><dt>{leadershipTitle}</dt><dd>{president}</dd></div>
+        <div><dt>Colores representativos</dt><dd><ul className="club-color-list">{representativeColors.map((color) => <li key={color}><i style={{ "--swatch-color": color }} aria-hidden="true" /><code>{color}</code></li>)}</ul></dd></div>
+      </dl>
+    </article>
+    <article className="panel palmares-panel">
+      <SectionHeading title="Palmarés" />
+      {honours.length ? <ul className="club-honours-list">{trophyGroups.map((trophy) => <li className="club-honour-card" key={trophy.id}><h3><span>{trophy.achievements.length}×</span> campeón de {trophy.competition}</h3><div className="club-honour-body"><span className="club-honour-icon" aria-hidden="true"><img src={trophy.icon} alt="" /></span><p className="club-honour-achievements">{trophy.achievements.map((achievement) => <span key={achievement}>{achievement}</span>)}</p></div></li>)}</ul> : <p className="club-history-empty">Este club todavía no ha levantado un título.</p>}
+    </article>
+  </section>;
+}
+
 export function TeamPage({ club, editionId = "split-3" }) {
   const { league, standings } = useLeague();
   const reduceMotion = useReducedMotion();
   const selectedEdition = getCompetitionEdition(editionId) ?? getCompetitionEdition("split-3");
-  const representativeColors = club.representativeColors?.length ? club.representativeColors : [club.color].filter(Boolean);
-  const honours = club.honours ?? [];
-  const trophyGroups = groupTrophies(honours);
-  const crestVersions = getClubCrestVersions(club);
-  const leadershipTitle = club.leadershipTitle ?? getClubLeadershipTitle(club);
-  const president = club.president ?? club.founder ?? "N/D";
   const players = league.players.filter((player) => player.clubId === club.id && player.status === "active");
   const directoryPath = selectedEdition.isCurrent ? "/equipos" : `/equipos/${selectedEdition.id}`;
   const context = useMemo(
@@ -243,27 +269,8 @@ export function TeamPage({ club, editionId = "split-3" }) {
 
   return (
     <article className="club-profile-page" style={{ "--club-accent": club.color ?? "#3f7c35" }}>
-      <header className="club-profile-identity">
-        <AppLink to={directoryPath} className="back-link">← Todos los clubes</AppLink>
-        <div className="club-profile-crest-stage"><ClubCrest club={club} size="xl" decorative /></div>
-        <div className="club-profile-title"><h1>{club.name}</h1>{club.status === "inactive" && <StatusBadge tone="finished">Inactivo</StatusBadge>}</div>
-        <ClubCrestHistoryDialog club={club} crestVersions={crestVersions} />
-      </header>
-
-      <section className="club-profile-overview">
-        <article className="panel">
-          <SectionHeading title="Información del equipo" />
-          <dl className="club-profile-facts">
-            <div><dt>Año de fundación</dt><dd>{club.founded || "N/D"}</dd></div>
-            <div><dt>{leadershipTitle}</dt><dd>{president}</dd></div>
-            <div><dt>Colores representativos</dt><dd><ul className="club-color-list">{representativeColors.map((color) => <li key={color}><i style={{ "--swatch-color": color }} aria-hidden="true" /><code>{color}</code></li>)}</ul></dd></div>
-          </dl>
-        </article>
-        <article className="panel palmares-panel">
-          <SectionHeading title="Palmarés" />
-          {honours.length ? <ul className="club-honours-list">{trophyGroups.map((trophy) => <li className="club-honour-card" key={trophy.id}><h3><span>{trophy.achievements.length}×</span> campeón de {trophy.competition}</h3><div className="club-honour-body"><span className="club-honour-icon" aria-hidden="true"><img src={trophy.icon} alt="" /></span><p className="club-honour-achievements">{trophy.achievements.map((achievement) => <span key={achievement}>{achievement}</span>)}</p></div></li>)}</ul> : <p className="club-history-empty">Este club todavía no ha levantado un título.</p>}
-        </article>
-      </section>
+      <ClubProfileIdentity club={club} backTo={directoryPath} />
+      <ClubProfileOverview club={club} />
 
       <section className="club-roster-section panel">
         <SectionHeading title="Plantilla" />

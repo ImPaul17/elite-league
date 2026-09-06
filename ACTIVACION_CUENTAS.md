@@ -1,6 +1,18 @@
 # Activar las cuentas por usuario
 
-Estado comprobado el 6 de septiembre de 2026: migración 0003 aplicada, `club-accounts` desplegado, invitaciones antiguas desactivadas y doce cuentas reales creadas y vinculadas. Login, aislamiento de perfiles y clubes, y bloqueo de gestión con contraseña temporal verificados para las doce cuentas. Solo `pablo.pico` tiene administración. No depende de SMTP. Falta la prueba completa del primer cambio de contraseña por el titular y las operaciones de gestión con una sesión ya desbloqueada.
+Estado comprobado el 6 de septiembre de 2026: migración 0003 aplicada, `club-accounts` desplegado, invitaciones antiguas desactivadas y doce cuentas reales creadas y vinculadas. Login, aislamiento de perfiles y clubes, y bloqueo de gestión con contraseña temporal verificados para las doce cuentas. Solo `pablo.pico` tiene administración. No depende de SMTP. Pablo ya ha cambiado su contraseña: el panel real muestra su cuenta preparada, las otras once pendientes de cambio y el registro de auditoría del cambio. La lista administrativa carga con su sesión desbloqueada. No se han restablecido contraseñas ni escrito noticias o resultados reales en esta revisión.
+
+## Mi equipo y administración
+
+- El acceso principal es «Mi equipo» (`#/club`) para todos. Pablo entra en Pico FC y tiene dentro la pestaña «Panel de administración» (`#/club/admin`). La ruta antigua `#/admin` continúa siendo compatible.
+- La ficha privada reutiliza el escudo, histórico, información y palmarés de la ficha pública. Incluye Mi plantilla, próximo partido, selector de alineación por jornada, calendario/resultados y clasificación. Los jugadores y el envío de alineaciones siguen deshabilitados hasta su incorporación.
+- «Ver como usuario» abre una vista previa de solo lectura por club. No cambia la sesión ni el rol del administrador. Un presidente no puede activarla manipulando la URL. La vista no expone edición, cuentas, noticias privadas ni auditoría.
+- Se han retirado de la interfaz la creación de presidentes y «Configurar jornada y plazos». Las fechas definitivas se incorporarán cuando las facilite la organización. Resultados y Noticias se mantienen.
+- Las contraseñas actuales no son recuperables. El restablecimiento genera seis dígitos aleatorios y un carácter final, permite mostrar/copiar esa nueva temporal y exige confirmación antes de aplicarla. Se conserva solo mientras ese restablecimiento permanezca abierto; no se almacena en el navegador, tablas, auditoría ni código publicado.
+
+Validación de esta reorganización: 71 pruebas unitarias y compilación correctas; vistas reales de Pico/Coca/Mugiwaras revisadas y móvil sin desbordamiento horizontal. Comparación aislada de 60 fichas públicas sin diferencias de HTML; 12 previews sin formularios y cinco accesos no autorizados rechazados. No se ha ejecutado un restablecimiento real como prueba.
+
+Antes de habilitar jugadores: ajustar y probar `submit_lineup` para que el administrador que preside un club pueda enviar explícitamente su propia alineación también como visitante. La RPC actual prioriza el local cuando administración puede gestionar ambos clubes. No activar esta función sin resolver ese caso y probar permisos/plazos reales.
 
 ## Actualización del proyecto existente
 
@@ -31,7 +43,7 @@ No ejecutar los marcadores literalmente. Si también va a presidir Pico FC, aña
 
 ## Presidentes
 
-En Administración → Usuarios de los clubes: introducir nombre, usuario, club y contraseña temporal de exactamente seis dígitos más una letra o símbolo final (`! @ # $ % & ?`): siete caracteres en total. Antes de aprovisionar, comprobar que la política de Supabase permite estas temporales; no debilitar los ajustes del proveedor automáticamente. Son contraseñas cortas para el primer acceso, no definitivas: entregar cada una en privado y cambiarla cuanto antes por una distinta de 12–128 caracteres. Cada persona tendrá una temporal diferente. No se envía correo ni se guardan contraseñas en tablas o auditoría.
+Las doce cuentas ya existen; no se muestran opciones de creación en el panel. En Mi equipo → Panel de administración → Usuarios de los clubes se puede previsualizar cada club o restablecer el acceso de un presidente. La temporal tiene exactamente seis dígitos más una letra o símbolo final (`! @ # $ % & ?`): siete caracteres en total. No debilitar los ajustes del proveedor automáticamente. Son contraseñas cortas para el primer acceso, no definitivas: entregar cada una en privado y cambiarla cuanto antes por una distinta de 12–128 caracteres. Cada persona tendrá una temporal diferente. No se envía correo ni se guardan contraseñas en tablas o auditoría. Cualquier incorporación futura de presidentes se gestionará como una ampliación aparte.
 
 `node scripts/prepare-president-credentials.mjs RUTA_ABSOLUTA_FUERA_DEL_PROYECTO` prepara un archivo privado con credenciales aleatorias para los doce clubes activos. No crea cuentas ni conecta con Supabase; el archivo indica expresamente que está pendiente de activar. No subirlo a GitHub ni servirlo desde la web. No sobrescribe credenciales ya preparadas.
 
@@ -48,7 +60,7 @@ Ya comprobado con Supabase real: doce inicios de sesión y cierres de las sesion
 - Entrar, recargar y salir con una cuenta autorizada.
 - Usar contraseña temporal y comprobar que administración/gestión del club queda bloqueada hasta cambiarla.
 - Cambiar contraseña; comprobar que la antigua ya no inicia sesión.
-- Crear un presidente vinculado al club correcto y restablecer su contraseña desde administración.
+- Cuando corresponda un restablecimiento real autorizado, comprobar su aplicación, la entrega privada de la nueva temporal y el bloqueo hasta cambiarla. No crear cuentas adicionales para esta prueba.
 - Comprobar que otro presidente y un visitante no pueden invocar acciones administrativas ni modificar `global_role`, `username` o `must_change_password` directamente.
 - Guardar un borrador, publicar, editar y retirar una noticia; verificar RLS y auditoría en sesiones diferentes.
 

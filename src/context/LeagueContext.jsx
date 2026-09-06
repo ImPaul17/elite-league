@@ -257,7 +257,7 @@ export function LeagueProvider({ children }) {
       if (!data.session || !sessionSynchronizerRef.current) return { ok: false, error: "No se ha podido iniciar la sesión." };
       setPasswordRecovery(false);
       const result = await sessionSynchronizerRef.current.sync("SIGNED_IN", data.session);
-      if (result.ok) window.location.hash = viewerRef.current?.requiresPasswordChange ? "/cuenta" : viewerRef.current?.role === "admin" ? "/admin" : "/club";
+      if (result.ok) window.location.hash = viewerRef.current?.requiresPasswordChange ? "/cuenta" : "/club";
       return result;
     } catch (error) {
       return { ok: false, error: error?.message ?? "No se ha podido conectar con el servicio de acceso." };

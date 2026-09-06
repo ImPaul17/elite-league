@@ -284,6 +284,7 @@ export function AppHeader({ activePath }) {
               </AppLink>
             ))}
             {viewer && <div className="mobile-account-navigation">
+              <AppLink to={viewer.requiresPasswordChange ? "/cuenta" : "/club"} onClick={() => setIsMenuOpen(false)}>Mi equipo</AppLink>
               <AppLink to="/cuenta" onClick={() => setIsMenuOpen(false)}>Mi cuenta</AppLink>
               <button className="button button-quiet" type="button" onClick={async () => { const result = await signOut(); if (result.ok) setIsMenuOpen(false); }}>Cerrar sesión</button>
             </div>}
@@ -291,9 +292,9 @@ export function AppHeader({ activePath }) {
           <div className="header-actions">
             {viewer ? (
               <div className="account-actions">
-                <AppLink className="account-chip" to={viewer.requiresPasswordChange ? "/cuenta" : viewer.role === "admin" ? "/admin" : "/club"}>
+                <AppLink className="account-chip" to={viewer.requiresPasswordChange ? "/cuenta" : "/club"}>
                   <span className="account-dot" />
-                  <span>{viewer.role === "admin" ? "Administración" : "Mi club"}</span>
+                  <span>Mi equipo</span>
                 </AppLink>
                 <AppLink className="button button-quiet" to="/cuenta">Mi cuenta</AppLink>
                 <button className="button button-quiet" type="button" onClick={signOut}>Salir</button>

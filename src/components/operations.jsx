@@ -1,30 +1,37 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLeague } from "../context/LeagueContext";
 import { getMatchStatus, isOfficialResult } from "../lib/leagueEngine";
+import { getFormationPermissions } from "../lib/formationPermissions";
 import { ClubCrest, EmptyState, Notice, StatusBadge } from "./ui";
 
-export function FormationBuilder({ clubId, match }) {
+export function FormationBuilder({ clubId, match, readOnly = false, lineups }) {
   const { league, submitLineup, viewer, canManageClub } = useLeague();
   const club = league.clubs.find((candidate) => candidate.id === clubId);
   const players = useMemo(
     () => league.players.filter((player) => player.clubId === clubId && player.status === "active"),
     [clubId, league.players],
   );
-  const existingLineup = league.lineups.find((lineup) => lineup.matchId === match.id && lineup.clubId === clubId);
+  const existingLineup = (lineups ?? league.lineups).find((lineup) => lineup.matchId === match.id && lineup.clubId === clubId);
   const [selectedIds, setSelectedIds] = useState(existingLineup?.playerIds ?? []);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
     setSelectedIds(existingLineup?.playerIds ?? []);
-  }, [existingLineup?.id, match.id]);
+    setMessage("");
+  }, [clubId, existingLineup?.id, existingLineup?.version, match.id, readOnly]);
 
   const selectedPlayers = players.filter((player) => selectedIds.includes(player.id));
   const selectedGoalkeepers = selectedPlayers.filter((player) => player.positionGroup === "GK");
   const selectedFieldPlayers = selectedPlayers.filter((player) => player.positionGroup === "FIELD");
   const deadline = match.lineupDeadline ? new Date(match.lineupDeadline) : null;
-  const deadlinePassed = Boolean(deadline && deadline.getTime() <= Date.now() && viewer?.role !== "admin");
+  const canManage = canManageClub(clubId);
+  function getPermissions() {
+    return getFormationPermissions({ readOnly, canManage, viewerRole: viewer?.role, lineupDeadline: match.lineupDeadline });
+  }
+  const { canEdit, deadlinePassed, hasAdminPrivileges } = getPermissions();
 
   function togglePlayer(playerId) {
+    if (!getPermissions().canEdit) return;
     setMessage("");
     setSelectedIds((current) => {
       if (current.includes(playerId)) return current.filter((id) => id !== playerId);
@@ -37,11 +44,12 @@ export function FormationBuilder({ clubId, match }) {
   }
 
   async function save(state) {
+    if (!getPermissions().canEdit) return;
     const result = await submitLineup({ matchId: match.id, clubId, playerIds: selectedIds, state });
     setMessage(result.ok ? "" : result.error);
   }
 
-  if (!canManageClub(clubId)) {
+  if (!canManage && !readOnly) {
     return <Notice tone="warning">Tu rol puede consultar el club, pero no enviar alineaciones. La gestión 4+1 está reservada a presidencia, staff autorizado y administración.</Notice>;
   }
 
@@ -60,7 +68,7 @@ export function FormationBuilder({ clubId, match }) {
         <div>
           <p className="eyebrow">Formación 4+1</p>
           <h3>{club.name}</h3>
-          <p>Selecciona 1 portero y 4 jugadores de campo. La alineación se guarda como una instantánea del partido.</p>
+          <p>{readOnly ? "Vista de la alineación del club. No puedes modificarla desde la vista previa." : "Selecciona 1 portero y 4 jugadores de campo. La alineación se guarda como una instantánea del partido."}</p>
         </div>
         <div className="formation-counts" aria-label="Conteo de jugadores seleccionados">
           <span><strong>{selectedGoalkeepers.length}</strong>/1 <small>POR</small></span>
@@ -87,7 +95,7 @@ export function FormationBuilder({ clubId, match }) {
               const isSelected = selectedIds.includes(player.id);
               return (
                 <label className={`player-choice ${isSelected ? "is-selected" : ""}`} key={player.id}>
-                  <input type="checkbox" checked={isSelected} onChange={() => togglePlayer(player.id)} />
+                  <input type="checkbox" checked={isSelected} disabled={!canEdit} onChange={() => togglePlayer(player.id)} />
                   <span className="player-number">{player.shirtNumber ?? "—"}</span>
                   <span><strong>{player.name}</strong><small>{player.positionGroup === "GK" ? "Portero" : "Jugador de campo"}</small></span>
                   <span className="choice-check">{isSelected ? "✓" : "+"}</span>
@@ -102,11 +110,11 @@ export function FormationBuilder({ clubId, match }) {
       <div className="formation-actions">
         <span>{existingLineup ? `Versión ${existingLineup.version} · ${existingLineup.state === "draft" ? "borrador" : "enviada"}` : "Sin formación guardada"}</span>
         <div>
-          <button className="button button-outline" type="button" onClick={() => save("draft")} disabled={deadlinePassed}>Guardar borrador</button>
-          <button className="button button-primary" type="button" onClick={() => save("submitted")} disabled={deadlinePassed}>Enviar alineación</button>
+          <button className="button button-outline" type="button" onClick={() => save("draft")} disabled={!canEdit}>Guardar borrador</button>
+          <button className="button button-primary" type="button" onClick={() => save("submitted")} disabled={!canEdit}>Enviar alineación</button>
         </div>
       </div>
-      {viewer?.role === "admin" && <Notice tone="info">Como administrador, puedes revisar esta formación antes de que se conecte al flujo de bloqueo de la jornada.</Notice>}
+      {hasAdminPrivileges && <Notice tone="info">Como administrador, puedes revisar esta formación antes de que se conecte al flujo de bloqueo de la jornada.</Notice>}
     </div>
   );
 }

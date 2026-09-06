@@ -16,6 +16,7 @@ import { StatisticsPage } from "./pages/StatisticsPage";
 import { TeamPage } from "./pages/TeamPage";
 import { TeamsPage } from "./pages/TeamsPage";
 import { getCompetitionEdition, getClubProfile } from "./data/history";
+import { readClubWorkspaceRoute } from "./lib/clubWorkspace";
 
 function isStandingsEdition(edition) {
   return edition?.type === "split" || edition?.type === "cup";
@@ -24,6 +25,9 @@ function isStandingsEdition(edition) {
 function RouteView({ path }) {
   const { league, viewer } = useLeague();
   const parts = getRouteParts(path);
+  const workspace = readClubWorkspaceRoute(path);
+  if (workspace?.section === "team") return <ClubPortalPage key={`${viewer?.id ?? "anonymous"}:${workspace.previewClubId ?? "own"}`} previewClubId={workspace.previewClubId} />;
+  if (workspace?.section === "admin") return <AdminPage />;
   if (path === "/") return <HomePage />;
   if (path === "/clasificacion") return <StandingsPage />;
   if (parts[0] === "clasificacion" && parts[1] && !parts[2] && isStandingsEdition(getCompetitionEdition(parts[1]))) return <StandingsPage editionId={parts[1]} />;
@@ -40,8 +44,6 @@ function RouteView({ path }) {
   if (path === "/noticias") return <NewsPage />;
   if (parts[0] === "noticias" && parts[1]) return <NewsPage articleId={parts[1]} />;
   if (path === "/competicion") return <CompetitionPage />;
-  if (path === "/club") return <ClubPortalPage />;
-  if (path === "/admin") return <AdminPage />;
   if (path === "/cuenta") return <AccountPage key={viewer?.id ?? "anonymous"} />;
   if (path === "/patrocinadores") return <SponsorsPage />;
   return <NotFoundPage />;
@@ -105,7 +107,8 @@ function AppContent() {
       "/estadisticas": "Estadísticas · Elite League",
       "/noticias": "Noticias · Elite League",
       "/competicion": "Competición · Elite League",
-      "/club": "Portal de club · Elite League",
+      "/club": "Mi equipo · Elite League",
+      "/club/admin": "Administración · Elite League",
       "/admin": "Administración · Elite League",
       "/cuenta": "Mi cuenta · Elite League",
       "/patrocinadores": "Patrocinadores · Elite League",
@@ -116,7 +119,7 @@ function AppContent() {
       ? `Partidos · ${selectedMatchesEdition.label} · Elite League`
       : isStandingsEdition(selectedStandingsEdition)
         ? `Clasificación · ${selectedStandingsEdition.label} · Elite League`
-        : titleMap[path] ?? "Elite League";
+        : readClubWorkspaceRoute(path)?.previewClubId != null ? "Vista previa del equipo · Elite League" : titleMap[path] ?? "Elite League";
     const shouldKeepScroll = previousPathRef.current && (
       (isEditionDirectoryPath(previousPathRef.current) && isEditionDirectoryPath(path))
       || (isMatchesEditionPath(previousPathRef.current) && isMatchesEditionPath(path))

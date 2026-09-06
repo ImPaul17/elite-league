@@ -49,7 +49,7 @@ export function AccountPage() {
         {feedback && <p role={feedback.error ? "alert" : "status"} className={feedback.error ? "form-error" : "notice notice-info"}>{feedback.error || feedback.message}</p>}
         <button className="button button-primary" disabled={busy} type="submit">{busy ? "Guardando…" : "Guardar contraseña"}</button>
       </form>}
-      {!viewer.requiresPasswordChange && <AppLink className="button button-outline" to={viewer.role === "admin" ? "/admin" : "/club"}>Volver a mi panel</AppLink>}
+      {!viewer.requiresPasswordChange && <AppLink className="button button-outline" to="/club">Volver a mi equipo</AppLink>}
     </section>
   </>;
 }

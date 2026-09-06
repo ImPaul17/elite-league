@@ -1,0 +1,15 @@
+.club-account-controls .club-account-list-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.club-account-controls .account-manager-row .club-account-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.club-account-controls .club-account-details { flex: 1 1 230px; }
+.club-account-controls .club-account-reset { padding: 20px; border: 1px solid #ffffff1a; border-radius: 12px; background: #ffffff03; min-width: 0; }
+.club-account-controls .club-account-reset h4 { margin: 0; font-size: 1.05rem; overflow-wrap: anywhere; }
+.club-account-controls .club-account-reset p { margin: 0; line-height: 1.6; }
+.club-account-controls .club-account-reset input[readonly] { font-family: ui-monospace, monospace; font-size: 1.2rem; letter-spacing: .2em; }
+.club-account-controls .club-account-reset-confirm { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; }
+.club-account-controls .club-account-reset-confirm input { width: 18px; height: 18px; min-width: 18px; margin: 3px 0 0; accent-color: #3f7c35; }
+.club-account-controls .club-account-secret-note, .club-account-controls .club-account-copy-feedback { color: var(--text-muted, #a4b0a4); font-size: .85rem; }
+@media (max-width: 600px) {
+  .club-account-controls .club-account-actions { width: 100%; }
+  .club-account-controls .club-account-actions .button { flex: 1 1 180px; }
+  .club-account-controls .club-account-reset { padding: 15px; }
+}

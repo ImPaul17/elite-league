@@ -227,10 +227,15 @@ export async function loadPrivateLineups({ clubId, league }) {
   if (!supabase || !clubId) return [];
   const club = league.clubs.find((candidate) => candidate.id === clubId);
   if (!club?.databaseId) return [];
+  const matchIds = league.matchdays.flatMap((day) => day.matches)
+    .filter((match) => match.homeClubId === clubId || match.awayClubId === clubId)
+    .map((match) => match.databaseId).filter(Boolean);
+  if (!matchIds.length) return [];
   const { data, error } = await supabase
     .from("lineup_submissions")
     .select("id, match_id, club_id, state, version, submitted_at, lineup_slots(registration_id)")
-    .eq("club_id", club.databaseId);
+    .eq("club_id", club.databaseId)
+    .in("match_id", matchIds);
   if (error) throw error;
 
   const playerIdByRegistration = new Map(league.players.map((player) => [player.registrationId, player.id]));
