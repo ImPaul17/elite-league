@@ -3,6 +3,7 @@ import { FormationBuilder } from "../components/operations";
 import { FixtureCard, OfficialStandingsBoard, StandingsTable } from "../components/competition";
 import { AppLink, EmptyState, Notice, PageHero, SectionHeading } from "../components/ui";
 import { ClubAreaNavigation } from "../components/ClubAreaNavigation";
+import { ClubKits } from "../components/ClubKits";
 import { getClubFixtures, getNextClubFixture } from "../lib/leagueEngine";
 import { useLeague } from "../context/LeagueContext";
 import { useUserPreview } from "../context/UserPreviewContext";
@@ -44,6 +45,7 @@ export function ClubPortalPage({ previewClubId = null }) {
     <article className="club-profile-page club-portal-page" style={{ "--club-accent": club.color ?? "#3f7c35" }}>
       <ClubProfileIdentity club={club} />
       <ClubProfileOverview club={club} />
+      <ClubKits club={club} />
       <section className="club-portal-overview">
         <div className="panel"><SectionHeading title="Mi plantilla" />{PLAYER_FEATURES_ENABLED && players.length ? <div className="roster-list">{players.map((player) => <div key={player.id}><span>{player.shirtNumber ?? "—"}</span><strong>{player.name}</strong><small>{player.positionGroup === "GK" ? "Portero" : "Campo"}</small></div>)}</div> : <EmptyState title="Plantilla pendiente" description="Los jugadores de tu equipo aparecerán aquí cuando se incorporen." />}</div>
       </section>

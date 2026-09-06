@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ClubCompetitionSwitcher, FixtureCard, OfficialStandingsBoard, StandingsTable } from "../components/competition";
+import { ClubKits } from "../components/ClubKits";
 import { AppLink, ClubCrest, EmptyState, SectionHeading, StatusBadge, siteAsset } from "../components/ui";
 import { calculateStandings, getClubFixtures } from "../lib/leagueEngine";
 import { useLeague } from "../context/LeagueContext";
@@ -271,6 +272,7 @@ export function TeamPage({ club, editionId = "split-3" }) {
     <article className="club-profile-page" style={{ "--club-accent": club.color ?? "#3f7c35" }}>
       <ClubProfileIdentity club={club} backTo={directoryPath} />
       <ClubProfileOverview club={club} />
+      <ClubKits club={club} />
 
       <section className="club-roster-section panel">
         <SectionHeading title="Plantilla" />
