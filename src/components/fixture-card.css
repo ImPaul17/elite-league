@@ -5,7 +5,8 @@
   min-width: 0;
   overflow: hidden;
   border: 1px solid rgba(139, 145, 136, .16);
-  border-radius: 22px;
+  /* The PSD corners scale to roughly 22–31 px at card sizes used by the grid. */
+  border-radius: clamp(22px, 2.1vw, 31px);
   background: #191a19;
   box-shadow: 0 18px 48px rgba(0, 0, 0, .26);
   color: #d8d8d8;
@@ -29,7 +30,7 @@
   aspect-ratio: 1597 / 334;
   min-height: 140px;
   background: url("/psd/fixture-card-bg.png") center / 100% 100% no-repeat;
-  border-radius: 4.4cqw;
+  border-radius: inherit;
 }
 
 .fixture-card.is-emphasized .fixture-card-canvas { outline: 1px solid #3f7c35; }
@@ -83,14 +84,16 @@
   transform: translateY(-50%);
   font-size: max(14px, 2.521cqw);
   line-height: 1.12;
-  overflow-wrap: anywhere;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .fixture-team-home .fixture-team-name { left: 0; text-align: right; }
 .fixture-team-away .fixture-team-name { right: 0; text-align: left; }
 .fixture-team .club-crest {
   position: absolute;
   top: 50%;
-  width: 19.63%;
+  width: 22%;
   height: auto;
   aspect-ratio: 1;
   object-fit: contain;
@@ -130,7 +133,8 @@
 
 /* Keep the same artwork on phones, with room for full club names and tap targets. */
 @container fixture (max-width: 519px) {
-  .fixture-card-canvas { min-height: 212px; border-radius: 24px; }
+  .fixture-card { border-radius: 24px; }
+  .fixture-card-canvas { min-height: 212px; }
   .fixture-order, .fixture-status { top: 14%; font-size: 10px; }
   .fixture-status { max-width: 26%; }
   .fixture-round { top: 8%; max-width: 43%; min-height: 26px; padding: 5px 10px; font-size: 10px; white-space: normal; text-align: center; }
@@ -138,8 +142,8 @@
   .fixture-team { top: 31%; width: 32%; height: 48%; }
   .fixture-team-home { left: 4%; }
   .fixture-team-away { right: 4%; }
-  .fixture-team .club-crest { top: 0; right: auto; left: 50%; width: 48px; height: 48px; transform: translateX(-50%); }
-  .fixture-team .fixture-team-name { top: 59px; right: auto; left: 0; width: 100%; transform: none; font-size: 14px; line-height: 1.15; text-align: center; }
+  .fixture-team .club-crest { top: 0; right: auto; left: 50%; width: 54px; height: 54px; transform: translateX(-50%); }
+  .fixture-team .fixture-team-name { top: 64px; right: auto; left: 0; width: 100%; transform: none; font-size: 13px; line-height: 1.15; text-align: center; }
   .fixture-goals, .fixture-versus { top: 42.3%; }
   .fixture-goals-home { left: 41%; }
   .fixture-goals-away { left: 59%; }
