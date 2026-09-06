@@ -159,6 +159,8 @@ test("los botones usan KIT_SPLITS y deshabilitan solo las ediciones sin material
   assert.match(component, /motion\.span className="club-kits-splits-indicator"/);
   assert.match(component, /useReducedMotion\(\)/);
   assert.doesNotMatch(component, /Las tres equipaciones/);
+  assert.match(component, /isFullKit\s*\?\s*\(/);
+  assert.match(component, /club-kit-static/);
 });
 
 test("las equipaciones mantienen imagen completa, carga diferida, etiquetas y estado vacío", () => {
@@ -180,12 +182,13 @@ test("las equipaciones mantienen imagen completa, carga diferida, etiquetas y es
   assert.match(imageRule, /object-fit:\s*contain;/);
   assert.match(css, /\.club-kit\.is-full img\s*\{[^}]*aspect-ratio:\s*auto;/);
   assert.match(css, /\.club-kit\.is-full \.club-kit-open\s*\{[^}]*border-radius:\s*18px;[^}]*box-shadow:/);
-  assert.match(css, /\.club-kit\.is-full \.club-kit-open:hover\s*\{[^}]*transform:\s*translateY/);
+  assert.match(css, /\.club-kit\.is-full \.club-kit-open\s*\{[^}]*cursor:\s*default/);
+  assert.match(css, /\.club-kit\.is-full \.club-kit-open:hover,[\s\n]*\.club-kit\.is-full \.club-kit-open:focus-visible\s*\{[^}]*transform:\s*none/);
 });
 
 test("cada miniatura abre el visor por su índice y conserva el botón que debe recuperar el foco", () => {
   const component = read("../src/components/ClubKits.jsx");
-  const marker = component.indexOf('className="club-kit-open"');
+  const marker = component.indexOf('className="club-kit-open"\n                    aria-haspopup="dialog"');
   assert.ok(marker >= 0);
   const button = component.slice(component.lastIndexOf("<button", marker), component.indexOf("</button>", marker));
   assert.match(button, /type="button"/);
@@ -193,7 +196,7 @@ test("cada miniatura abre el visor por su índice y conserva el botón que debe 
   assert.match(button, /aria-label=\{/);
   assert.match(button, /triggerRef\.current\s*=\s*event\.currentTarget/);
   assert.match(button, /setOpenIndex\(index\)/);
-  assert.match(button, /<img\b/);
+  assert.match(component, /const image = \([\s\S]*<img\b/);
   assert.match(component, /<AnimatePresence>[\s\S]*<ClubKitDialog\b[\s\S]*<\/AnimatePresence>/);
   for (const prop of [/club=\{club\}/, /kits=\{kits\}/, /initialIndex=\{openIndex\}/, /triggerRef=\{triggerRef\}/, /onClose=\{closeViewer\}/]) {
     assert.match(component, prop);

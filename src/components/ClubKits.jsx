@@ -44,30 +44,42 @@ export function ClubKits({ club }) {
       />
       {kits.length > 0 ? (
         <div className={`club-kits-grid${kits.length === 1 && kits[0].id === "full" ? " is-full-kit-grid" : ""}`}>
-          {kits.map((kit, index) => (
-            <figure className={`club-kit${kit.id === "full" ? " is-full-kit" : ""}`} key={`${selectedSplit}-${kit.id}`}>
-              <button
-                type="button"
-                className="club-kit-open"
-                aria-haspopup="dialog"
-                aria-label={`Ampliar equipación ${kit.label.toLocaleLowerCase("es")} de ${club.name}`}
-                onClick={(event) => {
-                  triggerRef.current = event.currentTarget;
-                  setOpenIndex(index);
-                }}
-              >
-                <img
-                  src={siteAsset(kit.src)}
-                  alt={`Equipación ${kit.label.toLocaleLowerCase("es")} de ${club.name} · ${KIT_SPLITS.find((split) => split.id === selectedSplit)?.label}`}
-                  width={kit.width}
-                  height={kit.height}
-                  loading="lazy"
-                  decoding="async"
-                />
-              </button>
-              {kit.id !== "full" && <figcaption>{kit.label}</figcaption>}
-            </figure>
-          ))}
+          {kits.map((kit, index) => {
+            const isFullKit = kit.id === "full";
+            const image = (
+              <img
+                src={siteAsset(kit.src)}
+                alt={`Equipación ${kit.label.toLocaleLowerCase("es")} de ${club.name} · ${KIT_SPLITS.find((split) => split.id === selectedSplit)?.label}`}
+                width={kit.width}
+                height={kit.height}
+                loading="lazy"
+                decoding="async"
+              />
+            );
+            return (
+              <figure className={`club-kit${isFullKit ? " is-full-kit" : ""}`} key={`${selectedSplit}-${kit.id}`}>
+                {isFullKit ? (
+                  <div className="club-kit-open club-kit-static" aria-label={`Equipación ${kit.label.toLocaleLowerCase("es")} de ${club.name}`}>
+                    {image}
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="club-kit-open"
+                    aria-haspopup="dialog"
+                    aria-label={`Ampliar equipación ${kit.label.toLocaleLowerCase("es")} de ${club.name}`}
+                    onClick={(event) => {
+                      triggerRef.current = event.currentTarget;
+                      setOpenIndex(index);
+                    }}
+                  >
+                    {image}
+                  </button>
+                )}
+                {!isFullKit && <figcaption>{kit.label}</figcaption>}
+              </figure>
+            );
+          })}
         </div>
       ) : (
         <p className="club-kits-empty">Todavía no hay equipaciones disponibles para este club.</p>
