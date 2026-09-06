@@ -139,7 +139,7 @@ p { color: var(--muted); line-height: 1.6; }
 .text-link:hover { color: #fff; transform: translateX(2px); }
 .home-primary-grid { display: grid; grid-template-columns: minmax(0, .66fr) minmax(0, .34fr); gap: 42px; align-items: start; }
 .panel { padding: 30px; border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(135deg, rgba(24, 31, 25, .86), rgba(14, 18, 15, .88)); box-shadow: 0 10px 34px rgba(0,0,0,.16); }
-.panel-table { min-height: 100%; border-radius: 22px; }
+.panel-table { min-width: 0; min-height: 100%; border-radius: 22px; }
 .home-matchday { min-width: 0; }
 .fixture-stack { display: grid; gap: 11px; }
 
@@ -161,6 +161,9 @@ p { color: var(--muted); line-height: 1.6; }
 .official-board-section { min-width: 0; }
 .official-board-desktop { display: block; }
 .official-board-mobile { display: none; }
+.official-standings-scroll { width: 100%; min-width: 0; }
+.official-standings-scroll:focus-visible { outline: 2px solid var(--green-bright); outline-offset: 4px; border-radius: 22px; }
+.official-standings-scroll-hint { display: none; }
 .official-standings-board, .official-matchday-board, .official-split3-playoff-board {
   position: relative;
   width: 100%;
@@ -687,6 +690,25 @@ textarea { min-height: 84px; padding-top: 10px; resize: vertical; }
 @media (max-width: 760px) {
   .official-board-desktop { display: none; }
   .official-board-mobile { display: block; }
+  .official-standings-scroll {
+    overflow-x: auto;
+    padding-bottom: 12px;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+    -webkit-overflow-scrolling: touch;
+  }
+  .official-standings-board { min-width: 900px; }
+  .official-standings-scroll-hint {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+    color: var(--muted);
+    font-size: .7rem;
+  }
+  .official-standings-scroll-hint span { color: var(--green-bright); font-size: 1rem; }
   .official-board-mobile.fixture-stack { display: grid; }
   .official-matchday-fallback { grid-template-columns: 1fr; }
   .official-board-mobile.split3-playoff-mobile { display: grid; gap: 19px; }

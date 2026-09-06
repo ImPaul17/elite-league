@@ -270,7 +270,8 @@ export function OfficialStandingsBoard({ standings, highlightClubId, editionId =
 
   return (
     <section className="official-board-section official-standings-section" aria-label="Clasificación oficial">
-      <div className="official-board-desktop">
+      <p className="official-standings-scroll-hint" aria-hidden="true">Desliza para ver todos los datos <span>→</span></p>
+      <div className="official-standings-scroll" role="region" aria-label="Clasificación completa, desplazamiento horizontal" tabIndex={0}>
         <div
           className={`official-standings-board official-standings-board--${editionId}`}
           role="table"
@@ -279,11 +280,13 @@ export function OfficialStandingsBoard({ standings, highlightClubId, editionId =
           style={boardStyle}
         >
           <div role="rowgroup">
-            <div className="official-standings-heading official-standings-heading-position" role="columnheader">POS.</div>
-            <div className="official-standings-heading official-standings-heading-team" role="columnheader">EQUIPO</div>
-            {OFFICIAL_STANDINGS_COLUMNS.map((column) => (
-              <div className="official-standings-heading official-standings-heading-stat" role="columnheader" style={{ left: `${column.x}%` }} key={column.key} title={column.description}>{column.label}</div>
-            ))}
+            <div role="row">
+              <div className="official-standings-heading official-standings-heading-position" role="columnheader">POS.</div>
+              <div className="official-standings-heading official-standings-heading-team" role="columnheader">EQUIPO</div>
+              {OFFICIAL_STANDINGS_COLUMNS.map((column) => (
+                <div className="official-standings-heading official-standings-heading-stat" role="columnheader" style={{ left: `${column.x}%` }} key={column.key} title={column.description}>{column.label}</div>
+              ))}
+            </div>
           </div>
           <div role="rowgroup">
             {standings.map((row, index) => (
@@ -309,9 +312,6 @@ export function OfficialStandingsBoard({ standings, highlightClubId, editionId =
             ))}
           </div>
         </div>
-      </div>
-      <div className="official-board-mobile">
-        <StandingsTable standings={standings} highlightClubId={highlightClubId} />
       </div>
     </section>
   );
