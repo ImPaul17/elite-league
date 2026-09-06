@@ -1,6 +1,6 @@
 import { siteAsset } from "../components/ui";
 import { COMPETITION_RULES } from "../data/league";
-import { SPLIT_3_PLAYOFF_QUALIFICATION } from "../data/split3Playoffs";
+import { SPLIT_3_PLAYOFF_QUALIFICATION, SPLIT_3_PLAYOFF_STAGES } from "../data/split3Playoffs";
 import "./competition-page.css";
 
 const scoring = [
@@ -49,7 +49,24 @@ export function CompetitionPage() {
               <dd><h3>{round}</h3><p>{description}</p></dd>
             </div>)}
           </dl>
-          <p className="competition-card-note">Los ganadores avanzan de ronda hasta la final, donde se decide el campeón de los playoffs.</p>
+          <section className="competition-playoff-order" aria-labelledby="competition-playoff-order-title">
+            <h3 id="competition-playoff-order-title">Cruces y orden de partidos</h3>
+            <p>Las posiciones corresponden a la clasificación final de la fase regular. P significa partido: «Ganador P1» es quien gane el partido P1. En cada cruce, el local está a la izquierda y el visitante a la derecha.</p>
+            <div className="competition-playoff-rounds">
+              {SPLIT_3_PLAYOFF_STAGES.map((stage) => <section className="competition-playoff-round" key={stage.id} aria-labelledby={`competition-round-${stage.id}`}>
+                <h4 id={`competition-round-${stage.id}`}>{stage.label}</h4>
+                <ol className="competition-playoff-matches" start={stage.matches[0]?.order}>
+                  {stage.matches.map((match) => <li className="competition-playoff-match" key={match.id} value={match.order} aria-label={`${match.code}: local, ${match.home.label}; visitante, ${match.away.label}`}>
+                    <span className="competition-playoff-match-code" aria-hidden="true">{match.code}</span>
+                    <span className="competition-playoff-side" aria-hidden="true">{match.home.label}</span>
+                    <span className="competition-playoff-versus" aria-hidden="true">vs</span>
+                    <span className="competition-playoff-side" aria-hidden="true">{match.away.label}</span>
+                  </li>)}
+                </ol>
+              </section>)}
+            </div>
+          </section>
+          <p className="competition-card-note">Los equipos se asignarán a estos cruces cuando termine la fase regular. El ganador de la final será el campeón de los playoffs.</p>
         </section>
       </div>
     </article>

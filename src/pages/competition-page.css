@@ -22,12 +22,24 @@
 .competition-qualification dd { margin: 0; }
 .competition-qualification h3 { margin: 0 0 6px; color: var(--ink); font-size: 1.15rem; font-weight: 700; letter-spacing: -.01em; }
 .competition-qualification p { margin: 0; font-size: .95rem; line-height: 1.55; }
+.competition-playoff-order { margin-top: 26px; padding-top: 26px; border-top: 1px solid var(--line); }
+.competition-playoff-order > h3 { margin: 0 0 10px; color: var(--ink); font-size: 1.2rem; font-weight: 700; letter-spacing: -.01em; }
+.competition-playoff-order > p { max-width: 850px; margin: 0 0 22px; font-size: .95rem; line-height: 1.6; }
+.competition-playoff-rounds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 28px; }
+.competition-playoff-round { min-width: 0; }
+.competition-playoff-round > h4 { margin: 0 0 10px; color: var(--green); font-size: .95rem; font-weight: 700; line-height: 1.4; }
+.competition-playoff-matches { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.competition-playoff-match { display: grid; grid-template-columns: 2.3rem minmax(0, 1fr) 1rem minmax(0, 1fr); align-items: center; gap: 8px; min-width: 0; padding: 12px 10px; border: 1px solid var(--line); border-radius: 8px; }
+.competition-playoff-match-code { color: var(--green); font-size: .78rem; font-weight: 750; font-variant-numeric: tabular-nums; }
+.competition-playoff-side { min-width: 0; color: var(--ink); font-size: .9rem; font-weight: 550; line-height: 1.4; overflow-wrap: anywhere; }
+.competition-playoff-versus { color: var(--muted); font-size: .72rem; text-align: center; }
 @media (max-width: 700px) {
   .competition-identity { padding: 16px 0 40px; }
   .competition-info-grid { grid-template-columns: 1fr; gap: 18px; }
   .competition-info-card { padding: 24px 20px; }
   .competition-qualification > div { grid-template-columns: 105px minmax(0, 1fr); gap: 16px; padding: 21px 0; }
   .competition-qualification dt { font-size: 1.45rem; }
+  .competition-playoff-rounds { grid-template-columns: 1fr; gap: 20px; }
 }
 @media (max-width: 380px) {
   .competition-qualification > div { grid-template-columns: 1fr; gap: 9px; }

@@ -428,11 +428,19 @@ export function OfficialMatchdayBoard({ matchday, clubsById: suppliedClubsById }
 }
 
 export function Split3PlayoffBoard({ stages }) {
-  const matches = stages.flatMap((stage) => stage.matches);
+  const matches = stages.flatMap((stage) => stage.matches.map((match) => ({ ...match, stageLabel: stage.label })));
+  const sourceLabel = (slot) => {
+    if (slot.type !== "winner") return null;
+    const source = matches.find((match) => match.order === slot.matchOrder);
+    const shortLabel = (team) => team.type === "seed" ? `${team.position}.º` : team.label;
+    return source ? `${shortLabel(source.home)} vs ${shortLabel(source.away)}` : null;
+  };
+  const teamLabel = (slot) => <span className="split3-playoff-team-label"><span>{slot.label}</span>{sourceLabel(slot) && <small>{sourceLabel(slot)}</small>}</span>;
 
   return (
     <section className="official-board-section split3-playoff-section reveal-item" aria-label="Play-offs del Split 3">
       <h2 className="visually-hidden">Play-offs Split 3</h2>
+      <p className="split3-playoff-guide"><strong>P1–P10 indican el orden de juego.</strong> Las posiciones son las de la clasificación final de liga. «Ganador P1» es el vencedor del primer partido. Local a la izquierda; visitante a la derecha.</p>
       <div className="official-board-desktop">
         <div
           className="official-split3-playoff-board"
@@ -442,21 +450,23 @@ export function Split3PlayoffBoard({ stages }) {
           style={{ "--official-board-image": `url("${publicAsset("/psd/fase-final-bg.png")}")` }}
         >
           <div className="official-split3-playoff-heading official-split3-playoff-heading-order" role="columnheader">ORDEN</div>
+          <div className="official-split3-playoff-heading official-split3-playoff-heading-home" role="columnheader">LOCAL</div>
+          <div className="official-split3-playoff-heading official-split3-playoff-heading-away" role="columnheader">VISITANTE</div>
           <div role="rowgroup">
             {matches.map((match, index) => (
               <div
                 className="official-split3-playoff-row"
                 role="row"
-                aria-label={`Partido ${match.order}: ${match.home.label} contra ${match.away.label}.`}
+                aria-label={`${match.stageLabel}. Partido ${match.order}: local, ${match.home.label}; visitante, ${match.away.label}.`}
                 style={{ top: `${(SPLIT3_PLAYOFF_ROW_POSITIONS[index] / 2576) * 100}%` }}
                 key={match.id}
               >
-                <div className="official-split3-playoff-order" role="cell">{match.order}º</div>
-                <div className="official-split3-playoff-team official-split3-playoff-home" role="cell">{match.home.label}</div>
+                <div className="official-split3-playoff-order" role="cell">{match.code}</div>
+                <div className="official-split3-playoff-team official-split3-playoff-home" role="cell">{teamLabel(match.home)}</div>
                 <img className="official-split3-playoff-crest official-split3-playoff-home-crest" src={publicAsset(match.home.crest)} alt="" />
                 <div className="official-split3-playoff-versus" role="cell">VS</div>
                 <img className="official-split3-playoff-crest official-split3-playoff-away-crest" src={publicAsset(match.away.crest)} alt="" />
-                <div className="official-split3-playoff-team official-split3-playoff-away" role="cell">{match.away.label}</div>
+                <div className="official-split3-playoff-team official-split3-playoff-away" role="cell">{teamLabel(match.away)}</div>
               </div>
             ))}
           </div>
@@ -466,19 +476,19 @@ export function Split3PlayoffBoard({ stages }) {
         {stages.map((stage, stageIndex) => (
           <section className="split3-playoff-mobile-stage" aria-labelledby={`split3-playoff-stage-${stage.id}`} key={stage.id}>
             <h3 className="split3-playoff-mobile-stage-title" id={`split3-playoff-stage-${stage.id}`}>{stage.label}</h3>
-            {stageIndex === 0 && <span className="split3-playoff-mobile-headings">Orden · Partido</span>}
+            {stageIndex === 0 && <span className="split3-playoff-mobile-headings">Orden · Local / Visitante</span>}
             <div className="split3-playoff-mobile-round">
               {stage.matches.map((match) => (
-                <article className="split3-playoff-mobile-row" aria-label={`Partido ${match.order}: ${match.home.label} contra ${match.away.label}`} key={match.id}>
-                  <span className="split3-playoff-mobile-order">{match.order}º</span>
+                <article className="split3-playoff-mobile-row" aria-label={`Partido ${match.order}: local, ${match.home.label}; visitante, ${match.away.label}`} key={match.id}>
+                  <span className="split3-playoff-mobile-order">{match.code}</span>
                   <div className="split3-playoff-mobile-team split3-playoff-mobile-home">
-                    <span>{match.home.label}</span>
+                    {teamLabel(match.home)}
                     <img src={publicAsset(match.home.crest)} alt="" />
                   </div>
                   <span className="split3-playoff-mobile-versus">VS</span>
                   <div className="split3-playoff-mobile-team split3-playoff-mobile-away">
                     <img src={publicAsset(match.away.crest)} alt="" />
-                    <span>{match.away.label}</span>
+                    {teamLabel(match.away)}
                   </div>
                 </article>
               ))}

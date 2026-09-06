@@ -145,7 +145,9 @@ Una alineación es una instantánea del partido, no una referencia mutable a la 
 
 ### Playoffs
 
-Formato de Split 3 confirmado por la organización: los once primeros acceden a la fase final. El 1.º pasa directamente a semifinales, del 2.º al 4.º a cuartos y del 5.º al 9.º a octavos. El 10.º y el 11.º disputan entre sí la última plaza de octavos; el 12.º queda eliminado. Se juegan un partido de acceso, tres octavos, tres cuartos, dos semifinales y la final. Esta confirmación sustituye al top 10 del reglamento antiguo. Los destinos por posición y las rondas se conservan en `src/data/split3Playoffs.js`; los equipos de los cruces siguen «Por decidir».
+Formato de Split 3 confirmado por la organización: los once primeros acceden a la fase final. El 1.º pasa directamente a semifinales, del 2.º al 4.º a cuartos y del 5.º al 9.º a octavos. El 10.º y el 11.º disputan entre sí la última plaza de octavos; el 12.º queda eliminado. Se juegan un partido de acceso, tres octavos, tres cuartos, dos semifinales y la final. Esta confirmación sustituye al top 10 del reglamento antiguo. Los destinos por posición, rondas y cruces se conservan en `src/data/split3Playoffs.js`, compartidos por Competición y Partidos. Los participantes se indican por posición final de liga o ganador de un partido, sin asignar clubes mientras siga la fase regular.
+
+Orden confirmado (local primero, visitante después): P1: 10.º–11.º; P2: 5.º–ganador P1; P3: 6.º–9.º; P4: 7.º–8.º; P5: 2.º–ganador P4; P6: 3.º–ganador P3; P7: 4.º–ganador P2; P8: 1.º–ganador P7; P9: ganador P5–ganador P6; P10: ganador P8–ganador P9. La numeración P1–P10 corresponde exclusivamente a los playoffs. Las siete pruebas de `src/lib/split3Playoffs.test.js` comprueban los cruces, el orden y las referencias entre ganadores.
 
 ## Supabase: puesta en producción
 
@@ -235,7 +237,7 @@ El flujo recomendado es:
 
 Quedan como decisiones de reglamento antes de activar el flujo en una competición real:
 
-- Emparejamientos y fechas definitivos de playoffs; el acceso por posición del Split 3 ya está confirmado arriba.
+- Clubes participantes y fechas definitivas de playoffs; el acceso por posición, los cruces y su orden del Split 3 ya están confirmados arriba.
 - Orden final de desempates si la tabla sigue igualada.
 - Sanciones por amarillas, tarjeta azul e incomparecencias.
 - Quién puede confirmar resultados y cómo se resuelven incidencias.
