@@ -41,9 +41,9 @@ export function ClubKits({ club }) {
         }
       />
       {kits.length > 0 ? (
-        <div className="club-kits-grid">
+        <div className={`club-kits-grid${kits.length === 1 && kits[0].id === "full" ? " is-full-kit-grid" : ""}`}>
           {kits.map((kit, index) => (
-            <figure className="club-kit" key={`${selectedSplit}-${kit.id}`}>
+            <figure className={`club-kit${kit.id === "full" ? " is-full-kit" : ""}`} key={`${selectedSplit}-${kit.id}`}>
               <button
                 type="button"
                 className="club-kit-open"

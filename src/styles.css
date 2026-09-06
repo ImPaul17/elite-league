@@ -401,7 +401,7 @@ p { color: var(--muted); line-height: 1.6; }
 .club-directory-copy em { overflow: hidden; color: #d2dbd1; font-size: clamp(.9rem, 1.25vw, 1.07rem); font-style: normal; font-weight: 610; letter-spacing: .015em; line-height: 1; text-overflow: ellipsis; white-space: nowrap; }
 .club-directory-meta { display: grid; gap: 4px; min-width: 0; }
 .club-directory-meta em { font-size: clamp(.8rem, 1.06vw, .95rem); }
-.club-directory-meta small { color: #8d978d; font-size: .61rem; font-weight: 800; letter-spacing: .095em; line-height: 1; text-transform: uppercase; }
+.club-directory-status { justify-self: center; color: #b8c0b7; font-size: .61rem; font-weight: 800; letter-spacing: .095em; line-height: 1; text-transform: uppercase; }
 
 .back-link { display: inline-flex; margin-bottom: 20px; color: var(--green-bright); font-size: .75rem; font-weight: 780; }
 .club-profile-route-transition { position: relative; min-width: 0; }
@@ -410,7 +410,7 @@ p { color: var(--muted); line-height: 1.6; }
 .club-profile-identity .back-link { position: absolute; top: 11px; left: 0; }
 .club-profile-crest-stage { display: grid; margin-top: 18px; place-items: center; }
 .club-profile-crest-stage .club-crest-xl { width: 210px; height: 210px; transform: scale(var(--crest-scale, 1)); }
-.club-profile-title { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+.club-profile-title { display: grid; justify-items: center; gap: 8px; margin-top: 20px; text-align: center; }
 .club-profile-title h1 { margin: 0; font-size: clamp(2.55rem, 6vw, 5rem); letter-spacing: -.055em; line-height: .92; text-transform: uppercase; }
 .club-crest-history-trigger { display: inline-flex; align-items: center; gap: 8px; min-height: 30px; padding: 0 3px; margin-top: 12px; border: 0; border-bottom: 1px solid transparent; background: transparent; color: var(--subtle); cursor: pointer; font: inherit; font-size: .67rem; font-weight: 790; letter-spacing: .045em; text-transform: uppercase; transition: border-color 170ms ease, color 170ms ease; }
 .club-crest-history-trigger > span:last-child { color: var(--club-accent); font-size: .9rem; line-height: 1; transition: transform 170ms ease; }

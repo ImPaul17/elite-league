@@ -556,9 +556,9 @@ export function ClubDirectory({ clubs, selectedEdition = "split-3", ariaLabel = 
                 <span className="club-directory-crest-stage"><img className="club-directory-card-art" src={cardArt} alt="" /></span>
                 <span className="club-directory-copy">
                   <strong>{club.name}</strong>
+                  {club.status === "inactive" && <small className="club-directory-status">Inactivo</small>}
                   <span className="club-directory-meta">
                     <em>{getClubDirectoryCaption(club)}</em>
-                    {club.status === "inactive" && <small>Inactivo</small>}
                   </span>
                 </span>
               </AppLink>

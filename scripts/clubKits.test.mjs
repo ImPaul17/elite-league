@@ -14,8 +14,18 @@ const variants = [
   { id: "away", label: "Visitante" },
   { id: "goalkeeper", label: "Portero" },
 ];
+const fullKitClubIds = {
+  "split-1": new Set([
+    "bee-fc", "ca-coca-jrs", "cegatos-fc", "estaross-fc", "impuestos-fc", "lego-fc",
+    "los-mugiwaras-fc", "maki-fc", "pico-fc", "playmobil-fc", "rayo-zeta", "urss-fc",
+  ]),
+  "split-2": new Set([
+    "ca-coca-jrs", "cegatos-fc", "estaross-fc", "impuestos-fc", "lego-fc", "los-mugiwaras-fc",
+    "los-pikas-fc", "maki-fc", "pico-fc", "playmobil-fc", "rayo-zeta", "urss-fc",
+  ]),
+};
 
-test("el selector de equipaciones ofrece los tres splits y solo Split 3 tiene material", () => {
+test("el selector de equipaciones ofrece imágenes completas en Split 1 y Split 2 y kits individuales en Split 3", () => {
   assert.deepEqual(KIT_SPLITS, [
     { id: "split-1", label: "Split 1" },
     { id: "split-2", label: "Split 2" },
@@ -23,7 +33,10 @@ test("el selector de equipaciones ofrece los tres splits y solo Split 3 tiene ma
   ]);
   assert.deepEqual(CLUBS.map(club => club.id), expectedClubIds);
   for (const clubId of expectedClubIds) {
-    assert.deepEqual(KIT_SPLITS.map(split => getClubKits(clubId, split.id).length > 0), [false, false, true]);
+    assert.deepEqual(
+      KIT_SPLITS.map(split => getClubKits(clubId, split.id).length > 0),
+      [fullKitClubIds["split-1"].has(clubId), fullKitClubIds["split-2"].has(clubId), true],
+    );
   }
 });
 
@@ -62,19 +75,62 @@ test("los 36 recursos son PNG RGBA de 1080×1920, sin rutas duplicadas ni archiv
   assert.deepEqual(actualPngs, kits.map(kit => kit.src.split("/").at(-1)).sort());
 });
 
-test("otros splits, Elite Cup y valores desconocidos no reutilizan las equipaciones actuales", () => {
+test("las imágenes completas de Split 1 y Split 2 conservan sus proporciones y rutas", () => {
+  const pngSignature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
+  for (const [splitId, clubIds] of Object.entries(fullKitClubIds)) {
+    const expectedWidth = splitId === "split-1" ? 1920 : 1468;
+    for (const clubId of clubIds) {
+      const [kit] = getClubKits(clubId, splitId);
+      assert.deepEqual(kit, {
+        id: "full",
+        label: "Las tres equipaciones",
+        src: `/clubs/kits/${splitId}/${clubId}-full.png`,
+        width: expectedWidth,
+        height: 1080,
+      });
+      const file = new URL(`../public${kit.src}`, import.meta.url);
+      assert.ok(existsSync(file), `Falta ${kit.src}`);
+      const png = readFileSync(file);
+      assert.deepEqual(png.subarray(0, 8), pngSignature, kit.src);
+      assert.equal(png.subarray(12, 16).toString("ascii"), "IHDR", kit.src);
+      assert.equal(png.readUInt32BE(16), expectedWidth, kit.src);
+      assert.equal(png.readUInt32BE(20), 1080, kit.src);
+    }
+  }
+});
+
+test("los splits antiguos no inventan equipaciones cuando no existe imagen completa", () => {
   for (const clubId of expectedClubIds) {
-    for (const splitId of ["split-1", "split-2", "elite-cup", "split-4", "desconocido", "", null]) {
+    for (const splitId of ["split-1", "split-2"]) {
+      const kits = getClubKits(clubId, splitId);
+      assert.equal(kits.length > 0, fullKitClubIds[splitId].has(clubId), `${clubId}: ${splitId}`);
+    }
+    for (const splitId of ["elite-cup", "split-4", "desconocido", "", null]) {
       assert.deepEqual(getClubKits(clubId, splitId), [], `${clubId}: ${String(splitId)}`);
     }
   }
 });
 
-test("los clubes inactivos o desconocidos no reciben imágenes de otro club", () => {
-  for (const clubId of ["playmobil-fc", "cegatos-fc", "los-pikas-fc", "desconocido", "constructor", "__proto__", "", null, undefined]) {
+test("los clubes inactivos solo reciben la imagen completa de los splits donde existe", () => {
+  for (const clubId of ["playmobil-fc", "cegatos-fc", "los-pikas-fc"]) {
     assert.deepEqual(getClubKits(clubId), [], String(clubId));
+    for (const { id } of KIT_SPLITS.slice(0, 2)) {
+      assert.equal(getClubKits(clubId, id).length > 0, fullKitClubIds[id].has(clubId), `${clubId}: ${id}`);
+    }
+    assert.equal(getClubKits(clubId, "split-3").length, 0, `${clubId}: split-3`);
+  }
+  for (const clubId of ["desconocido", "constructor", "__proto__", "", null, undefined]) {
     for (const { id } of KIT_SPLITS) assert.deepEqual(getClubKits(clubId, id), [], `${String(clubId)}: ${id}`);
   }
+});
+
+test("el estado Inactivo queda debajo del nombre del club y centrado", () => {
+  const component = read("../src/components/competition.jsx");
+  const nameIndex = component.indexOf("<strong>{club.name}</strong>");
+  const statusIndex = component.indexOf('className="club-directory-status"', nameIndex);
+  assert.ok(nameIndex >= 0 && statusIndex > nameIndex);
+  const css = read("../src/styles.css");
+  assert.match(css, /\.club-directory-status\s*\{[^}]*justify-self:\s*center;/);
 });
 
 test("la ficha pública y Mi equipo muestran una sección tras la información y reinician el visor al cambiar de club", () => {
@@ -98,6 +154,8 @@ test("los botones usan KIT_SPLITS y deshabilitan solo las ediciones sin material
   assert.match(component, /aria-pressed=\{selected\}/);
   assert.match(component, /aria-label=\{available \? split\.label : `\$\{split\.label\}: equipaciones no disponibles`\}/);
   assert.match(component, /setSelectedSplit\(split\.id\)/);
+  assert.match(component, /is-full-kit-grid/);
+  assert.match(component, /is-full-kit/);
 });
 
 test("las equipaciones mantienen imagen completa, carga diferida, etiquetas y estado vacío", () => {
@@ -117,6 +175,7 @@ test("las equipaciones mantienen imagen completa, carga diferida, etiquetas y es
   assert.match(imageRule, /height:\s*auto;/);
   assert.match(imageRule, /aspect-ratio:\s*1080\s*\/\s*1920;/);
   assert.match(imageRule, /object-fit:\s*contain;/);
+  assert.match(css, /\.club-kit\.is-full img\s*\{[^}]*aspect-ratio:\s*auto;/);
 });
 
 test("cada miniatura abre el visor por su índice y conserva el botón que debe recuperar el foco", () => {
