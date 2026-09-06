@@ -440,7 +440,6 @@ export function Split3PlayoffBoard({ stages }) {
   return (
     <section className="official-board-section split3-playoff-section reveal-item" aria-label="Play-offs del Split 3">
       <h2 className="visually-hidden">Play-offs Split 3</h2>
-      <p className="split3-playoff-guide"><strong>P1–P10 indican el orden de juego.</strong> Las posiciones son las de la clasificación final de liga. «Ganador P1» es el vencedor del primer partido. Local a la izquierda; visitante a la derecha.</p>
       <div className="official-board-desktop">
         <div
           className="official-split3-playoff-board"
