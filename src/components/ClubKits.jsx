@@ -1,10 +1,15 @@
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import { KIT_SPLITS, getClubKits } from "../data/clubKits";
+import { ClubKitDialog } from "./ClubKitDialog";
 import { SectionHeading, siteAsset } from "./ui";
 import "./club-kits.css";
 
 export function ClubKits({ club }) {
   const [selectedSplit, setSelectedSplit] = useState("split-3");
+  const [openIndex, setOpenIndex] = useState(null);
+  const triggerRef = useRef(null);
+  const closeViewer = useCallback(() => setOpenIndex(null), []);
   const kits = getClubKits(club.id, selectedSplit);
   const titleId = `club-kits-${club.id}`;
 
@@ -37,16 +42,27 @@ export function ClubKits({ club }) {
       />
       {kits.length > 0 ? (
         <div className="club-kits-grid">
-          {kits.map((kit) => (
+          {kits.map((kit, index) => (
             <figure className="club-kit" key={`${selectedSplit}-${kit.id}`}>
-              <img
-                src={siteAsset(kit.src)}
-                alt={`Equipación ${kit.label.toLocaleLowerCase("es")} de ${club.name} · ${KIT_SPLITS.find((split) => split.id === selectedSplit)?.label}`}
-                width={kit.width}
-                height={kit.height}
-                loading="lazy"
-                decoding="async"
-              />
+              <button
+                type="button"
+                className="club-kit-open"
+                aria-haspopup="dialog"
+                aria-label={`Ampliar equipación ${kit.label.toLocaleLowerCase("es")} de ${club.name}`}
+                onClick={(event) => {
+                  triggerRef.current = event.currentTarget;
+                  setOpenIndex(index);
+                }}
+              >
+                <img
+                  src={siteAsset(kit.src)}
+                  alt={`Equipación ${kit.label.toLocaleLowerCase("es")} de ${club.name} · ${KIT_SPLITS.find((split) => split.id === selectedSplit)?.label}`}
+                  width={kit.width}
+                  height={kit.height}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </button>
               <figcaption>{kit.label}</figcaption>
             </figure>
           ))}
@@ -54,6 +70,18 @@ export function ClubKits({ club }) {
       ) : (
         <p className="club-kits-empty">Todavía no hay equipaciones disponibles para este club.</p>
       )}
+      <AnimatePresence>
+        {openIndex !== null && (
+          <ClubKitDialog
+            club={club}
+            kits={kits}
+            splitLabel={KIT_SPLITS.find((split) => split.id === selectedSplit)?.label}
+            initialIndex={openIndex}
+            onClose={closeViewer}
+            triggerRef={triggerRef}
+          />
+        )}
+      </AnimatePresence>
     </section>
   );
 }

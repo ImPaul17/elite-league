@@ -272,7 +272,7 @@ export function TeamPage({ club, editionId = "split-3" }) {
     <article className="club-profile-page" style={{ "--club-accent": club.color ?? "#3f7c35" }}>
       <ClubProfileIdentity club={club} backTo={directoryPath} />
       <ClubProfileOverview club={club} />
-      <ClubKits club={club} />
+      <ClubKits club={club} key={club.id} />
 
       <section className="club-roster-section panel">
         <SectionHeading title="Plantilla" />
