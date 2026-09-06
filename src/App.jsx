@@ -15,6 +15,9 @@ import { StandingsPage } from "./pages/StandingsPage";
 import { StatisticsPage } from "./pages/StatisticsPage";
 import { TeamPage } from "./pages/TeamPage";
 import { TeamsPage } from "./pages/TeamsPage";
+import { PlayerPage } from "./pages/PlayerPage";
+import { getPlayerProfile } from "./data/playerProfiles";
+import { getPlayerDisplayName } from "./lib/playerProfile";
 import { getCompetitionEdition, getClubProfile } from "./data/history";
 import { readClubWorkspaceRoute } from "./lib/clubWorkspace";
 
@@ -41,6 +44,11 @@ function RouteView({ path }) {
     return club ? <TeamPage club={club} editionId={editionId} /> : <NotFoundPage />;
   }
   if (path === "/estadisticas") return <StatisticsPage />;
+  if (parts[0] === "jugadores" && parts[1] && !parts[2]) {
+    const player = getPlayerProfile(parts[1]);
+    const club = player && getClubProfile(player.clubId, league.clubs);
+    return player && club ? <PlayerPage key={player.id} player={player} club={club} /> : <NotFoundPage />;
+  }
   if (path === "/noticias") return <NewsPage />;
   if (parts[0] === "noticias" && parts[1]) return <NewsPage articleId={parts[1]} />;
   if (path === "/competicion") return <CompetitionPage />;
@@ -113,7 +121,8 @@ function AppContent() {
     };
     const selectedMatchesEdition = parts[0] === "partidos" && parts[1] ? getCompetitionEdition(parts[1]) : null;
     const selectedStandingsEdition = parts[0] === "clasificacion" && parts[1] ? getCompetitionEdition(parts[1]) : null;
-    document.title = selectedMatchesEdition
+    const selectedPlayer = parts[0] === "jugadores" && !parts[2] ? getPlayerProfile(parts[1]) : null;
+    document.title = selectedPlayer ? `${getPlayerDisplayName(selectedPlayer)} · Elite League` : selectedMatchesEdition
       ? `Partidos · ${selectedMatchesEdition.label} · Elite League`
       : isStandingsEdition(selectedStandingsEdition)
         ? `Clasificación · ${selectedStandingsEdition.label} · Elite League`

@@ -4,6 +4,7 @@ import { FixtureCard, OfficialStandingsBoard, StandingsTable } from "../componen
 import { AppLink, EmptyState, Notice, PageHero, SectionHeading } from "../components/ui";
 import { ClubAreaNavigation } from "../components/ClubAreaNavigation";
 import { ClubKits } from "../components/ClubKits";
+import { ClubRoster } from "../components/ClubRoster";
 import { getClubFixtures, getNextClubFixture } from "../lib/leagueEngine";
 import { useLeague } from "../context/LeagueContext";
 import { useUserPreview } from "../context/UserPreviewContext";
@@ -47,7 +48,7 @@ export function ClubPortalPage({ previewClubId = null }) {
       <ClubProfileOverview club={club} />
       <ClubKits club={club} key={club.id} />
       <section className="club-portal-overview">
-        <div className="panel"><SectionHeading title="Mi plantilla" />{PLAYER_FEATURES_ENABLED && players.length ? <div className="roster-list">{players.map((player) => <div key={player.id}><span>{player.shirtNumber ?? "—"}</span><strong>{player.name}</strong><small>{player.positionGroup === "GK" ? "Portero" : "Campo"}</small></div>)}</div> : <EmptyState title="Plantilla pendiente" description="Los jugadores de tu equipo aparecerán aquí cuando se incorporen." />}</div>
+        <div className="panel"><SectionHeading title="Mi plantilla" /><ClubRoster club={club} players={players} privateView /></div>
       </section>
       <section className="panel club-lineups-panel" aria-labelledby="club-lineups-title">
         <SectionHeading title="Alineaciones por jornada" id="club-lineups-title" />

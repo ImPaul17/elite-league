@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ClubCompetitionSwitcher, FixtureCard, OfficialStandingsBoard, StandingsTable } from "../components/competition";
 import { ClubKits } from "../components/ClubKits";
+import { ClubRoster } from "../components/ClubRoster";
 import { AppLink, ClubCrest, EmptyState, SectionHeading, StatusBadge, siteAsset } from "../components/ui";
 import { calculateStandings, getClubFixtures } from "../lib/leagueEngine";
 import { useLeague } from "../context/LeagueContext";
@@ -276,7 +277,7 @@ export function TeamPage({ club, editionId = "split-3" }) {
 
       <section className="club-roster-section panel">
         <SectionHeading title="Plantilla" />
-        {players.length ? <div className="roster-list">{players.map((player) => <div key={player.id}><span>{player.shirtNumber ?? "—"}</span><strong>{player.name}</strong><small>{player.positionGroup === "GK" ? "Portero" : "Jugador de campo"}</small></div>)}</div> : <EmptyState title="Plantilla pendiente" description="Los jugadores se añadirán cuando estén registrados." />}
+        <ClubRoster club={club} players={players} editionId={selectedEdition.id} />
       </section>
 
       <ClubCompetitionSwitcher clubId={club.id} currentEditionId={selectedEdition.id} />
