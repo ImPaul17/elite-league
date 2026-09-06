@@ -2,7 +2,7 @@
 
 Web oficial de **Elite League**, una competición de FC Rush 5v5. Este repositorio reúne el sitio público, la gestión de competición y una base preparada para presidentes de club y administración.
 
-> Estado comprobado el 6 de septiembre de 2026: Supabase está conectado e inicializado, con 12 clubes, 11 jornadas y 66 partidos, sin jugadores ni noticias de muestra. El repositorio público [ImPaul17/elite-league](https://github.com/ImPaul17/elite-league) ya está creado, todavía vacío; se ha autorizado publicar allí el código y alojar la web con GitHub Pages, conservando el dominio `eliteleague.qd.je` registrado en DigitalPlat. La configuración de variables está en curso y los DNS no se han cambiado. La retirada de una carpeta subida por error al alojamiento anterior está en curso, todavía sin confirmar. Subida del código, publicación, HTTPS, SMTP y pruebas con cuentas reales siguen pendientes. Véase `PLANIFICACION_LANZAMIENTO.md` para el estado de entrega.
+> Estado comprobado el 6 de septiembre de 2026: el código está en [ImPaul17/elite-league](https://github.com/ImPaul17/elite-league) y el primer despliegue de GitHub Pages ha terminado correctamente. Supabase está conectado con 12 clubes, 11 jornadas y 66 partidos, sin jugadores ni noticias de muestra. GitHub ha verificado la propiedad de `eliteleague.qd.je`; la delegación y los registros DNS autoritativos son correctos. Siguen pendientes la actualización de cachés DNS, la comprobación DNS de Pages, HTTPS y la revisión pública de la web. SMTP, pruebas con cuentas reales y retirada de una copia remota errónea también están pendientes. Véase `PLANIFICACION_LANZAMIENTO.md` para el estado de entrega.
 
 ![Tarjeta de Elite League](public/og.png)
 
@@ -273,7 +273,7 @@ Quedan como decisiones de reglamento antes de activar el flujo en una competici�
 
 ## Publicar con GitHub Pages
 
-El proyecto incluye un flujo de GitHub Actions en `.github/workflows/deploy.yml`. El repositorio público [ImPaul17/elite-league](https://github.com/ImPaul17/elite-league) ya está creado y vacío; la configuración de variables está en curso. La subida del código y el primer despliegue siguen pendientes.
+El proyecto incluye un flujo de GitHub Actions en `.github/workflows/deploy.yml`. El repositorio público [ImPaul17/elite-league](https://github.com/ImPaul17/elite-league) contiene los 126 archivos revisados del commit `f5ac956`, subido a `main`. Las dos variables públicas de Supabase están guardadas, Pages usa GitHub Actions y el [primer despliegue](https://github.com/ImPaul17/elite-league/actions/runs/34008474567) ha terminado correctamente. La comprobación pública del dominio y HTTPS sigue pendiente. Este es el procedimiento para mantener o reproducir la configuración:
 
 1. Usa el repositorio público ya creado, sin añadir archivos iniciales que entren en conflicto con el proyecto local. Revisa los archivos que se van a versionar: no incluyas `.env`, `.env.*` salvo `.env.example`, `node_modules`, `dist`, `supabase/.temp`, copias legacy ni material privado. No uses `git add -f` para eludir estas exclusiones.
 2. En `Settings → Secrets and variables → Actions → Variables`, configura las variables de repositorio `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY` con la URL y la clave pública del proyecto Supabase. Nunca uses una clave `service_role` o secreta. La compilación se bloquea si falta cualquiera de estas dos variables.
@@ -291,7 +291,7 @@ La aplicación utiliza rutas con hash (`#/equipos/pico-fc`) para que los enlaces
 
 ### Dominio propio: `eliteleague.qd.je`
 
-El dominio ya está registrado en DigitalPlat y se conserva; cambiar de alojamiento no requiere registrar otro. Su conexión a GitHub Pages está pendiente.
+El dominio está registrado en DigitalPlat y guardado como dominio personalizado de GitHub Pages. Tras reintentar la configuración, los cuatro servidores del dominio padre `qd.je` confirman la delegación a `dns1.digitalplat.org` y `dns2.digitalplat.org`; ambos servidores autoritativos responden con los cuatro A de Pages, el CNAME de `www` hacia `impaul17.github.io.` y el TXT correctos. DigitalPlat muestra DNS **Activo** y GitHub confirma la propiedad del dominio como **Verified**. Siguen pendientes la actualización de las cachés DNS, la comprobación DNS específica de Pages, el certificado HTTPS y el recorrido público de la web; la verificación de propiedad no sustituye esas comprobaciones.
 
 1. Comprueba quién gestiona actualmente los DNS y conserva los registros necesarios. En GitHub, verifica la propiedad del dominio cuando sea posible y añade `eliteleague.qd.je` en `Settings → Pages → Custom domain` **antes** de apuntar los DNS al nuevo alojamiento.
 2. Configura en el proveedor DNS los registros que correspondan según las [instrucciones oficiales de GitHub Pages](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site). No crees registros comodín. No elimines el registro del dominio ni cambies registros ajenos a esta publicación.
