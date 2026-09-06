@@ -142,23 +142,6 @@ p { color: var(--muted); line-height: 1.6; }
 .panel-table { min-height: 100%; border-radius: 22px; }
 .home-matchday { min-width: 0; }
 .fixture-stack { display: grid; gap: 11px; }
-.fixture-card { padding: 16px 18px; border: 1px solid var(--line); border-radius: 13px; background: rgba(17, 23, 18, 0.86); transition: border-color 180ms ease, transform 180ms ease, background 180ms ease; }
-.fixture-card:hover { border-color: var(--line-strong); transform: translateY(-2px); background: rgba(26, 34, 27, .94); }
-.fixture-card.is-emphasized { border-color: rgba(99,199,91,.35); background: linear-gradient(125deg, rgba(32, 61, 32, .72), rgba(16, 22, 17, .95)); }
-.fixture-meta { display: flex; align-items: center; justify-content: space-between; gap: 9px; margin-bottom: 13px; color: var(--subtle); font-size: .62rem; font-weight: 760; letter-spacing: .07em; text-transform: uppercase; }
-.fixture-clubs { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 12px; }
-.fixture-club { display: flex; align-items: center; gap: 10px; min-width: 0; font-size: .79rem; font-weight: 760; }
-.fixture-club span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.fixture-home { justify-content: flex-end; text-align: right; }
-.fixture-away { justify-content: flex-start; }
-.fixture-score { display: grid; justify-items: center; min-width: 52px; color: #aab4aa; font-size: .74rem; text-align: center; }
-.fixture-score strong { display: block; color: #e1e7e0; font-size: .96rem; letter-spacing: .025em; }
-.fixture-score.has-result strong { color: var(--green-bright); }
-.fixture-penalty-score { display: grid; justify-items: center; gap: 1px; margin-top: 3px; }
-.fixture-penalty-score small { color: #3f7c35; font-size: .48rem; font-weight: 800; letter-spacing: .07em; line-height: 1; text-transform: uppercase; }
-.fixture-penalty-score b { display: flex; align-items: center; justify-content: center; gap: 5px; color: #3f7c35; font-size: .63rem; font-weight: 760; line-height: 1; }
-.fixture-penalty-score i { font-style: normal; }
-.fixture-penalty-score em { color: #a9a9a9; font-size: .48rem; font-style: normal; font-weight: 700; }
 
 .standings-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-color: var(--line-strong) transparent; }
 .standings-table { width: 100%; min-width: 720px; border-collapse: collapse; font-size: .76rem; }
@@ -341,7 +324,7 @@ p { color: var(--muted); line-height: 1.6; }
 .matchday-tabs button.is-unavailable { border-color: rgba(139,145,136,.14); background: rgba(20,22,20,.42); color: rgba(183,191,181,.38); cursor: not-allowed; }
 .matches-calendar-section { margin-top: 0; }
 .fixture-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-.compact-fixture-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.compact-fixture-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
 .matches-page, .standings-page { padding-top: 12px; }
 .matches-edition-header, .standings-edition-header { display: flex; align-items: center; justify-content: flex-end; gap: 20px; padding-bottom: 20px; margin-bottom: 23px; border-bottom: 1px solid var(--line); }
@@ -643,7 +626,7 @@ textarea { min-height: 84px; padding-top: 10px; resize: vertical; }
   .home-primary-grid { grid-template-columns: minmax(0, 1fr); gap: 42px; }
   .main-navigation { gap: 0; }.main-navigation a { padding-right: 7px; padding-left: 7px; font-size: .67rem; }
   .club-directory-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .compact-fixture-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fixture-grid, .compact-fixture-grid { grid-template-columns: 1fr; }
   .news-feed-card { grid-template-columns: 130px minmax(0, 1fr) auto; }.news-feed-card p { display: none; }
 }
 
@@ -680,7 +663,7 @@ textarea { min-height: 84px; padding-top: 10px; resize: vertical; }
   .page-content { padding-top: 28px; padding-bottom: 75px; }.page-hero { min-height: 245px; margin-bottom: 37px; padding: 25px; border-radius: 16px; }.page-hero h1 { font-size: clamp(2.35rem, 14vw, 4rem); }.home-matchday-hero { gap: 17px; padding: 25px; border-radius: 16px; }.home-matchday-hero h1 { font-size: clamp(2rem, 10vw, 3.1rem); }.page-hero-copy > p:not(.eyebrow) { font-size: .88rem; }.hero-meta { font-size: .67rem; }.hero-fixture { padding: 16px; }.hero-fixture > div { font-size: .92rem; }
   .section-heading { align-items: flex-start; flex-direction: column; gap: 11px; margin-bottom: 16px; }.section-heading h2 { font-size: 1.6rem; }.section-heading-action { align-self: flex-start; }
   .panel { padding: 19px; border-radius: 14px; }.home-primary-grid { gap: 33px; }.content-section { margin-top: 48px; }.matches-calendar-section { margin-top: 0; }
-  .fixture-card { padding: 13px; }.fixture-clubs { gap: 8px; }.fixture-club { gap: 6px; font-size: .67rem; }.club-crest-md { width: 37px; height: 37px; }.fixture-score { min-width: 44px; }.fixture-score strong { font-size: .8rem; }
+  .club-crest-md { width: 37px; height: 37px; }
   .standings-wrap { margin: 0 -19px; padding: 0 19px; }.standings-table { min-width: 640px; font-size: .69rem; }.standings-table th, .standings-table td { height: 48px; padding: 0 6px; }.standings-table th:first-child, .standings-table td:first-child { position: sticky; z-index: 2; left: 0; background: #121812; }.standings-table th:nth-child(2), .standings-table tbody th { position: sticky; z-index: 1; left: 35px; background: #121812; }.standing-team { min-width: 142px; gap: 7px; }.standings-table tbody tr.is-highlighted th, .standings-table tbody tr.is-highlighted td:first-child { background: #1a291b; }
   .leaderboard-grid, .news-grid, .competition-grid, .club-directory-grid, .fixture-grid, .compact-fixture-grid, .stat-summary-grid { grid-template-columns: 1fr; }.news-card.is-featured { grid-column: auto; }.leaderboard-card { min-height: 225px; }.news-card { min-height: 210px; }.club-directory-card { min-height: 142px; }.club-crest-lg { width: 58px; height: 58px; }
   .clubs-directory-page .club-directory-card { grid-template-columns: 52% minmax(0, 1fr); min-height: 150px; }.clubs-directory-page .club-directory-crest-stage { width: var(--directory-wedge-width); padding: 0; }.clubs-directory-page .club-directory-crest-stage .club-crest-lg { left: -24px; width: clamp(140px, 46vw, 174px); height: clamp(140px, 46vw, 174px); }.clubs-directory-page .club-directory-copy { grid-column: 2; padding: 18px 16px 18px 8px; }

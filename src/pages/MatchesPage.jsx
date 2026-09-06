@@ -24,7 +24,7 @@ function HistoricalMatchdayGroups({ groups, selectedMatchday, clubsById, selecte
           <section className="historical-matchday-group" key={group.id} aria-label={group.label ?? "Partidos de la jornada"}>
             {groups.length > 1 && <h3>{group.label}</h3>}
             <div className="fixture-grid compact-fixture-grid">
-              {matches.map((match) => <FixtureCard match={match} clubsById={clubsById} key={match.id} showDate={false} />)}
+              {matches.map((match) => <FixtureCard match={match} clubsById={clubsById} key={match.id} showDate={false} showMatchday />)}
             </div>
           </section>
         );

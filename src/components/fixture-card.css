@@ -1,0 +1,150 @@
+/* Coordinates and colors follow Partidos NEW.psd (1597 × 334).
+   Only Fondo and Rect. Jornada are raster assets; all match data stays live. */
+.fixture-card {
+  container: fixture / inline-size;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(139, 145, 136, .16);
+  border-radius: 22px;
+  background: #191a19;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, .26);
+  color: #d8d8d8;
+  font-family: "Acumin Elite", "Arial Narrow", Arial, sans-serif;
+  font-stretch: 115%;
+  font-variation-settings: "wght" 200, "wdth" 115, "slnt" 0;
+  font-weight: 200;
+  letter-spacing: 0;
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.fixture-card:hover {
+  border-color: rgba(224, 235, 224, .25);
+  box-shadow: 0 22px 54px rgba(0, 0, 0, .34);
+  transform: translateY(-2px);
+}
+
+.fixture-card-canvas {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1597 / 334;
+  min-height: 140px;
+  background: url("/psd/fixture-card-bg.png") center / 100% 100% no-repeat;
+  border-radius: 4.4cqw;
+}
+
+.fixture-card.is-emphasized .fixture-card-canvas { outline: 1px solid #3f7c35; }
+.fixture-order, .fixture-status, .fixture-round, .fixture-date { position: absolute; }
+.fixture-order, .fixture-status {
+  top: 16.3%;
+  transform: translateY(-50%);
+  font-size: max(10px, 1.49cqw);
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+.fixture-order { left: 5.07%; }
+.fixture-status { right: 5.13%; max-width: 29%; text-align: right; }
+.fixture-status-live { color: #ed6a5d; }
+.fixture-round {
+  top: 5.09%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 10cqw;
+  min-height: max(25px, 3.55cqw);
+  padding: 5px max(12px, 1.25cqw);
+  transform: translateX(-50%);
+  color: #3f7c35;
+  font-size: max(10px, 1.438cqw);
+  line-height: 1;
+  white-space: nowrap;
+}
+.fixture-round::before {
+  position: absolute;
+  inset: 0;
+  border: 9px solid transparent;
+  border-image: url("/psd/fixture-card-label.png") 18 fill / 9px stretch;
+  pointer-events: none;
+  content: "";
+}
+.fixture-team {
+  position: absolute;
+  top: 32.34%;
+  width: 33.82%;
+  height: 31.74%;
+  border-radius: 8px;
+}
+.fixture-team-home { left: 5.07%; }
+.fixture-team-away { right: 5.07%; }
+.fixture-team-name {
+  position: absolute;
+  top: 50%;
+  width: 68.4%;
+  transform: translateY(-50%);
+  font-size: max(14px, 2.521cqw);
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+}
+.fixture-team-home .fixture-team-name { left: 0; text-align: right; }
+.fixture-team-away .fixture-team-name { right: 0; text-align: left; }
+.fixture-team .club-crest {
+  position: absolute;
+  top: 50%;
+  width: 19.63%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
+  filter: none;
+  transform: translateY(-50%);
+}
+.fixture-team-home .club-crest { right: 0; }
+.fixture-team-away .club-crest { left: 0; }
+.fixture-team:focus-visible { outline: 2px solid #d8d8d8; outline-offset: 5px; }
+.fixture-team:hover .fixture-team-name { color: #fff; }
+.fixture-goals, .fixture-versus {
+  position: absolute;
+  top: 48.2%;
+  transform: translate(-50%, -50%);
+  line-height: 1;
+}
+.fixture-goals { font-size: max(21px, 2.998cqw); }
+.fixture-goals-home { left: 44.74%; }
+.fixture-goals-away { left: 55.2%; }
+.fixture-versus { left: 50%; color: #a9a9a9; font-size: max(15px, 2.133cqw); }
+.fixture-penalties {
+  position: absolute;
+  top: 56.3%;
+  left: 50%;
+  display: grid;
+  justify-items: center;
+  gap: max(3px, .35cqw);
+  transform: translateX(-50%);
+  color: #3f7c35;
+  line-height: 1;
+}
+.fixture-penalties small { font-size: max(8px, .993cqw); text-transform: uppercase; }
+.fixture-penalties > span { display: flex; align-items: center; gap: max(7px, 1.1cqw); }
+.fixture-penalties b { font-size: max(11px, 1.39cqw); font-weight: inherit; }
+.fixture-penalties i { color: #a9a9a9; font-size: max(8px, .763cqw); font-style: normal; }
+.fixture-date { right: 5%; bottom: 8%; left: 5%; color: #a9a9a9; font-size: max(10px, 1.1cqw); text-align: center; }
+
+/* Keep the same artwork on phones, with room for full club names and tap targets. */
+@container fixture (max-width: 519px) {
+  .fixture-card-canvas { min-height: 212px; border-radius: 24px; }
+  .fixture-order, .fixture-status { top: 14%; font-size: 10px; }
+  .fixture-status { max-width: 26%; }
+  .fixture-round { top: 8%; max-width: 43%; min-height: 26px; padding: 5px 10px; font-size: 10px; white-space: normal; text-align: center; }
+  .fixture-round::before { border-width: 7px; border-image-width: 7px; }
+  .fixture-team { top: 31%; width: 32%; height: 48%; }
+  .fixture-team-home { left: 4%; }
+  .fixture-team-away { right: 4%; }
+  .fixture-team .club-crest { top: 0; right: auto; left: 50%; width: 48px; height: 48px; transform: translateX(-50%); }
+  .fixture-team .fixture-team-name { top: 59px; right: auto; left: 0; width: 100%; transform: none; font-size: 14px; line-height: 1.15; text-align: center; }
+  .fixture-goals, .fixture-versus { top: 42.3%; }
+  .fixture-goals-home { left: 41%; }
+  .fixture-goals-away { left: 59%; }
+  .fixture-goals { font-size: 22px; }
+  .fixture-versus { font-size: 14px; }
+  .fixture-penalties { top: 55%; }
+  .fixture-date { bottom: 7%; }
+}

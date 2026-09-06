@@ -5,6 +5,8 @@ import { getClubLeadershipTitle } from "../data/league";
 import { AppLink, ClubCrest, EmptyState, StatusBadge } from "./ui";
 import { useLeague } from "../context/LeagueContext";
 import { getMatchStatus, isOfficialResult } from "../lib/leagueEngine";
+import { getFixtureCardModel } from "../lib/fixtureCard";
+import "./fixture-card.css";
 
 const publicAsset = (path) => `${import.meta.env?.BASE_URL ?? "/"}${path.replace(/^\//, "")}`;
 const DIRECTORY_CARD_ART_PREVIEW = publicAsset("/clubs/cards/pico-fc-current.png");
@@ -315,44 +317,35 @@ export function OfficialStandingsBoard({ standings, highlightClubId, editionId =
   );
 }
 
+function FixtureTeam({ team, side }) {
+  const content = <><span className="fixture-team-name">{team.name}</span><ClubCrest club={team.club} size="md" decorative /></>;
+  return team.href
+    ? <AppLink className={`fixture-team fixture-team-${side}`} to={team.href}>{content}</AppLink>
+    : <div className={`fixture-team fixture-team-${side}`}>{content}</div>;
+}
+
 export function FixtureCard({ match, emphasize = false, showMatchday = false, showDate = true, clubsById: suppliedClubsById }) {
   const currentClubsById = useClubsById();
   const clubsById = suppliedClubsById ?? currentClubsById;
-  const home = clubsById[match.homeClubId];
-  const away = clubsById[match.awayClubId];
-  const status = getMatchStatus(match);
-  const hasPenalties = isOfficialResult(match) && Number.isFinite(match.penalties?.home) && Number.isFinite(match.penalties?.away);
-  const score = isOfficialResult(match) ? `${match.score.home} – ${match.score.away}` : "VS";
-  const fixtureLabel = [
-    match.stage,
-    showMatchday && `Jornada ${String(match.matchdayNumber).padStart(2, "0")}`,
-    showDate && match.dateLabel,
-    `Partido ${String(match.order).padStart(2, "0")}`,
-  ].filter(Boolean).join(" · ");
+  const card = getFixtureCardModel(match, clubsById, { showMatchday, showDate });
   return (
-    <article className={`fixture-card ${emphasize ? "is-emphasized" : ""}`}>
-      <div className="fixture-meta">
-        <span>{fixtureLabel}</span>
-        <StatusBadge tone={status.tone}>{status.label}</StatusBadge>
-      </div>
-      <div className="fixture-clubs">
-        <AppLink className="fixture-club fixture-home" to={clubProfilePath(home)}>
-          <span>{home?.name}</span>
-          <ClubCrest club={home} size="md" decorative />
-        </AppLink>
-        <div className={`fixture-score ${isOfficialResult(match) ? "has-result" : ""}`}>
-          <strong>{score}</strong>
-          {hasPenalties && (
-            <span className="fixture-penalty-score" aria-label={`Penaltis: ${match.penalties.home} a ${match.penalties.away}`}>
-              <small>Penaltis</small>
-              <b><i>{match.penalties.home}</i><em>VS</em><i>{match.penalties.away}</i></b>
-            </span>
-          )}
-        </div>
-        <AppLink className="fixture-club fixture-away" to={clubProfilePath(away)}>
-          <ClubCrest club={away} size="md" decorative />
-          <span>{away?.name}</span>
-        </AppLink>
+    <article className={`fixture-card ${emphasize ? "is-emphasized" : ""}`} aria-label={card.accessibleLabel}>
+      <div className="fixture-card-canvas">
+        <span className="fixture-order">{card.orderLabel}</span>
+        {card.roundLabel && <span className="fixture-round">{card.roundLabel}</span>}
+        <span className={`fixture-status fixture-status-${card.status.tone}`}>{card.status.label}</span>
+        <FixtureTeam team={card.home} side="home" />
+        <FixtureTeam team={card.away} side="away" />
+        {card.hasResult && <span className="fixture-goals fixture-goals-home">{card.homeScore}</span>}
+        <span className="fixture-versus" aria-hidden="true">VS</span>
+        {card.hasResult && <span className="fixture-goals fixture-goals-away">{card.awayScore}</span>}
+        {card.penalties && (
+          <span className="fixture-penalties" aria-label={`Penaltis: ${card.penalties.home} a ${card.penalties.away}`}>
+            <small>Penaltis</small>
+            <span><b>{card.penalties.home}</b><i>VS</i><b>{card.penalties.away}</b></span>
+          </span>
+        )}
+        {card.dateLabel && <span className="fixture-date">{card.dateLabel}</span>}
       </div>
     </article>
   );
@@ -364,7 +357,7 @@ export function OfficialMatchdayBoard({ matchday, clubsById: suppliedClubsById }
   const matches = matchday?.matches ?? [];
 
   if (!matchday || matches.length !== 6) {
-    return <div className="fixture-grid official-matchday-fallback">{matches.map((match) => <FixtureCard match={match} clubsById={clubsById} key={match.id} />)}</div>;
+    return <div className="fixture-grid official-matchday-fallback">{matches.map((match) => <FixtureCard match={match} clubsById={clubsById} key={match.id} showMatchday />)}</div>;
   }
 
   return (
@@ -421,7 +414,7 @@ export function OfficialMatchdayBoard({ matchday, clubsById: suppliedClubsById }
         </div>
       </div>
       <div className="official-board-mobile fixture-stack">
-        {matches.map((match) => <FixtureCard match={match} clubsById={clubsById} key={match.id} />)}
+        {matches.map((match) => <FixtureCard match={match} clubsById={clubsById} key={match.id} showMatchday />)}
       </div>
     </section>
   );
