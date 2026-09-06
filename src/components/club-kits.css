@@ -42,30 +42,39 @@
 .club-kits-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(12px, 3vw, 40px);
+  column-gap: 0;
+  row-gap: 12px;
   max-width: 1120px;
   margin: 0 auto;
+  padding: 0 clamp(8px, 1.5vw, 22px);
 }
 
 .club-kit {
+  position: relative;
   display: grid;
   justify-items: center;
   align-content: start;
   gap: 12px;
   min-width: 0;
   margin: 0;
+  transform: translateX(var(--kit-shift, 0)) translateY(calc(var(--kit-step, 0) * 10px));
+  transition: z-index 160ms ease;
 }
 
+.club-kit:nth-child(1) { z-index: 1; }
+.club-kit:nth-child(2) { --kit-step: 1; --kit-shift: -52%; z-index: 2; }
+.club-kit:nth-child(3) { --kit-step: 2; --kit-shift: -104%; z-index: 3; }
+.club-kit:hover { z-index: 10; }
+
 .club-kit-open {
-  display: block;
-  width: 100%;
-  max-width: 300px;
-  padding: 0;
-  border: 0;
-  border-radius: 10px;
-  background: transparent;
-  cursor: zoom-in;
+  position: relative;
+  z-index: 1;
+  transition: transform 180ms cubic-bezier(.2,.8,.2,1), filter 180ms ease;
 }
+
+.club-kit-open:hover { transform: translateY(-7px) scale(1.035); }
+
+.club-kit-open, .club-kit-open:focus-visible { display: block; width: 100%; max-width: 300px; padding: 0; border: 0; border-radius: 10px; background: transparent; cursor: zoom-in; }
 
 .club-kit-open:focus-visible { outline: 2px solid var(--green-bright); outline-offset: 4px; }
 
@@ -76,7 +85,11 @@
   height: auto;
   aspect-ratio: 1080 / 1920;
   object-fit: contain;
+  filter: drop-shadow(0 12px 12px rgba(0, 0, 0, .36));
+  transition: filter 180ms ease;
 }
+
+.club-kit-open:hover img { filter: drop-shadow(0 18px 18px rgba(0, 0, 0, .48)); }
 
 .club-kit figcaption {
   color: var(--ink);
@@ -139,6 +152,8 @@
     scrollbar-color: var(--line-strong) transparent;
   }
   .club-kit { scroll-snap-align: center; }
+  .club-kit:nth-child(2) { --kit-shift: -22%; }
+  .club-kit:nth-child(3) { --kit-shift: -44%; }
   .club-crest-dialog-backdrop.club-kits-dialog-backdrop { padding: 12px; }
   .club-crest-dialog.club-kits-dialog { height: calc(100dvh - 24px); }
 }

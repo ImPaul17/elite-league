@@ -99,11 +99,14 @@
   object-fit: contain;
   filter: none;
   transform: translateY(-50%);
+  transition: filter 160ms ease, transform 160ms ease;
 }
 .fixture-team-home .club-crest { right: 0; }
 .fixture-team-away .club-crest { left: 0; }
 .fixture-team:focus-visible { outline: 2px solid #d8d8d8; outline-offset: 5px; }
-.fixture-team:hover .fixture-team-name { color: #fff; }
+.fixture-team-name { transition: color 160ms ease; }
+.fixture-team:hover .fixture-team-name { color: var(--green-bright); }
+.fixture-team:hover .club-crest { filter: drop-shadow(0 5px 6px rgba(0, 0, 0, .42)); transform: translateY(-50%) scale(1.08); }
 .fixture-goals, .fixture-versus {
   position: absolute;
   top: 48.2%;
@@ -143,6 +146,7 @@
   .fixture-team-home { left: 4%; }
   .fixture-team-away { right: 4%; }
   .fixture-team .club-crest { top: 0; right: auto; left: 50%; width: 54px; height: 54px; transform: translateX(-50%); }
+  .fixture-team:hover .club-crest { transform: translateX(-50%) scale(1.08); }
   .fixture-team .fixture-team-name { top: 64px; right: auto; left: 0; width: 100%; transform: none; font-size: 13px; line-height: 1.15; text-align: center; }
   .fixture-goals, .fixture-versus { top: 42.3%; }
   .fixture-goals-home { left: 41%; }
