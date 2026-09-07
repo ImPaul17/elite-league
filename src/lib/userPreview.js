@@ -51,7 +51,7 @@ export function createPreviewWriteGuard() {
 export const previewWriteGuard = createPreviewWriteGuard();
 export const PREVIEW_BLOCKED_ACTIONS = [
   "signInAsDemo", "signInWithSupabase", "updatePassword", "signOut",
-  "updateMatchResult", "updateMatchdayConfiguration", "updateMatchSchedule",
+  "updateMatchResult", "clearMatchResult", "updateMatchdayConfiguration", "updateMatchSchedule",
   "addPlayer", "addNews", "saveNews", "addMatchEvent", "submitLineup", "resetDemo",
 ];
 

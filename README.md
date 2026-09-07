@@ -166,6 +166,10 @@ Solo para una base nueva: aplicar 0001, 0002, el seed y después 0003. Mantener 
 
 Aplicar `supabase/migrations/0003_username_accounts_and_news_audit.sql`: añade el usuario, el requisito de cambio de contraseña y auditoría de noticias. No modifica resultados, fechas ni miembros existentes.
 
+Para habilitar **Borrar resultado**, aplicar después `supabase/migrations/0004_clear_match_result.sql`. Esta migración solo define la operación: no elimina ningún marcador durante la instalación. El panel pide confirmación y la función comprueba el permiso administrativo, retira únicamente el resultado seleccionado, devuelve el partido a `scheduled` y conserva el marcador anterior en auditoría. No elimina el partido, horarios, alineaciones ni eventos. La clasificación deja de contar ese resultado y los eventos conservados no vuelven a contar en estadísticas hasta que se confirme de nuevo el partido.
+
+La lista de presidentes y la vista de usuario se consultan con el cliente autenticado y las políticas RLS existentes, tras comprobar `is_admin()` en el servidor; no necesitan la función Edge de cuentas. La vista sigue siendo de solo lectura, conserva la sesión administrativa y no altera la obligación real de cambiar la contraseña temporal del presidente.
+
 ### 3. Desplegar el servicio de cuentas
 
 Con la CLI autenticada en el proyecto correcto:

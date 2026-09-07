@@ -255,6 +255,7 @@ export async function loadPrivateLineups({ clubId, league }) {
 function describeAuditEvent(row) {
   const data = row.after_data ?? {};
   if (row.action === "result_confirmed") return `Resultado confirmado: ${data.home_score} — ${data.away_score}.`;
+  if (row.action === "result_cleared") return "Resultado borrado. El partido vuelve a estar por jugar.";
   if (row.action === "lineup_submitted") return "Formación 4+1 enviada.";
   if (row.action === "matchday_configured") return `Jornada configurada como ${data.status ?? "actualizada"}.`;
   if (row.action === "match_schedule_configured") return "Horario y límite de alineaciones actualizados.";
@@ -299,6 +300,12 @@ export async function saveProductionResult({ match, homeScore, awayScore, homePe
     p_home_penalty_score: homePenalties === "" || homePenalties == null ? null : Number(homePenalties),
     p_away_penalty_score: awayPenalties === "" || awayPenalties == null ? null : Number(awayPenalties),
   });
+  if (error) throw error;
+}
+
+export async function clearProductionResult({ match }) {
+  if (!supabase || !match?.databaseId) throw new Error("No se ha podido identificar el partido.");
+  const { error } = await supabase.rpc("clear_match_result", { p_match_id: match.databaseId });
   if (error) throw error;
 }
 

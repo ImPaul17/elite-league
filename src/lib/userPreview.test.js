@@ -152,7 +152,7 @@ test("sin una lectura privada explícita no se reutilizan alineaciones de la ses
 test("el guard incluye cada acción de escritura y de sesión expuesta por el contexto", () => {
   assert.deepEqual(PREVIEW_BLOCKED_ACTIONS, [
     "signInAsDemo", "signInWithSupabase", "updatePassword", "signOut",
-    "updateMatchResult", "updateMatchdayConfiguration", "updateMatchSchedule",
+    "updateMatchResult", "clearMatchResult", "updateMatchdayConfiguration", "updateMatchSchedule",
     "addPlayer", "addNews", "saveNews", "addMatchEvent", "submitLineup", "resetDemo",
   ]);
 });

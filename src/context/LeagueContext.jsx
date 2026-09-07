@@ -5,14 +5,17 @@ import {
   calculateStandings,
   flattenMatches,
   getCurrentMatchday,
+  getOfficialMatchEvents,
   isOfficialResult,
   validateLineup,
+  withoutMatchResult,
 } from "../lib/leagueEngine";
 import { clearVerifiedPasswordRecovery, hasVerifiedPasswordRecovery, initializeInvitationSession, initializePasswordRecoverySession, isSupabaseConfigured, supabase } from "../lib/supabase";
 import { createSessionSynchronizer } from "../lib/sessionSynchronizer";
 import {
   configureProductionMatchSchedule,
   configureProductionMatchday,
+  clearProductionResult,
   createProductionMatchEvent,
   createProductionPlayer,
   getProductionViewer,
@@ -100,8 +103,8 @@ export function LeagueProvider({ children }) {
     [league.clubs, league.officialStandings, matches],
   );
   const playerStatistics = useMemo(
-    () => calculatePlayerStatistics(league.players, league.matchEvents ?? [], clubsById),
-    [clubsById, league.matchEvents, league.players],
+    () => calculatePlayerStatistics(league.players, getOfficialMatchEvents(league.matchEvents ?? [], matches), clubsById),
+    [clubsById, league.matchEvents, league.players, matches],
   );
   const currentMatchday = useMemo(
     () => getCurrentMatchday(league.matchdays, league.season.currentMatchday),
@@ -334,6 +337,44 @@ export function LeagueProvider({ children }) {
         };
       });
       setLastAction({ tone: "success", message: "Resultado guardado y clasificación recalculada." });
+      return { ok: true };
+    },
+    [matches, reloadProductionLeague, viewer],
+  );
+
+  const clearMatchResult = useCallback(
+    async ({ matchId }) => {
+      if (!viewer || viewer.role !== "admin" || viewer.requiresPasswordChange || viewer.source === "preview") {
+        return { ok: false, error: "Solo administración puede borrar resultados oficiales." };
+      }
+      const targetMatch = matches.find((match) => match.id === matchId);
+      if (!targetMatch) return { ok: false, error: "No se ha encontrado el partido seleccionado." };
+      if (!targetMatch.score) return { ok: false, error: "Este partido no tiene ningún resultado guardado." };
+
+      if (viewer.source === "supabase") {
+        try {
+          await clearProductionResult({ match: targetMatch });
+          await reloadProductionLeague(viewer);
+          setLastAction({ tone: "success", message: "Resultado borrado. Partido por jugar y clasificación recalculada en el servidor." });
+          return { ok: true };
+        } catch (error) {
+          return { ok: false, error: error.message };
+        }
+      }
+
+      setLeague((previous) => ({
+        ...previous,
+        matchdays: replaceMatch(previous.matchdays, matchId, withoutMatchResult),
+        officialStandings: [],
+        auditEvents: appendAuditEvent(previous.auditEvents, {
+          actor: viewer.name,
+          action: "result_cleared",
+          target: matchId,
+          detail: `Resultado borrado: ${targetMatch.score.home} — ${targetMatch.score.away}. El partido vuelve a estar por jugar.`,
+          before: { score: targetMatch.score, penalties: targetMatch.penalties, status: targetMatch.status },
+        }),
+      }));
+      setLastAction({ tone: "success", message: "Resultado borrado. Partido por jugar y clasificación recalculada." });
       return { ok: true };
     },
     [matches, reloadProductionLeague, viewer],
@@ -633,6 +674,7 @@ export function LeagueProvider({ children }) {
       signOut,
       canManageClub,
       updateMatchResult,
+      clearMatchResult,
       updateMatchdayConfiguration,
       updateMatchSchedule,
       addPlayer,
@@ -660,6 +702,7 @@ export function LeagueProvider({ children }) {
       signOut,
       canManageClub,
       updateMatchResult,
+      clearMatchResult,
       updateMatchdayConfiguration,
       updateMatchSchedule,
       addPlayer,

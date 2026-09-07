@@ -17,6 +17,15 @@ export function isOfficialResult(match) {
   return match.status === "confirmed" && Number.isFinite(match.score?.home) && Number.isFinite(match.score?.away);
 }
 
+export function withoutMatchResult(match) {
+  return { ...match, status: "scheduled", score: null, penalties: null, resultPublishedAt: null };
+}
+
+export function getOfficialMatchEvents(events, matches) {
+  const officialMatchIds = new Set(matches.filter(isOfficialResult).map((match) => match.id));
+  return events.filter((event) => officialMatchIds.has(event.matchId));
+}
+
 export function getResultKind(match) {
   if (!isOfficialResult(match)) return null;
   if (match.score.home !== match.score.away) return "normal";

@@ -120,7 +120,7 @@ export function FormationBuilder({ clubId, match, readOnly = false, lineups }) {
 }
 
 export function ResultEditor({ match }) {
-  const { league, updateMatchResult } = useLeague();
+  const { league, viewer, updateMatchResult, clearMatchResult } = useLeague();
   const home = league.clubs.find((club) => club.id === match.homeClubId);
   const away = league.clubs.find((club) => club.id === match.awayClubId);
   const [form, setForm] = useState({
@@ -131,8 +131,10 @@ export function ResultEditor({ match }) {
   });
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [confirmClear, setConfirmClear] = useState(false);
   const busyRef = useRef(false);
   const status = getMatchStatus(match);
+  const canEdit = viewer?.role === "admin" && !viewer.requiresPasswordChange && viewer.source !== "preview";
 
   useEffect(() => {
     setForm({
@@ -142,6 +144,7 @@ export function ResultEditor({ match }) {
       awayPenalties: match.penalties?.away ?? "",
     });
     setError("");
+    setConfirmClear(false);
   }, [match.id, match.penalties?.away, match.penalties?.home, match.score?.away, match.score?.home]);
 
   function setField(name, value) {
@@ -150,7 +153,7 @@ export function ResultEditor({ match }) {
 
   async function submit(event) {
     event.preventDefault();
-    if (busyRef.current) return;
+    if (busyRef.current || confirmClear || !canEdit) return;
     busyRef.current = true;
     setBusy(true);
     setError("");
@@ -159,6 +162,23 @@ export function ResultEditor({ match }) {
       if (!result.ok) setError(result.error);
     } catch {
       setError("No se ha podido publicar el resultado. Comprueba la conexión.");
+    } finally {
+      busyRef.current = false;
+      setBusy(false);
+    }
+  }
+
+  async function clearResult() {
+    if (busyRef.current || !confirmClear || !match.score || !canEdit) return;
+    busyRef.current = true;
+    setBusy(true);
+    setError("");
+    try {
+      const result = await clearMatchResult({ matchId: match.id });
+      if (!result.ok) setError(result.error);
+      else setConfirmClear(false);
+    } catch {
+      setError("No se ha podido borrar el resultado. Comprueba la conexión.");
     } finally {
       busyRef.current = false;
       setBusy(false);
@@ -187,7 +207,17 @@ export function ResultEditor({ match }) {
         <label><span className="visually-hidden">Penaltis de {away.name}</span><input aria-label={`Penaltis de ${away.name}`} value={form.awayPenalties} inputMode="numeric" disabled={busy} onChange={(event) => setField("awayPenalties", event.target.value)} /></label>
       </div>
       {error && <p className="form-error" role="alert">{error}</p>}
-      <button className="button button-primary button-small" type="submit" disabled={busy}>{busy ? "Publicando…" : "Publicar resultado"}</button>
+      {confirmClear && <div className="result-clear-confirmation" role="alert">
+        <p>¿Borrar el resultado de {home.name} contra {away.name}? Se quitarán el marcador y los penaltis y se recalculará la clasificación. El partido volverá a estar por jugar; se conservarán su horario, alineaciones y eventos registrados.</p>
+        <div className="result-editor-actions">
+          <button className="button button-outline button-small" type="button" onClick={() => setConfirmClear(false)} disabled={busy}>Cancelar</button>
+          <button className="button button-primary button-small" type="button" onClick={clearResult} disabled={busy || !canEdit}>{busy ? "Borrando…" : "Confirmar borrado"}</button>
+        </div>
+      </div>}
+      {!confirmClear && <div className="result-editor-actions">
+        <button className="button button-primary button-small" type="submit" disabled={busy || !canEdit}>{busy ? "Publicando…" : "Publicar resultado"}</button>
+        {match.score && <button className="button button-outline button-small" type="button" onClick={() => { setError(""); setConfirmClear(true); }} disabled={busy || !canEdit}>Borrar resultado</button>}
+      </div>}
     </form>
   );
 }
