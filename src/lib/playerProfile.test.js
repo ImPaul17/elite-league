@@ -8,7 +8,8 @@ import { getClubProfile, getCompetitionEdition } from "../data/history.js";
 import { getRouteParts } from "../app/routes.js";
 import { readClubWorkspaceRoute } from "./clubWorkspace.js";
 import { PLAYER_FEATURES_ENABLED } from "./releaseFeatures.js";
-import { formatPlayerBirthDate, getPlayerDisplayName, getPlayerFullName, getPlayerSummary, PLAYER_ATTRIBUTE_GROUPS } from "./playerProfile.js";
+import { getPlayerRosterGroup, PLAYER_ROSTER_GROUPS } from "./playerPositions.js";
+import { formatPlayerBirthDate, getPlayerCardStatistics, getPlayerDisplayName, getPlayerFullName, getPlayerPositionLabel, getPlayerSummary, PLAYER_ATTRIBUTE_GROUPS } from "./playerProfile.js";
 
 const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 const player = getPlayerProfile("pol-guillem");
@@ -26,17 +27,58 @@ const sourceAttributes = {
   stamina: 25, standingtackle: 19, strength: 58, vision: 20, volleys: 11,
 };
 
-test("el piloto publica solo a Pol Guillem y una lista cerrada de datos del archivo FC25", () => {
-  assert.equal(PLAYER_PROFILES.length, 1);
+test("el catálogo conserva la ficha de Pol Guillem y una lista cerrada de datos públicos", () => {
+  assert.deepEqual(PLAYER_PROFILES.map(({ slug }) => slug), ["pol-guillem", "raul-miranda", "javi-diop", "samuel-jimenez", "fran-rios", "joan", "juan-carlos", "kike", "carlos-castro", "carlos-pelaz", "bruno-zapata", "robert", "guti"]);
   assert.deepEqual(player, {
     id: "fc25-279982", slug: "pol-guillem", sourcePlayerId: 279982, game: "FC25",
     clubId: "pico-fc", editionId: "split-3", firstName: "Pol", lastName: "Guillem",
     commonName: "", jerseyName: "P. Guillem", birthDate: "1996-06-03",
-    nationality: "España", nationalityCode: "ES", preferredFoot: "Derecha",
+    nationality: "España", nationalityCode: "ES", nationalityFlag: "/flags/es.png",
+    portrait: "/players/pol-guillem.png", preferredFoot: "Derecha",
     weakFoot: 2, skillMoves: 1, positions: ["POR"], positionGroup: "GK", shirtNumber: 1,
-    overall: 86, attributes: sourceAttributes,
+    overall: 86,
+    summary: { speed: 66 },
+    competitionStats: { editionId: "split-3", appearances: 0, goalsConceded: 0, yellowCards: 0, blueCards: 0 },
+    attributes: sourceAttributes,
   });
-  assert.doesNotMatch(JSON.stringify(PLAYER_PROFILES), /potential|appearance|headasset|contract|pacdiv|shohan|paskic|driref|defspe|phypos|[a-z]:[\\/]/i);
+  assert.doesNotMatch(JSON.stringify(PLAYER_PROFILES), /potential|appearance\b|headasset|contract|pacdiv|shohan|paskic|driref|defspe|phypos|[a-z]:[\\/]/i);
+});
+
+test("la posición de la tarjeta identifica al portero y conserva las posiciones de campo", () => {
+  assert.equal(getPlayerPositionLabel(player), "POR");
+  for (const goalkeeper of [{ positionGroup: "GK" }, { positionGroup: "POR" }, { positions: ["POR"] }, { positions: ["GK"] }]) {
+    assert.equal(getPlayerPositionLabel(goalkeeper), "POR");
+  }
+  assert.equal(getPlayerPositionLabel({ positionGroup: "DEF", positions: ["DFC", "LD"] }), "DFC · LD");
+  for (const missing of [{}, { positions: [] }, { positionGroup: "DEF" }]) {
+    assert.equal(getPlayerPositionLabel(missing), "Jugador de campo");
+  }
+});
+
+test("la tarjeta muestra el registro inicial del Split 3 y los goles encajados del portero", () => {
+  assert.deepEqual(getPlayerCardStatistics(player), [
+    { id: "appearances", label: "Partidos", value: 0 },
+    { id: "goalsConceded", label: "Goles encajados", value: 0 },
+    { id: "yellowCards", label: "Amarillas", value: 0 },
+    { id: "blueCards", label: "Azules", value: 0 },
+  ]);
+  const updated = { ...player, competitionStats: { editionId: "split-3", appearances: 2, goalsConceded: 4, yellowCards: 1, blueCards: 0 } };
+  assert.deepEqual(getPlayerCardStatistics(updated).map(({ value }) => value), [2, 4, 1, 0]);
+  const fieldPlayer = { ...player, positionGroup: "DEF", positions: ["DFC"] };
+  assert.deepEqual(getPlayerCardStatistics(fieldPlayer)[1], { id: "goals", label: "Goles", value: null });
+  assert.equal(getPlayerCardStatistics({ ...fieldPlayer, competitionStats: { ...fieldPlayer.competitionStats, goals: 3 } })[1].value, 3);
+});
+
+test("la tarjeta no inventa ceros ni mezcla registros de otras ediciones", () => {
+  for (const competitionStats of [undefined, null, {}, { ...player.competitionStats, editionId: "split-2" }]) {
+    assert.ok(getPlayerCardStatistics({ ...player, competitionStats }).every(({ value }) => value === null));
+  }
+  assert.ok(getPlayerCardStatistics({ ...player, editionId: "split-2" }).every(({ value }) => value === null));
+  assert.ok(getPlayerCardStatistics({ positions: ["POR"], competitionStats: { appearances: 2 } }).every(({ value }) => value === null));
+  for (const invalid of [undefined, null, -1, 1.5, NaN, Infinity, -Infinity, "2", true]) {
+    const competitionStats = { editionId: "split-3", appearances: invalid, goalsConceded: invalid, yellowCards: invalid, blueCards: invalid };
+    assert.ok(getPlayerCardStatistics({ ...player, competitionStats }).every(({ value }) => value === null));
+  }
 });
 
 test("el apodo tiene prioridad, conservando nombre completo, camiseta y fecha de nacimiento", () => {
@@ -64,21 +106,22 @@ test("los 34 atributos reales tienen etiqueta propia, sin omisiones, duplicados 
   for (const key of keys) assert.equal(player.attributes[key], sourceAttributes[key], key);
 });
 
-test("el resumen del portero usa cinco atributos exactos y no inventa un global de velocidad", () => {
+test("el resumen del portero muestra la velocidad global confirmada sin mezclar aceleración y sprint", () => {
   assert.deepEqual(getPlayerSummary(player), [
     { id: "gkdiving", label: "Estirada", shortLabel: "EST", value: 88 },
     { id: "gkhandling", label: "Parada", shortLabel: "PAR", value: 85 },
     { id: "gkkicking", label: "Chute", shortLabel: "CHU", value: 87 },
     { id: "gkreflexes", label: "Reflejos", shortLabel: "REF", value: 88 },
-    { id: "speed", label: "Velocidad", shortLabel: "VEL", value: null,
-      parts: [{ label: "Aceleración", value: 66 }, { label: "Sprint", value: 67 }] },
+    { id: "speed", label: "Velocidad", shortLabel: "VEL", value: 66 },
     { id: "gkpositioning", label: "Posición", shortLabel: "POS", value: 84 },
   ]);
-  assert.deepEqual(getPlayerSummary({ ...player, summary: { speed: 40, pace: 60 } }), getPlayerSummary(player));
+  assert.equal(getPlayerSummary({ ...player, summary: { speed: 40 } }).find((stat) => stat.id === "speed").value, 40);
+  assert.equal(getPlayerSummary({ ...player, summary: undefined }).find((stat) => stat.id === "speed").value, null);
+  assert.doesNotMatch(read("../pages/PlayerPage.jsx"), /Acel\. \/ Sprint|stat\.parts|player-data-note/);
 });
 
 test("el resumen de campo ofrece seis categorías y mantiene sin dato los globales desconocidos", () => {
-  const fieldPlayer = { ...player, positionGroup: "DEF", summary: { pace: 70, shooting: 0, physical: 81 } };
+  const fieldPlayer = { ...player, positionGroup: "DEF", positions: ["DFC"], summary: { pace: 70, shooting: 0, physical: 81 } };
   assert.deepEqual(getPlayerSummary(fieldPlayer).map(({ label, value }) => [label, value]), [
     ["Ritmo", 70], ["Tiro", 0], ["Pase", null], ["Regate", null], ["Defensa", null], ["Físico", 81],
   ]);
@@ -86,8 +129,8 @@ test("el resumen de campo ofrece seis categorías y mantiene sin dato los global
 });
 
 test("la ficha pertenece solo a Pico Split 3, nunca a otros clubes o temporadas", () => {
-  assert.deepEqual(getClubPlayerProfiles("pico-fc"), [player]);
-  assert.deepEqual(getClubPlayerProfiles("pico-fc", "split-3"), [player]);
+  assert.deepEqual(getClubPlayerProfiles("pico-fc"), PLAYER_PROFILES);
+  assert.deepEqual(getClubPlayerProfiles("pico-fc", "split-3"), PLAYER_PROFILES);
   for (const edition of ["split-1", "split-2", "elite-cup", "split-4", "", null]) {
     assert.deepEqual(getClubPlayerProfiles("pico-fc", edition), []);
   }
@@ -124,7 +167,8 @@ test("la ruta real abre la ficha válida y devuelve 404 para slug inexistente o 
 test("la plantilla real no filtra el piloto ni las inscripciones actuales hacia splits antiguos", async () => {
   const source = read("../components/ClubRoster.jsx").replace(/^import .+;\r?\n/gm, "").replace("export function ClubRoster", "function ClubRoster");
   const ClubRoster = await compileComponent(source, "ClubRoster", {
-    getClubPlayerProfiles, getPlayerDisplayName, AppLink: "AppLink", EmptyState: "EmptyState",
+    getClubPlayerProfiles, getPlayerDisplayName, getPlayerPositionLabel, getPlayerRosterGroup, PLAYER_ROSTER_GROUPS,
+    AppLink: "AppLink", EmptyState: "EmptyState", PlayerCard: "PlayerCard", FlagAttribution: "FlagAttribution",
   });
   const club = CLUBS.find((item) => item.id === "pico-fc");
   const current = ClubRoster({ club });

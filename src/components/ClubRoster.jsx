@@ -1,6 +1,8 @@
 import { AppLink, EmptyState } from "./ui";
 import { getClubPlayerProfiles } from "../data/playerProfiles";
-import { getPlayerDisplayName } from "../lib/playerProfile";
+import { getPlayerDisplayName, getPlayerPositionLabel } from "../lib/playerProfile";
+import { getPlayerRosterGroup, PLAYER_ROSTER_GROUPS } from "../lib/playerPositions";
+import { PlayerCard } from "./PlayerCard";
 import "./player-profile.css";
 
 export function ClubRoster({ club, players = [], editionId = "split-3", privateView = false }) {
@@ -11,17 +13,27 @@ export function ClubRoster({ club, players = [], editionId = "split-3", privateV
     ? "Los jugadores de tu equipo aparecerán aquí cuando se incorporen."
     : "Los jugadores se añadirán cuando estén registrados."} />;
 
+  const groups = [...PLAYER_ROSTER_GROUPS];
+  if ([...profiles, ...registrations].some((player) => !getPlayerRosterGroup(player))) {
+    groups.push({ id: null, label: "Sin posición" });
+  }
+
   return <div className="club-player-catalogue">
-    {profiles.length > 0 && <div className="player-roster-grid">{profiles.map((player) => <AppLink
-      to={`/jugadores/${player.slug}`} className="player-roster-card" key={player.id}
-      aria-label={`Ver ficha de ${getPlayerDisplayName(player)}`}>
-      <span className="player-roster-rating"><strong>{player.overall}</strong><small>{player.positions[0]}</small></span>
-      <span className="player-roster-identity"><strong>{getPlayerDisplayName(player)}</strong><small>{player.nationality} · {player.jerseyName}</small></span>
-      <span className="player-roster-number" aria-label={`Dorsal ${player.shirtNumber}`}>{String(player.shirtNumber).padStart(2, "0")}</span>
-      <span className="player-roster-cta">Ver ficha del jugador <span aria-hidden="true">↗</span></span>
-    </AppLink>)}</div>}
-    {registrations.length > 0 && <div className="roster-list">{registrations.map((player) => <div key={player.id}>
-      <span>{player.shirtNumber ?? "—"}</span><strong>{player.name}</strong><small>{player.positionGroup === "GK" ? "Portero" : "Jugador de campo"}</small>
-    </div>)}</div>}
+    {groups.map((group) => {
+      const groupProfiles = profiles.filter((player) => getPlayerRosterGroup(player) === group.id);
+      const groupRegistrations = registrations.filter((player) => getPlayerRosterGroup(player) === group.id);
+      return <section className="player-roster-group" key={group.id ?? "unknown"} aria-label={group.label}>
+        <h3 className="player-roster-group-title">{group.label}</h3>
+        {groupProfiles.length > 0 && <div className="player-roster-grid">{groupProfiles.map((player) => <AppLink
+          to={`/jugadores/${player.slug}`} className="player-roster-card" key={player.id}
+          aria-label={`Ver ficha de ${getPlayerDisplayName(player)}`}>
+          <PlayerCard player={player} club={club} headingAs="h4" />
+        </AppLink>)}</div>}
+        {groupRegistrations.length > 0 && <div className="roster-list">{groupRegistrations.map((player) => <div key={player.id}>
+          <span>{player.shirtNumber ?? "—"}</span><strong>{player.name}</strong><small>{getPlayerPositionLabel(player)}</small>
+        </div>)}</div>}
+        {!groupProfiles.length && !groupRegistrations.length && <p className="player-roster-group-empty">Pendiente de jugadores.</p>}
+      </section>;
+    })}
   </div>;
 }

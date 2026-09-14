@@ -1,0 +1,43 @@
+.player-card-shell { container-type: inline-size; width: 100%; min-width: 0; }
+/* All geometry scales with the original 1597 × 641 Photoshop canvas. */
+.player-card {
+  --player-card-ink: #eaeaea;
+  --player-card-position-ink: #bfc7be;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1597 / 641;
+  overflow: hidden;
+  border: 1px solid #2c302b;
+  border-radius: 4.7cqw;
+  background: radial-gradient(ellipse at 48% 52%, #1b1b1b, #151515 80%);
+  box-shadow: 0 2cqw 4cqw #0003;
+  color: var(--player-card-ink);
+  font-family: "Acumin Elite", "Arial Narrow", Arial, sans-serif;
+  font-variation-settings: "wght" 450, "wdth" 115;
+  letter-spacing: 0;
+}
+.player-card-wildcard { --player-card-ink: #d4af37; --player-card-position-ink: #d4af37; }
+.player-card dl, .player-card dd { margin: 0; }
+.player-card-portrait { position: absolute; left: 4.57%; top: 11.23%; width: 32.12%; height: 77.69%; display: flex; align-items: end; justify-content: center; overflow: hidden; border-radius: 6cqw; background: #1b1b1b; }
+.player-card-portrait img { width: 85%; height: auto; aspect-ratio: 436 / 459; object-fit: contain; object-position: center bottom; transform: scale(var(--player-portrait-scale, 1)); transform-origin: center bottom; }
+.player-card-portrait-placeholder { align-self: center; font-size: 15cqw; color: #687367; }
+.player-card-identity, .player-card-heading { display: contents; }
+.player-card-affiliations { position: absolute; left: 39.82%; top: 17.16%; width: 5.95%; display: grid; gap: 1.6cqw; }
+.player-card-nationality, .player-card-club { display: grid; justify-items: center; gap: .5cqw; font-size: 1.4cqw; line-height: 1; }
+.player-card-affiliations img { width: 100%; height: auto; aspect-ratio: 1; object-fit: contain; }
+.player-card-nationality img { border-radius: 50%; }
+.player-card-club img { width: 87%; }
+.player-card .player-card-name { position: absolute; left: 48.25%; top: 18.8%; width: 33%; margin: 0; color: var(--player-card-ink); font-size: 4.43cqw; font-weight: 450; font-variation-settings: "wght" 450, "wdth" 115; letter-spacing: -.025em; line-height: 1.12; overflow-wrap: anywhere; }
+.player-card .player-card-name-compact { font-size: 3.7cqw; }
+.player-card .player-card-details { position: absolute; left: 48.8%; top: 33%; width: 31%; display: grid; gap: 1.1cqw; }
+.player-card-dorsal { display: flex; align-items: baseline; gap: .55cqw; line-height: 1; font-style: normal; }
+.player-card-dorsal dt { font-size: 1.99cqw; font-style: normal; text-transform: uppercase; }
+.player-card-dorsal dd { font-size: 2.78cqw; font-variation-settings: "wght" 650, "wdth" 100, "slnt" 0; }
+.player-card-position dd { font-size: 1.99cqw; letter-spacing: .08em; text-transform: uppercase; color: var(--player-card-position-ink); }
+.player-card-rating { position: absolute; left: 85.1%; top: 15.1%; width: 10.1%; display: flex; flex-direction: column; align-items: center; gap: .6cqw; text-align: center; }
+.player-card-rating dt { order: 2; font-size: 1.4cqw; line-height: 1.2; text-transform: uppercase; }
+.player-card-rating dd { font-size: 8.7cqw; font-variation-settings: "wght" 700, "wdth" 85; line-height: .95; }
+.player-card-statistics { position: absolute; left: 39.6%; top: 64.5%; width: 46%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.player-card-stat { display: flex; flex-direction: column; align-items: center; gap: 1.4cqw; text-align: center; }
+.player-card-stat dt { display: grid; place-items: center; min-height: 3.2cqw; font-size: 1.5cqw; line-height: 1.12; text-transform: uppercase; }
+.player-card-stat dd { font-size: 6.27cqw; font-variation-settings: "wght" 700, "wdth" 85; line-height: 1; font-variant-numeric: tabular-nums; }

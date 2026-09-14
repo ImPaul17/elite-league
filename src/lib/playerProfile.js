@@ -1,9 +1,35 @@
+import { getPlayerPositions, getPlayerRosterGroup } from "./playerPositions.js";
+
 export function getPlayerFullName(player) {
   return [player.firstName, player.lastName].filter(Boolean).join(" ").trim();
 }
 
 export function getPlayerDisplayName(player) {
   return player.commonName?.trim() || getPlayerFullName(player);
+}
+
+function isPlayerGoalkeeper(player) {
+  return getPlayerRosterGroup(player) === "GK";
+}
+
+export function getPlayerPositionLabel(player) {
+  if (isPlayerGoalkeeper(player)) return "POR";
+  return getPlayerPositions(player).join(" · ") || "Jugador de campo";
+}
+
+export function getPlayerCardStatistics(player) {
+  // A profile snapshot belongs to one edition; missing data is not a zero.
+  const stats = player.editionId && player.competitionStats?.editionId === player.editionId
+    ? player.competitionStats : null;
+  const definitions = [
+    ["appearances", "Partidos"],
+    isPlayerGoalkeeper(player) ? ["goalsConceded", "Goles encajados"] : ["goals", "Goles"],
+    ["yellowCards", "Amarillas"],
+    ["blueCards", "Azules"],
+  ];
+  return definitions.map(([id, label]) => ({
+    id, label, value: Number.isInteger(stats?.[id]) && stats[id] >= 0 ? stats[id] : null,
+  }));
 }
 
 export function formatPlayerBirthDate(value) {
@@ -47,7 +73,7 @@ const FIELD_SUMMARY = [
 ];
 
 export function getPlayerSummary(player) {
-  if (player.positionGroup !== "GK") return FIELD_SUMMARY.map(([id, label, shortLabel]) => ({
+  if (!isPlayerGoalkeeper(player)) return FIELD_SUMMARY.map(([id, label, shortLabel]) => ({
     id, label, shortLabel, value: player.summary?.[id] ?? null,
   }));
   const attributes = player.attributes;
@@ -56,14 +82,12 @@ export function getPlayerSummary(player) {
     { id: "gkhandling", label: "Parada", shortLabel: "PAR", value: attributes.gkhandling },
     { id: "gkkicking", label: "Chute", shortLabel: "CHU", value: attributes.gkkicking },
     { id: "gkreflexes", label: "Reflejos", shortLabel: "REF", value: attributes.gkreflexes },
-    // FC25's cached CARD fields disagree with this customised player's actual
-    // attributes. No verified FC25 speed formula: show both exact inputs.
-    { id: "speed", label: "Velocidad", shortLabel: "VEL", value: null,
-      parts: [{ label: "Aceleración", value: attributes.acceleration }, { label: "Sprint", value: attributes.sprintspeed }] },
+    { id: "speed", label: "Velocidad", shortLabel: "VEL", value: player.summary?.speed ?? null },
     { id: "gkpositioning", label: "Posición", shortLabel: "POS", value: attributes.gkpositioning },
   ];
 }
 
 export function getAttributeTone(value) {
-  return value >= 80 ? "high" : value >= 60 ? "medium" : "low";
+  if (!Number.isFinite(value)) return "neutral";
+  return value >= 80 ? "high" : value >= 70 ? "good" : value >= 60 ? "medium" : value >= 40 ? "low" : "very-low";
 }
